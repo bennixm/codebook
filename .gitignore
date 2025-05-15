@@ -1,0 +1,56 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Node.js dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.*.local
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Compiled files
+dist/
+build/
+
+# Optional backup
+*.bak
+*.tmp
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Vite cache
+.vite
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# EJS view caches (if using EJS emails)
+ejs-views/emails/*.compiled.js
+
+# Misc
+coverage/
+*.tgz
+*.zip
+
+# Docker
+docker-compose.override.yml
+
+# Local MongoDB data (if stored locally for dev)
+data/db/
