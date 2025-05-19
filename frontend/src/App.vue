@@ -1,13 +1,15 @@
 <script setup>
-
+import NavBar from './components/Nav.vue'
+import Footer from './components/Footer.vue'
 </script>
 
 <template>
-    <nav>
-      <router-link to="/">Home</router-link>
-      <router-link to="/about">About</router-link>
-    </nav>
-    <router-view></router-view>
+    <NavBar />
+    
+    <main class="flex-grow p-4">
+        <router-view></router-view>
+    </main>
+    <Footer />
 </template>
 
 <style scoped>
