@@ -1,43 +1,40 @@
 <template>
-  <nav class="bg-white shadow-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16">
-
-        <div class="flex items-center">
-          <span class="text-xl font-bold text-indigo-600">MyBrand</span>
-        </div>
-
-        <div class="-mr-2 flex items-center sm:hidden">
-          <button @click="toggleMenu" type="button"
-            class="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-white hover:bg-indigo-600 focus:outline-none focus:bg-indigo-600 transition">
-            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path v-if="!isOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16" />
-              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div class="hidden sm:flex sm:items-center space-x-4">
-          <a href="#" class="text-gray-700 hover:text-indigo-600 font-medium">Home</a>
-          <a href="#" class="text-gray-700 hover:text-indigo-600 font-medium">About</a>
-          <a href="#" class="text-gray-700 hover:text-indigo-600 font-medium">Services</a>
-          <a href="#" class="text-gray-700 hover:text-indigo-600 font-medium">Contact</a>
-        </div>
-      </div>
+  <nav class="navbar">
+  <div class="navbar-container">
+  <div class="navbar-start">
+    <div class="logo"></div>
+    <div class="hidden lg:flex space-x-4 ml-6">
+            <router-link to="/" class="nav-link transition duration-150 ease-in-out">Home</router-link>
+            <router-link to="/" class="nav-link transition duration-150 ease-in-out">Blogs</router-link>
+            <router-link to="/" class="nav-link transition duration-150 ease-in-out">Support</router-link>
     </div>
-
-    <div v-if="isOpen" class="sm:hidden px-4 pb-3">
-      <a href="#" class="block py-2 text-gray-700 hover:text-indigo-600">Home</a>
-      <a href="#" class="block py-2 text-gray-700 hover:text-indigo-600">About</a>
-      <a href="#" class="block py-2 text-gray-700 hover:text-indigo-600">Services</a>
-      <a href="#" class="block py-2 text-gray-700 hover:text-indigo-600">Contact</a>
-    </div>
-  </nav>
+  </div>
+  <div class="navbar-end hidden lg:flex space-x-2">
+            <router-link to="/" class="nav-link transition duration-150 ease-in-out flex items-center space-x-4"><User class="w-5 h-5 text-gray-600" /> Login</router-link>
+            <router-link to="/" class="nav-link inset-ring-2 inset-ring-green-500 rounded-xl transition duration-150 ease-in-out flex items-center space-x-4">Join us</router-link>
+  </div>
+  <div class="lg:hidden">
+    <button class="btn btn-ghost" @click="isOpen = !isOpen">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+           viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              :d="isOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'" />
+      </svg>
+    </button>
+  </div>
+  </div>
+</nav>
+<div v-if="isOpen" class="lg:hidden px-4 py-2 space-y-2">
+            <router-link to="/" class="text-gray-700 hover:text-blue-600">Home</router-link>
+            <router-link to="/" class="text-gray-700 hover:text-blue-600">Blogs</router-link>
+            <router-link to="/" class="text-gray-700 hover:text-blue-600">Support</router-link>
+  <button class="btn btn-outline w-full">Login</button>
+  <button class="btn btn-primary w-full">Register</button>
+</div>
 </template>
 
 <script setup>
+import { Home, User, Menu } from 'lucide-vue-next'
 import { ref } from 'vue'
 const isOpen = ref(false)
 const toggleMenu = () => {
@@ -46,5 +43,5 @@ const toggleMenu = () => {
 </script>
 
 <style scoped>
-
+/* Add custom styles here if needed */
 </style>
