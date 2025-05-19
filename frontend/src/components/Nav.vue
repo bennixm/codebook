@@ -13,9 +13,9 @@
             <router-link to="/" class="nav-link transition duration-150 ease-in-out flex items-center space-x-4"><User class="w-5 h-5 text-gray-600" /> Login</router-link>
             <router-link to="/" class="nav-link inset-ring-2 inset-ring-green-500 rounded-xl transition duration-150 ease-in-out flex items-center space-x-4">Join us</router-link>
   </div>
-  <div class="lg:hidden">
+  <div class="lg:hidden flex items-center justify-center">
     <button class="btn btn-ghost" @click="isOpen = !isOpen">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-black" fill="none"
            viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round"
               :d="isOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'" />
