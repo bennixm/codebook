@@ -10,7 +10,7 @@
     </div>
   </div>
   <div class="navbar-end hidden lg:flex space-x-2">
-            <router-link to="/" class="nav-link transition duration-150 ease-in-out flex items-center space-x-4"><User class="w-5 h-5 text-gray-600" /> Login</router-link>
+            <router-link to="/authentification" class="nav-link transition duration-150 ease-in-out flex items-center space-x-4"><User class="w-5 h-5 text-gray-600" /> Login</router-link>
             <router-link to="/" class="nav-link inset-ring-2 inset-ring-green-500 rounded-xl transition duration-150 ease-in-out flex items-center space-x-4">Join us</router-link>
   </div>
   <div class="lg:hidden flex items-center justify-center">
