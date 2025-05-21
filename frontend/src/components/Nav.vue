@@ -1,47 +1,73 @@
 <template>
-  <nav class="navbar">
-  <div class="navbar-container">
-  <div class="navbar-start">
-    <div class="logo"></div>
-    <div class="hidden lg:flex space-x-4 ml-6">
-            <router-link to="/" class="nav-link transition duration-150 ease-in-out">Home</router-link>
-            <router-link to="/" class="nav-link transition duration-150 ease-in-out">Blogs</router-link>
-            <router-link to="/" class="nav-link transition duration-150 ease-in-out">Support</router-link>
+  <div class="navbar">
+  <el-menu
+    :default-active="$route.path"
+    class="el-menu-demo nav-left"
+    mode="horizontal"
+    text-color="#27ae60"
+    active-text-color="#27ae60"
+    router
+  >
+          <div class="logo">
     </div>
-  </div>
-  <div class="navbar-end hidden lg:flex space-x-2">
-            <router-link to="/authentification" class="nav-link transition duration-150 ease-in-out flex items-center space-x-4"><User class="w-5 h-5 text-gray-600" /> Login</router-link>
-            <router-link to="/" class="nav-link inset-ring-2 inset-ring-green-500 rounded-xl transition duration-150 ease-in-out flex items-center space-x-4">Join us</router-link>
-  </div>
-  <div class="lg:hidden flex items-center justify-center">
-    <button class="btn btn-ghost" @click="isOpen = !isOpen">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 stroke-black" fill="none"
-           viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              :d="isOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'" />
-      </svg>
-    </button>
-  </div>
-  </div>
-</nav>
-<div v-if="isOpen" class="lg:hidden px-4 py-2 space-y-2">
-            <router-link to="/" class="text-gray-700 hover:text-blue-600">Home</router-link>
-            <router-link to="/" class="text-gray-700 hover:text-blue-600">Blogs</router-link>
-            <router-link to="/" class="text-gray-700 hover:text-blue-600">Support</router-link>
-  <button class="btn btn-outline w-full">Login</button>
-  <button class="btn btn-primary w-full">Register</button>
+    <el-menu-item index="/">
+      <router-link to="/" class="nav-link">Home</router-link>
+    </el-menu-item>
+
+    <el-sub-menu index="/workspace">
+      <template #title>Workspace</template>
+      <el-menu-item index="/workspace/one">
+        <router-link to="/workspace/one" class="nav-link">Item One</router-link>
+      </el-menu-item>
+      <el-menu-item index="/workspace/two">
+        <router-link to="/workspace/two" class="nav-link">Item Two</router-link>
+      </el-menu-item>
+      <el-menu-item index="/workspace/three">
+        <router-link to="/workspace/three" class="nav-link">Item Three</router-link>
+      </el-menu-item>
+
+      <el-sub-menu index="/workspace/four">
+        <template #title>Item Four</template>
+        <el-menu-item index="/workspace/four/one">
+          <router-link to="/workspace/four/one" class="nav-link">Item One</router-link>
+        </el-menu-item>
+        <el-menu-item index="/workspace/four/two">
+          <router-link to="/workspace/four/two" class="nav-link">Item Two</router-link>
+        </el-menu-item>
+        <el-menu-item index="/workspace/four/three">
+          <router-link to="/workspace/four/three" class="nav-link">Item Three</router-link>
+        </el-menu-item>
+      </el-sub-menu>
+    </el-sub-menu>
+
+  </el-menu>
+   <el-menu
+    :default-active="$route.path"
+    class="el-menu-demo nav-right"
+    mode="horizontal"
+        text-color="#27ae60"
+    active-text-color="#27ae60"
+    :ellipsis="false"
+    router
+    >
+    <el-menu-item index="/authentification">
+      <router-link to="/authentification" class="nav-link"><User /> Login</router-link>
+    </el-menu-item>
+</el-menu>
 </div>
+
 </template>
 
-<script setup>
-import { Home, User, Menu } from 'lucide-vue-next'
-import { ref } from 'vue'
-const isOpen = ref(false)
-const toggleMenu = () => {
-  isOpen.value = !isOpen.value
+<script>
+import { User } from 'lucide-vue-next'
+
+export default {
+  components: {
+    User
+  }
 }
 </script>
 
 <style scoped>
-/* Add custom styles here if needed */
+
 </style>
