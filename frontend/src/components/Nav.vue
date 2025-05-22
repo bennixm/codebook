@@ -50,8 +50,8 @@
     :ellipsis="false"
     router
     >
-    <el-menu-item index="/authentification">
-      <router-link to="/authentification" class="nav-link"><User /> Login</router-link>
+    <el-menu-item index="/auth" class="login-item-nav">
+      <router-link to="/auth" class="nav-link"><User /> Login</router-link>
     </el-menu-item>
 </el-menu>
 </div>

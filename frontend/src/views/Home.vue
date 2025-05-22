@@ -5,7 +5,7 @@
     <span class="text-7xl text-black mr-4">CodeBook</span>
     <span class="text-3xl text-black max-w-2xl">Empowering Developers to Share, Learn, and Grow.</span>
     </div></div>
-    <div class="container flex justify-evenly">
+    <div class="container flex justify-evenly home-s">
             <pre ref="codeBlock" class="bg-gray-900 text-green-400 p-4 rounded-lg shadow-lg w-full max-w-2xl mx-auto overflow-x-auto">
               <code>
               const publishPost = async () => {
@@ -17,7 +17,7 @@
             </pre>
             <div class="flex flex-col justify-center">
               <span class="text-2xl text-black max-w-2xs text-center">Every snippet has a story. Share yours.</span>
-              <router-link to="/" class="nav-link inset-ring-2 inset-ring-green-500 rounded-xl transition duration-150 ease-in-out flex items-center space-x-4"><Braces class="w-5 h-5 text-green-600" /> Publish</router-link>
+              <div class="flex flex-row justify-center"><router-link to="/auth" class="click-btn btn-style701"><span>Publish</span></router-link></div>
             </div>
     </div>
 </template>
