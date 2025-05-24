@@ -93,6 +93,8 @@
 
 <script setup>
 import { ref } from 'vue'
+import api from '../api'
+
 
 const activeForm = ref('login') // 'login' or 'register'
 
@@ -119,6 +121,7 @@ const handleLogin = () => {
   })
 }
 
+const registerFormRef = ref();
 const registerForm = ref({
   email: '',
   name: '',
@@ -155,12 +158,22 @@ const registerRules = {
 }
 
 const handleRegister = () => {
-  registerFormRef.value.validate((valid) => {
+  registerFormRef.value.validate(async (valid) => {
     if (valid) {
-      alert('Register success')
+      const formData = registerForm.value; 
+
+      try {
+        const res = await api.post('http://localhost:5000/auth/register', formData);
+
+        alert('✅ Registered successfully!');
+        console.log(res.data); 
+      } catch (err) {
+        console.error(err.response?.data || err.message);
+        alert('❌ Registration failed: ' + err.response?.data?.error || err.message);
+      }
     }
-  })
-}
+  });
+};
 </script>
 
 <style scoped>
