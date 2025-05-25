@@ -315,4 +315,8 @@ body {
   .submit-button {
     font-size: 16px;
   }
+  .form-switch .el-button{
+    margin:0 !important;
+    margin-bottom: 12px !important;
+  }
 }
