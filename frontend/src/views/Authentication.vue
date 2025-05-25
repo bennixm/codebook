@@ -87,6 +87,24 @@
         <el-button type="primary" @click="handleRegister">Register</el-button>
       </el-form-item>
     </el-form>
+     <el-alert
+      v-if="showSuccessAlert"
+      title="Success"
+      type="success"
+      description="Check your email to confirm the account!"
+      show-icon
+      closable
+      @close="showSuccessAlert = false"
+    />
+    <el-alert
+      v-if="showErrorAlert"
+      title="Error"
+      type="error"
+      :description="errorMessage"
+      show-icon
+      closable
+      @close="showErrorAlert = false"
+    />
   </div>
   </div>
 </template>
@@ -99,9 +117,8 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 
-const activeForm = ref('login') // 'login' or 'register'
+const activeForm = ref('login')
 
-// Login form
 const loginFormRef = ref()
 const loginForm = ref({
   email: '',
@@ -129,9 +146,6 @@ const handleLogin = async () => {
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userId);
       localStorage.setItem('username', username);
-
-      alert('✅ Login successful!');
-      
       
        router.push('/profile');
 
@@ -148,8 +162,12 @@ const registerForm = ref({
   name: '',
   username: '',
   password: '',
-  accepted: false, // new
+  accepted: false, 
 })
+
+const showSuccessAlert = ref(false);
+const showErrorAlert = ref(false);
+const errorMessage = ref('');
 
 const registerRules = {
   email: [
@@ -186,11 +204,27 @@ const handleRegister = () => {
       try {
         const res = await api.post('http://localhost:5000/auth/register', formData);
 
-        alert('✅ Registered successfully!');
+        showErrorAlert.value = false;
+
+        registerForm.value = {
+          email: '',
+          name: '',
+          username: '',
+          password: '',
+          accepted: false,
+        };
+
+        setTimeout(() => {
+          activeForm.value = 'login';
+          showSuccessAlert.value = true; 
+        }, 1500);
+
         console.log(res.data); 
       } catch (err) {
         console.error(err.response?.data || err.message);
-        alert('❌ Registration failed: ' + err.response?.data?.error || err.message);
+        errorMessage.value = 'Registration failed: ' + (err.response?.data?.error || err.message);
+        showErrorAlert.value = true;
+        showSuccessAlert.value = false;
       }
     }
   });

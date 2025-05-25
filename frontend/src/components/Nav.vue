@@ -14,6 +14,10 @@
       <router-link to="/" class="nav-link">Home</router-link>
     </el-menu-item>
 
+    <el-menu-item index="/blogs">
+      <router-link to="/blogs" class="nav-link">Blogs</router-link>
+    </el-menu-item>
+
     <el-sub-menu index="/workspace">
       <template #title>Workspace</template>
       <el-menu-item index="/workspace/one">
