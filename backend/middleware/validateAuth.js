@@ -26,6 +26,15 @@ const validateUserRules = [
     })
 ];
 
+const validateLoginRules = [
+  body('email')
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Invalid email format'),
+
+  body('password')
+    .notEmpty().withMessage('Password is required')
+];
+
 const validateUser = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -38,5 +47,6 @@ const validateUser = (req, res, next) => {
 
 module.exports = {
   validateUserRules,
+  validateLoginRules,
   validateUser
 };
