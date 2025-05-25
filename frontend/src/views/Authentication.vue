@@ -93,6 +93,11 @@
 
 <script setup>
 import { ref } from 'vue'
+import api from '../api'
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
 
 const activeForm = ref('login') // 'login' or 'register'
 
@@ -111,14 +116,33 @@ const loginRules = {
     { required: true, message: 'Password is required', trigger: 'blur' },
   ],
 }
-const handleLogin = () => {
-  loginFormRef.value.validate((valid) => {
-    if (valid) {
-      alert('Login success')
-    }
-  })
-}
+const handleLogin = async () => {
+  loginFormRef.value.validate(async (valid) => {
+    if (!valid) return;
 
+    try {
+      const response = await api.post('/auth/login', loginForm.value);
+
+      const { token, userId, username } = response.data;
+
+      
+      localStorage.setItem('token', token);
+      localStorage.setItem('userId', userId);
+      localStorage.setItem('username', username);
+
+      alert('✅ Login successful!');
+      
+      
+       router.push('/profile');
+
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.error || 'Login failed');
+    }
+  });
+};
+
+const registerFormRef = ref();
 const registerForm = ref({
   email: '',
   name: '',
@@ -155,12 +179,22 @@ const registerRules = {
 }
 
 const handleRegister = () => {
-  registerFormRef.value.validate((valid) => {
+  registerFormRef.value.validate(async (valid) => {
     if (valid) {
-      alert('Register success')
+      const formData = registerForm.value; 
+
+      try {
+        const res = await api.post('http://localhost:5000/auth/register', formData);
+
+        alert('✅ Registered successfully!');
+        console.log(res.data); 
+      } catch (err) {
+        console.error(err.response?.data || err.message);
+        alert('❌ Registration failed: ' + err.response?.data?.error || err.message);
+      }
     }
-  })
-}
+  });
+};
 </script>
 
 <style scoped>

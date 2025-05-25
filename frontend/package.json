@@ -10,8 +10,9 @@
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.5.10",
+    "axios": "^1.9.0",
     "daisyui": "^5.0.35",
-    "element-plus": "^2.9.10",
+    "element-plus": "^2.9.11",
     "gsap": "^3.13.0",
     "lucide-vue-next": "^0.511.0",
     "three": "^0.176.0",
