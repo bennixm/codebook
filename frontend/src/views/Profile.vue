@@ -1,56 +1,57 @@
 <template>
-    <div class="profile-page">
-      <h2>User Profile</h2>
-  
-      <el-card v-if="user" class="profile-card">
-        <p><strong>Name:</strong> {{ user.name }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <p><strong>Username:</strong> {{ user.username }}</p>
-        <el-button type="primary" @click="handleLogout">Logout</el-button>
-      </el-card>
-      <el-skeleton v-else animated rows="4" />
+  <div class="container">
+    <div class="profile">
+      <el-avatar :size="60" src="https://example.com/avatar.jpg" />
+      <div class="info">
+        <h2>{{ user.name }} <span class="handle">@{{ user.username }}</span></h2>
+        <p class="email">{{ user.email }}</p>
+        <p class="tagline">Tinker. Write. Share your code journey.</p>
+      </div>
     </div>
 
-     <router-view />
+    <el-divider />
+
+  <div class="profile-layout">
+      <el-page-header content="Account Settings" class="mb-4" />
+
+      <el-tabs v-model="activeTab" type="card" @tab-click="onTabChange">
+        <el-tab-pane label="Profile Settings" name="settings" />
+        <el-tab-pane label="Reset Password" name="reset-password" />
+        <el-tab-pane label="Security" name="security" />
+      </el-tabs>
+
+      <router-view class="mt-4" />
+  </div>
+  </div>
   </template>
   
   <script setup>
-  import { ref, onMounted } from 'vue';
-  import { useRouter } from 'vue-router';
-  import secureApi from '../secureApi';
-  
-  const user = ref(null);
-  const router = useRouter();
-  
-  const fetchProfile = async () => {
-    try {
-      const res = await secureApi.get('/user/profile'); 
-      user.value = res.data;
-    } catch (err) {
-      console.error(err);
-      localStorage.removeItem('token');
-       router.push('/auth'); 
-    }
-  };
+  import { ref, onMounted, watch } from 'vue';
+  import { useRoute, useRouter } from 'vue-router'
+  import { useAuth } from '../composables/useAuth';
 
-  
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    router.push('/auth');
-  };
-  
+  const { user, fetchProfile, handleLogout } = useAuth();
+  const route = useRoute()
+  const router = useRouter()
+
+  const activeTab = ref(route.name === 'ResetPassword' ? 'reset-password' :
+                      route.name === 'SecuritySettings' ? 'security' : 'settings')
+
+  watch(() => route.name, (newName) => {
+    if (newName === 'ResetPassword') activeTab.value = 'reset-password'
+    else if (newName === 'SecuritySettings') activeTab.value = 'security'
+    else activeTab.value = 'settings'
+  })
+
+  function onTabChange(tab) {
+    router.push(`/profile/${tab.name}`)
+  }
+
   onMounted(fetchProfile);
   
   </script>
   
   <style scoped>
-  .profile-page {
-    max-width: 600px;
-    margin: 2rem auto;
-    padding: 1rem;
-  }
-  .profile-card {
-    margin-top: 1rem;
-  }
+ 
   </style>
   
