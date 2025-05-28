@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuth } from '../composables/useAuth';
 import Home from '../views/Home.vue'
 import Authentication from '../views/Authentication.vue'
 import Blogs from '../views/Blogs.vue'
@@ -39,7 +40,6 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
-})
-
+});
 
 export default router
