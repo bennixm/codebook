@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /auth
+Disallow: /profile
+Disallow: /drafts
+Disallow: /notifications
+
+Allow: /
+
+Sitemap: https://yourdomain.com/sitemap.xml

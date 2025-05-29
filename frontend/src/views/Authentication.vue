@@ -113,17 +113,18 @@
 import { ref } from 'vue'
 import api from '../api'
 import { useRouter } from 'vue-router';
+import { useAuth } from '../composables/useAuth';
 
+const { fetchProfile } = useAuth();
 const router = useRouter();
-
-
 const activeForm = ref('login')
-
 const loginFormRef = ref()
+
 const loginForm = ref({
   email: '',
   password: '',
 })
+
 const loginRules = {
   email: [
     { required: true, message: 'Email is required', trigger: 'blur' },
@@ -133,6 +134,7 @@ const loginRules = {
     { required: true, message: 'Password is required', trigger: 'blur' },
   ],
 }
+
 const handleLogin = async () => {
   loginFormRef.value.validate(async (valid) => {
     if (!valid) return;
@@ -142,16 +144,18 @@ const handleLogin = async () => {
 
       const { token, userId, username } = response.data;
 
-      
       localStorage.setItem('token', token);
       localStorage.setItem('userId', userId);
       localStorage.setItem('username', username);
-      
-       router.push('/profile');
 
+      await fetchProfile();
+
+      showErrorAlert.value = false;
+      router.push('/profile');
     } catch (err) {
-      console.error(err);
-      alert(err.response?.data?.error || 'Login failed');
+      errorMessage.value = 'Login failed: ' + (err.response?.data?.error || err.message);
+      showErrorAlert.value = true;
+      showSuccessAlert.value = false;
     }
   });
 };
@@ -203,9 +207,7 @@ const handleRegister = () => {
 
       try {
         const res = await api.post('http://localhost:5000/auth/register', formData);
-
         showErrorAlert.value = false;
-
         registerForm.value = {
           email: '',
           name: '',
@@ -213,15 +215,11 @@ const handleRegister = () => {
           password: '',
           accepted: false,
         };
-
         setTimeout(() => {
           activeForm.value = 'login';
           showSuccessAlert.value = true; 
         }, 1500);
-
-        console.log(res.data); 
       } catch (err) {
-        console.error(err.response?.data || err.message);
         errorMessage.value = 'Registration failed: ' + (err.response?.data?.error || err.message);
         showErrorAlert.value = true;
         showSuccessAlert.value = false;
