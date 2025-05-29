@@ -4,6 +4,8 @@ import Home from '../views/Home.vue'
 import Authentication from '../views/Authentication.vue'
 import Blogs from '../views/Blogs.vue'
 import Profile from '../views/Profile.vue'
+import CreateBlog from '../views/CreateBlog.vue'
+import Notifications from '../views/Notifications.vue'
 import ProfileSettings from '../views/settings/ProfileSettings.vue'
 import ResetPassword from '../views/settings/ResetPassword.vue'
 import SecuritySettings from '../views/settings/SecuritySettings.vue'
@@ -12,6 +14,8 @@ const routes = [
   { path: '/', name: 'Home', component: Home },
   { path: '/auth', name: 'Authentication', component: Authentication },
   { path: '/blogs', name: 'Blogs', component: Blogs },
+  { path: '/create-blog', name: 'CreateBlog', component: CreateBlog },
+  { path: '/notifications', name: 'Notifications', component: Notifications },
 
   {
       path: '/profile',

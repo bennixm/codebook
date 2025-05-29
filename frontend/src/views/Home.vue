@@ -25,7 +25,6 @@
 
 <script>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { Braces } from 'lucide-vue-next'
 import { gsap } from 'gsap'
 
 export default {
@@ -57,8 +56,6 @@ export default {
       } else {
         console.error('VANTA.BIRDS not loaded')
       }
-
-
       const tl = gsap.timeline({ defaults: { duration: 1, ease: 'power3.out' } })
       tl.from(title.value, { y: -50, opacity: 0 })
         .from(subtitle.value, { y: -30, opacity: 0 }, "-=0.5")

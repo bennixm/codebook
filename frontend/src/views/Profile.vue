@@ -30,7 +30,7 @@
   import { useRoute, useRouter } from 'vue-router'
   import { useAuth } from '../composables/useAuth';
 
-  const { user, fetchProfile, handleLogout } = useAuth();
+  const { user, fetchProfile} = useAuth();
   const route = useRoute()
   const router = useRouter()
 
@@ -47,7 +47,11 @@
     router.push(`/profile/${tab.name}`)
   }
 
-  onMounted(fetchProfile);
+  onMounted(() => {
+    if (!user.value) {
+      fetchProfile();
+    }
+  });
   
   </script>
   

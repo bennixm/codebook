@@ -1,15 +1,16 @@
 <template>
-  <div class="navbar">
+  <nav class="navbar">
+    <router-link to="/" class="logo nav-left" aria-label="CodeBook Home">
+      <img src="../assets/img/logo.png" alt="CodeBook logo" />
+    </router-link>
   <el-menu
     :default-active="$route.path"
-    class="el-menu-demo nav-left"
+    class="el-menu-demo nav-center"
     mode="horizontal"
     text-color="#27ae60"
     active-text-color="#27ae60"
     router
   >
-          <div class="logo">
-    </div>
     <el-menu-item index="/">
       <router-link to="/" class="nav-link">Home</router-link>
     </el-menu-item>
@@ -33,7 +34,8 @@
     <el-dropdown trigger="hover" placement="bottom" @command="handleNotificationCommand">
       <span class="nav-link no-select">
         <router-link to="/notifications" class="notification-link">
-          <Inbox />
+          <Inbox aria-hidden="true" />
+          <span class="sr-only">Notifications</span>
         </router-link>
       </span>
 
@@ -66,7 +68,7 @@
       </span>
 
       <template #dropdown>
-        <el-dropdown-menu class="dropdown-menu" @command="handleUserCommand">
+        <el-dropdown-menu class="dropdown-menu">
           <div class="dropdown-header">Bio</div>
 
           <el-dropdown-item @click="showBioDialog = true"><SmilePlus :size="20" class="icon-nav-dropmenu"/> Set Status</el-dropdown-item>
@@ -132,7 +134,7 @@
     <el-button type="primary" @click="saveBio">Save</el-button>
   </template>
 </el-dialog>
-</div>
+</nav>
 
 </template>
 
@@ -155,20 +157,18 @@ const notifications = ref([
   { text: 'You have a new follower' }
 ])
 
-
 function saveBio() {
   console.log('Bio saved:', bioText.value);
   // Here you can call an API or emit event to store the bio
   showBioDialog.value = false;
 }
 
-
 function handleNotificationCommand(command) {
   if (command === 'view-all') {
     router.push('/notifications')
   }
 }
-function handleUserCommand(command) {
+function handleCommand(command) {
       if (command === 'logout') {
         handleLogout();
       }
