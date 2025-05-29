@@ -9,6 +9,7 @@ import Notifications from '../views/Notifications.vue'
 import ProfileSettings from '../views/settings/ProfileSettings.vue'
 import ResetPassword from '../views/settings/ResetPassword.vue'
 import SecuritySettings from '../views/settings/SecuritySettings.vue'
+import Performance from '../views/settings/Performance.vue'
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -36,6 +37,11 @@ const routes = [
           path: 'security',
           name: 'SecuritySettings',
           component: SecuritySettings
+        },
+        {
+          path: 'performance',
+          name: 'Performance',
+          component: Performance
         }
       ]
     }

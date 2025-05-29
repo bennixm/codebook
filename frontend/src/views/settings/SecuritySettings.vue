@@ -9,10 +9,6 @@
 </script>
 
 <style scoped>
-.settings-page {
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 1rem;
-}
+
 </style>
 

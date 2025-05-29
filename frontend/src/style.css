@@ -299,8 +299,9 @@ body {
 }
  .profile-layout {
   padding: 24px;
+  display:flex;
   }
-  .user-settings-header {
+.user-settings-header {
   background-color: #f9fafb;
   padding: 30px;
   border-radius: 12px;
@@ -430,6 +431,16 @@ body {
 }
 .navbar{
   border-bottom:1px solid #dcdfe6;
+}
+.profile-page{
+  margin:0 !important;
+  width:100%;
+}
+.el-menu-item.is-active{
+  color:var(--main-color) !important;
+}
+.profile-nav-txt{
+  margin-left: 5px;
 }
 @media (max-width: 1025px) {
   .notification-menu-item{
