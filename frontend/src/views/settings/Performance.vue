@@ -1,6 +1,6 @@
 <template>
   <div class="settings-page">
-    <h2>Resetpw</h2>
+    <h2>Performance</h2>
     <p>This is the settings page under profile.</p>
   </div>
 </template>
@@ -9,6 +9,5 @@
 </script>
 
 <style scoped>
-
 </style>
 

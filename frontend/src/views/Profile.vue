@@ -12,40 +12,48 @@
     <el-divider />
 
   <div class="profile-layout">
-      <el-page-header content="Account Settings" class="mb-4" />
 
-      <el-tabs v-model="activeTab" type="card" @tab-click="onTabChange">
-        <el-tab-pane label="Profile Settings" name="settings" />
-        <el-tab-pane label="Reset Password" name="reset-password" />
-        <el-tab-pane label="Security" name="security" />
-      </el-tabs>
+      <el-menu
+        class="el-menu-vertical-demo"
+        :default-active="activeMenu"
+        :router="true"
+      >
+        <el-menu-item index="/profile/settings">
+          <User />
+          <span class="profile-nav-txt">Profile Settings</span>
+        </el-menu-item>
 
-      <router-view class="mt-4" />
+        <el-menu-item index="/profile/reset-password">
+          <Lock />
+          <span class="profile-nav-txt">Password Change</span>
+        </el-menu-item>
+
+        <el-menu-item index="/profile/security">
+          <KeySquare  />
+          <span class="profile-nav-txt">Account Security</span>
+        </el-menu-item>
+
+        <el-menu-item index="/profile/performance">
+          <ChartNoAxesCombined  />
+          <span class="profile-nav-txt">Performance</span>
+        </el-menu-item>
+      </el-menu>
+
+      <router-view class="profile-page" />
   </div>
   </div>
   </template>
   
   <script setup>
-  import { ref, onMounted, watch } from 'vue';
-  import { useRoute, useRouter } from 'vue-router'
+  import { useRoute } from 'vue-router'
+  import { computed, onMounted } from 'vue';
   import { useAuth } from '../composables/useAuth';
+
+  import { User, Lock, KeySquare, ChartNoAxesCombined } from 'lucide-vue-next';
 
   const { user, fetchProfile} = useAuth();
   const route = useRoute()
-  const router = useRouter()
-
-  const activeTab = ref(route.name === 'ResetPassword' ? 'reset-password' :
-                      route.name === 'SecuritySettings' ? 'security' : 'settings')
-
-  watch(() => route.name, (newName) => {
-    if (newName === 'ResetPassword') activeTab.value = 'reset-password'
-    else if (newName === 'SecuritySettings') activeTab.value = 'security'
-    else activeTab.value = 'settings'
-  })
-
-  function onTabChange(tab) {
-    router.push(`/profile/${tab.name}`)
-  }
+  const activeMenu = computed(() => route.path)
 
   onMounted(() => {
     if (!user.value) {

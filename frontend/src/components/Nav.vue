@@ -101,6 +101,9 @@
           <router-link to="/profile/security" class="dropdown-link">
             <el-dropdown-item command="security">Security</el-dropdown-item>
           </router-link>
+          <router-link to="/profile/performance" class="dropdown-link">
+            <el-dropdown-item command="performance">Performance</el-dropdown-item>
+          </router-link>
 
           <el-dropdown-item divided class="no-padding"></el-dropdown-item>
 
