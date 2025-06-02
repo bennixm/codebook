@@ -10,6 +10,7 @@ import ProfileSettings from '../views/settings/ProfileSettings.vue'
 import ResetPassword from '../views/settings/ResetPassword.vue'
 import SecuritySettings from '../views/settings/SecuritySettings.vue'
 import Performance from '../views/settings/Performance.vue'
+import NotFound from '../views/404.vue'
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -44,6 +45,11 @@ const routes = [
           component: Performance
         }
       ]
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: NotFound
     }
 ]
 
