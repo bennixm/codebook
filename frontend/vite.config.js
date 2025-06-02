@@ -7,4 +7,7 @@ export default defineConfig({
     vue(),
     compression()
   ],
+  optimizeDeps: {
+    exclude: ['@editorjs/editorjs']
+  }
 })
