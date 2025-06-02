@@ -1,12 +1,100 @@
 <template>
-  <div class="container">
-    <div id="editorjs" class="border p-4 rounded shadow-md"></div>
-    <button @click="saveContent" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Salvează</button>
+  <div class="container space-y-6">
+    <div class="blog-block-header">
+      <div class="flex items-center">
+        <span class="mr-3 title">Create blog</span>
+        <el-tag>Draft</el-tag>
+      </div>
+    </div>
+
+    <el-divider><NotebookText /></el-divider>
+
+    <div class="blog-block flex gap-10">
+      <div class="blog-block-left w-2/3">
+        <div v-if="active === 0">
+          <el-form label-position="top" class="space-y-4">
+            <el-form-item label="Title">
+              <el-input v-model="title" placeholder="Enter blog title" />
+            </el-form-item>
+
+            <el-form-item label="Tags (Programming Languages)">
+              <el-select
+                v-model="selectedTags"
+                multiple
+                filterable
+                allow-create
+                default-first-option
+                placeholder="Select or create languages"
+              >
+                <el-option
+                  v-for="lang in programmingLanguages"
+                  :key="lang"
+                  :label="lang"
+                  :value="lang"
+                />
+              </el-select>
+            </el-form-item>
+          </el-form>
+
+          <el-divider content-position="left">Blog content</el-divider>
+          <div id="editorjs" class="p-4 rounded bg-white" />
+        </div>
+
+        <div v-else-if="active === 1">
+          <h2 class="text-xl font-bold mb-2">{{ title }}</h2>
+          <div class="mb-4">
+            <el-tag
+              v-for="tag in selectedTags"
+              :key="tag"
+              type="info"
+              class="mr-2"
+            >{{ tag }}</el-tag>
+          </div>
+
+          <div v-if="previewContent" class="border rounded p-4 bg-white prose max-w-none" v-html="previewContent"></div>
+          <div v-else class="text-gray-500 italic">No content to preview</div>
+        </div>
+
+
+        <div v-else-if="active === 2">
+          <el-result
+            icon="success"
+            title="Ready to publish"
+            sub-title="You can publish your blog or save it as a draft."
+          />
+        </div>
+      </div>
+
+      <div class="blog-block-right w-1/3">
+        <div class="blog-menu-elements">
+        <el-steps :active="active" finish-status="success">
+          <el-step title="Editor" :icon="Edit" />
+          <el-step title="Preview" :icon="Picture" />
+          <el-step title="Publish" :icon="Upload" />
+        </el-steps>
+
+        <div class="mt-6 flex flex-wrap gap-2 justify-center">
+          <el-button v-if="active > 0" @click="prev">Back</el-button>
+
+          <template v-if="active < 2">
+            <el-button type="primary" @click="next">Next</el-button>
+          </template>
+
+          <template v-else>
+            <el-button @click="saveDraft">Save as Draft</el-button>
+            <el-button type="success" @click="publish">Publish</el-button>
+          </template>
+        </div>
+      </div>
+      </div>
+    </div>
   </div>
 </template>
 
+
+
 <script setup>
-import { onMounted } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import EditorJS from '@editorjs/editorjs'
 import Header from '@editorjs/header'
 import Paragraph from '@editorjs/paragraph'
@@ -15,115 +103,158 @@ import ImageTool from '@editorjs/image'
 import TextColor from 'editorjs-text-color-plugin'
 import Marker from '@editorjs/marker'
 import InlineCode from '@editorjs/inline-code'
+import { NotebookText } from 'lucide-vue-next'
+import { Edit, Picture, Upload } from '@element-plus/icons-vue'
+import EditorJsToHtml from 'editorjs-html'
 
-let editor
+const title = ref('')
+const selectedTags = ref([])
+const previewContent = ref('')
+const active = ref(0)
+const savedEditorData = ref(null)
+
+
+const programmingLanguages = [
+  'JavaScript', 'Python', 'Java', 'C++', 'Go', 'Rust', 'TypeScript', 'Ruby', 'PHP', 'C#'
+]
+
+let editor = null
 const uploadedFiles = []
 
-onMounted(() => {
-  requestAnimationFrame(() => {
-    editor = new EditorJS({
-      holder: 'editorjs',
-      tools: {
-        header: {
-          class: Header,
-          inlineToolbar: true,
-          config: {
-            levels: [1, 2, 3],
-            defaultLevel: 2
-          }
-        },
-        paragraph: {
-          class: Paragraph,
-          inlineToolbar: ['marker', 'underline', 'textColor', 'inlineCode']
-        },
-        code: Code,
-        image: {
-          class: ImageTool,
-          config: {
-            uploader: {
-              async uploadByFile(file) {
-                uploadedFiles.push(file) // Salvăm local
-                return {
-                  success: 1,
-                  file: {
-                    url: URL.createObjectURL(file) // previzualizare temporară
-                  }
-                }
-              }
-            }
-          }
-        },
-        textColor: {
-          class: TextColor,
-          config: {
-            colorCollections: ['#FF1300', '#EC7878', '#9C27B0', '#673AB7', '#3F51B5', '#0070FF', '#03A9F4', '#00BCD4', '#4CAF50', '#8BC34A', '#CDDC39', '#FFF'],
-            defaultColor: '#FF1300',
-            type: 'text'
-          }
-        },
-        marker: Marker,
-        inlineCode: InlineCode
-      }
-    })
-  })
+const ejToHtml = EditorJsToHtml({
+  paragraph: data => `<p class="mb-4 text-base">${data.text}</p>`,
+  header: data => `<h${data.level} class="mb-2 font-bold text-lg">${data.text}</h${data.level}>`,
+  code: data => `<pre class="bg-gray-100 p-3 rounded"><code>${data.code}</code></pre>`,
+  image: data => `<img src="${data.file.url}" alt="image" class="my-4 rounded" />`
 })
 
-const saveContent = async () => {
+const initEditor = async (data = null) => {
+  editor = new EditorJS({
+    holder: 'editorjs',
+    data: data ?? undefined,
+tools: {
+  header: {
+    class: Header,
+    inlineToolbar: true,
+    config: { levels: [1, 2, 3], defaultLevel: 2 }
+  },
+  paragraph: {
+    class: Paragraph,
+    inlineToolbar: ['marker', 'underline', 'textColor', 'inlineCode']
+  },
+  code: Code,
+  image: {
+    class: ImageTool,
+    config: {
+      uploader: {
+        async uploadByFile(file) {
+          uploadedFiles.push(file)
+          return {
+            success: 1,
+            file: { url: URL.createObjectURL(file) }
+          }
+        }
+      }
+    }
+  },
+  textColor: {
+    class: TextColor,
+    config: {
+      type: 'text',
+      colorCollections: ['#FF1300', '#EC7878', '#9C27B0', '#673AB7', '#3F51B5', '#0070FF', '#03A9F4', '#00BCD4', '#4CAF50', '#8BC34A', '#CDDC39', '#FFF'],
+      defaultColor: '#FF1300',
+      customPicker: true
+    },
+    sanitize: {
+      color: true,
+      background: true
+    }
+  },
+  marker: {
+    class: Marker,
+    sanitize: {
+      class: 'marker'
+    }
+  },
+  inlineCode: InlineCode
+}
+
+  })
+
+  await editor.isReady
+}
+
+
+const destroyEditor = async () => {
+  if (editor && typeof editor.destroy === 'function') {
+    await editor.destroy()
+    editor = null
+  }
+}
+
+
+const next = async () => {
+  if (active.value < 2) active.value++
+}
+
+const prev = () => {
+  if (active.value > 0) active.value--
+}
+
+const saveDraft = () => {
+  console.log('Saving as draft...')
+}
+
+const publish = async () => {
   if (!editor) return
-
   const output = await editor.save()
-  console.log('Continut brut:', output)
 
-  // Upload real al fișierelor
   const uploadedUrls = await Promise.all(uploadedFiles.map(async (file) => {
     const formData = new FormData()
     formData.append('image', file)
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData
-    })
+    const res = await fetch('/api/upload', { method: 'POST', body: formData })
     const data = await res.json()
     return data.url
   }))
 
-  // Poți înlocui URL-urile temporare în `output.blocks` dacă vrei
-
-  console.log('Continut salvat cu imagini reale:', output)
-  console.log('Imagini urcate:', uploadedUrls)
+  console.log('Publishing blog:', {
+    title: title.value,
+    tags: selectedTags.value,
+    content: output,
+    images: uploadedUrls
+  })
 }
+
+watch(active, async (newStep, oldStep) => {
+  if (oldStep === 0 && editor) {
+    await editor.isReady
+    const output = await editor.save()
+    savedEditorData.value = output
+
+      console.log('[Editor.js output]:', output)
+      const htmlBlocks = await ejToHtml.parse(output)
+      console.log('[Parsed HTML blocks]:', htmlBlocks)
+
+    previewContent.value = Array.isArray(htmlBlocks) ? htmlBlocks.join('') : ''
+
+    await destroyEditor()
+  }
+
+  if (newStep === 0) {
+    await initEditor(savedEditorData.value)
+  }
+})
+
+onBeforeUnmount(() => {
+  destroyEditor()
+})
+
+onMounted(async () => {
+  if (active.value === 0) await initEditor()
+})
+
 </script>
 
-<style scoped>
-#editorjs {
-  min-height: 500px;
-  padding: 2rem;
-  border-radius: 1rem;
-  background-color: #ffffff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
-  font-family: 'Merriweather', serif;
-  color: #333;
-  line-height: 1.6;
-}
 
-.ce-block {
-  margin-bottom: 1.5rem;
-}
-
-.ce-paragraph {
-  font-size: 1.125rem;
-}
-
-.ce-header {
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.ce-code {
-  background: #f5f5f5;
-  font-family: 'Courier New', monospace;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  overflow-x: auto;
-  font-size: 0.95rem;
-}
+<style>
 </style>

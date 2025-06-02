@@ -477,6 +477,56 @@ body {
   height: 178px;
   text-align: center;
 }
+.blog-block{
+  display:flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.blog-block-left{
+  width:75%;
+  min-height: 70vh;
+}
+.blog-block-right{
+  width:20%;
+  display:flex;
+  align-items: center;
+}
+.blog-menu-elements{
+  width:100%;
+}
+#editorjs {
+  min-height: 500px;
+  padding: 2rem;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 1px #dcdfe6 inset;
+  font-family: 'Merriweather', serif;
+  color: #333;
+  line-height: 1.6;
+}
+.ce-block {
+  margin-bottom: 1.5rem;
+}
+.ce-paragraph {
+  font-size: 1.125rem;
+}
+.ce-header {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+.ce-code {
+  font-family: 'Courier New', monospace;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.95rem;
+}
+.blog-block-header{
+  padding-top:1rem;
+}
+.blog-block-header .title{
+  font-size:20px;
+  margin-right:1rem;
+}
 @media (max-width: 1025px) {
   .notification-menu-item{
     display:none !important;
