@@ -3,8 +3,8 @@
     <div class="profile">
       <el-avatar :size="60" src="https://example.com/avatar.jpg" />
       <div class="info">
-        <h2>{{ user.name }} <span class="handle">@{{ user.username }}</span></h2>
-        <p class="email">{{ user.email }}</p>
+        <h2>{{ auth.user.value.name }} <span class="handle">@{{ auth.user.value.username }}</span></h2>
+        <p class="email">{{ auth.user.value.email }}</p>
         <p class="tagline">Tinker. Write. Share your code journey.</p>
       </div>
     </div>
@@ -46,21 +46,17 @@
   
   <script setup>
   import { useRoute } from 'vue-router'
-  import { computed, onMounted } from 'vue';
+  import { computed } from 'vue';
   import { useAuth } from '../composables/useAuth';
 
   import { User, Lock, KeySquare, ChartNoAxesCombined } from 'lucide-vue-next';
 
-  const { user, fetchProfile} = useAuth();
+  const auth = useAuth()
   const route = useRoute()
   const activeMenu = computed(() => route.path)
 
-  onMounted(() => {
-    if (!user.value) {
-      fetchProfile();
-    }
-  });
-  
+
+
   </script>
   
   <style scoped>

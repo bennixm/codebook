@@ -30,7 +30,7 @@
     router
   >
 
-  <el-menu-item index="/notifications" v-if="authReady && user" class="notification-menu-item">
+  <el-menu-item index="/notifications" v-if="auth.authReady.value && auth.isAuthenticated.value" class="notification-menu-item">
     <el-dropdown trigger="hover" placement="bottom" @command="handleNotificationCommand">
       <span class="nav-link no-select">
         <router-link to="/notifications" class="notification-link">
@@ -60,11 +60,11 @@
     </el-dropdown>
   </el-menu-item>
 
-  <el-menu-item v-if="authReady && user">
-    <el-dropdown @command="handleCommand" trigger="click">
+  <el-menu-item v-if="auth.authReady.value && auth.isAuthenticated.value">
+    <el-dropdown trigger="click">
       <span class="user-dropdown">
         <el-avatar :size="30" src="https://example.com/avatar.jpg" />
-        <span class="username">{{ user.name }}</span>
+        <span class="username">{{ auth.user.value.name }}</span>
       </span>
 
       <template #dropdown>
@@ -107,13 +107,13 @@
 
           <el-dropdown-item divided class="no-padding"></el-dropdown-item>
 
-          <el-dropdown-item command="logout" class="logout"><LogOut :size="20" class="icon-nav-dropmenu" /> Logout</el-dropdown-item>
+          <el-dropdown-item @click="auth.logout" class="logout"><LogOut :size="20" class="icon-nav-dropmenu" /> Logout</el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>
   </el-menu-item>
 
-  <el-menu-item v-if="authReady && !user" index="/auth" class="login-item-nav">
+  <el-menu-item v-if="auth.authReady.value && !auth.isAuthenticated.value" index="/auth" class="login-item-nav">
     <router-link to="/auth" class="nav-link"><User />  Login</router-link>
   </el-menu-item>
 
@@ -147,7 +147,9 @@ import { useAuth } from '../composables/useAuth';
 
 import { User, LogOut, SmilePlus, Inbox } from 'lucide-vue-next';
 
-const { user, authReady, fetchProfile, handleLogout } = useAuth();
+const auth = useAuth();
+
+console.log(auth);
 
 const showBioDialog = ref(false);
 const bioText = ref('');
@@ -171,13 +173,7 @@ function handleNotificationCommand(command) {
     router.push('/notifications')
   }
 }
-function handleCommand(command) {
-      if (command === 'logout') {
-        handleLogout();
-      }
-}
 
-onMounted(fetchProfile);
 
 </script>
 

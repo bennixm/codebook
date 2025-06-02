@@ -152,6 +152,7 @@ const handleLogin = async () => {
 
       showErrorAlert.value = false;
       router.push('/profile');
+
     } catch (err) {
       errorMessage.value = 'Login failed: ' + (err.response?.data?.error || err.message);
       showErrorAlert.value = true;
@@ -230,9 +231,4 @@ const handleRegister = () => {
 </script>
 
 <style scoped>
-.login-form {
-  max-width: 400px;
-  margin: 0 auto;
-  padding-top: 50px;
-}
 </style>
