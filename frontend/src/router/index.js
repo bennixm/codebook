@@ -52,4 +52,20 @@ const router = createRouter({
   routes,
 });
 
-export default router
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuth();
+
+  await authStore.fetchProfile();
+
+  const isAuth = authStore.isAuthenticated.value;
+
+  if (to.path === '/auth' && isAuth) {
+    next('/');
+  } else if (to.path === '/profile' && !isAuth) {
+    next('/auth');
+  } else {
+    next();
+  }
+});
+
+export default router;
