@@ -60,11 +60,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const auth = useAuth();
-
-  if (!auth.authReady) {
-    await auth.fetchProfile();
-  }
-
+  
   const isAuth = auth.isAuthenticated;
 
   if (to.meta.requiresAuth && !isAuth) {
