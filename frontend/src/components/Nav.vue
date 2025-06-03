@@ -113,7 +113,7 @@
     </el-dropdown>
   </el-menu-item>
 
-  <el-menu-item v-if="auth.authReady && !auth.isAuthenticated" index="/auth" class="login-item-nav">
+  <el-menu-item v-if="!auth.isAuthenticated" index="/auth" class="login-item-nav">
     <router-link to="/auth" class="nav-link"><User />  Login</router-link>
   </el-menu-item>
 
