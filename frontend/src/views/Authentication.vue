@@ -142,17 +142,11 @@ const handleLogin = async () => {
     try {
       const response = await api.post('/auth/login', loginForm.value);
 
-      const { token, userId, username } = response.data;
-
-      localStorage.setItem('token', token);
-      localStorage.setItem('userId', userId);
-      localStorage.setItem('username', username);
-
       await fetchProfile();
 
       showErrorAlert.value = false;
-      router.push('/profile');
 
+      router.push('/profile');
     } catch (err) {
       errorMessage.value = 'Login failed: ' + (err.response?.data?.error || err.message);
       showErrorAlert.value = true;

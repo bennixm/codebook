@@ -30,7 +30,7 @@
     router
   >
 
-  <el-menu-item index="/notifications" v-if="auth.authReady.value && auth.isAuthenticated.value" class="notification-menu-item">
+  <el-menu-item index="/notifications" v-if="auth.authReady && auth.isAuthenticated" class="notification-menu-item">
     <el-dropdown trigger="hover" placement="bottom" @command="handleNotificationCommand">
       <span class="nav-link no-select">
         <router-link to="/notifications" class="notification-link">
@@ -60,11 +60,11 @@
     </el-dropdown>
   </el-menu-item>
 
-  <el-menu-item v-if="auth.authReady.value && auth.isAuthenticated.value">
+  <el-menu-item v-if="auth.authReady && auth.isAuthenticated">
     <el-dropdown trigger="click">
       <span class="user-dropdown">
         <el-avatar :size="30" src="https://example.com/avatar.jpg" />
-        <span class="username">{{ auth.user.value.name }}</span>
+        <span class="username">{{ auth.user.name }}</span>
       </span>
 
       <template #dropdown>
@@ -113,7 +113,7 @@
     </el-dropdown>
   </el-menu-item>
 
-  <el-menu-item v-if="auth.authReady.value && !auth.isAuthenticated.value" index="/auth" class="login-item-nav">
+  <el-menu-item v-if="auth.authReady && !auth.isAuthenticated" index="/auth" class="login-item-nav">
     <router-link to="/auth" class="nav-link"><User />  Login</router-link>
   </el-menu-item>
 
@@ -142,14 +142,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useAuth } from '../composables/useAuth';
 
 import { User, LogOut, SmilePlus, Inbox } from 'lucide-vue-next';
 
 const auth = useAuth();
-
-console.log(auth);
 
 const showBioDialog = ref(false);
 const bioText = ref('');

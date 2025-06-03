@@ -3,8 +3,8 @@
     <div class="profile">
       <el-avatar :size="60" src="https://example.com/avatar.jpg" />
       <div class="info">
-        <h2>{{ auth.user.value.name }} <span class="handle">@{{ auth.user.value.username }}</span></h2>
-        <p class="email">{{ auth.user.value.email }}</p>
+        <h2>{{ auth.user.name }} <span class="handle">@{{ auth.user.username }}</span></h2>
+        <p class="email">{{ auth.user.email }}</p>
         <p class="tagline">Tinker. Write. Share your code journey.</p>
       </div>
     </div>
@@ -54,7 +54,6 @@
   const auth = useAuth()
   const route = useRoute()
   const activeMenu = computed(() => route.path)
-
 
 
   </script>
