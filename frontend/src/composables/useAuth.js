@@ -1,40 +1,56 @@
+import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 import secureApi from '../secureApi';
+import { useRouter } from 'vue-router';
 
-const user = ref(null);
-const authReady = ref(false);
-const isAuthenticated = ref(false);
-
-export function useAuth() {
+export const useAuth = defineStore('auth', () => {
   const router = useRouter();
+  const user = ref(null);
+  const isAuthenticated = ref(false);
+  const authReady = ref(false);
+  
 
   const fetchProfile = async () => {
+
+    if (authReady.value && isAuthenticated.value) return;
+
     authReady.value = false;
     try {
+
       const res = await secureApi.get('/user/profile');
       user.value = res.data;
       isAuthenticated.value = true;
+
     } catch (err) {
-      console.error('Auth error:', err);
-      logout();
+
+        logout(false);
+
     } finally {
       authReady.value = true;
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    user.value = null;
-    isAuthenticated.value = false;
-    router.push('/auth');
-  };
+  const logout = async (shouldRedirect = true) => {
+        try {
+          await secureApi.post('/auth/logout');
+        } catch (err) {
+          console.error('Logout error:', err);
+        }
+
+        user.value = null;
+        isAuthenticated.value = false;
+        authReady.value = false;
+
+        if (shouldRedirect) {
+          router.push('/auth');
+        }
+    };
 
   return {
     user,
-    authReady,
     isAuthenticated,
+    authReady,
     fetchProfile,
     logout,
   };
-}
+});

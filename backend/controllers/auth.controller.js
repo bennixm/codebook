@@ -44,7 +44,24 @@ exports.loginUser = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: '1d'
     });
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      maxAge: 60 * 60 * 1000,
+    });
   
     res.json({ token });
   };
+
+  exports.logoutUser = (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    sameSite: 'Lax',
+    secure: process.env.NODE_ENV === 'production',
+  });
+
+  return res.status(200).json({ message: 'Logged out successfully' });
+};
   
