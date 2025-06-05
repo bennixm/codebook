@@ -45,12 +45,13 @@ exports.loginUser = async (req, res) => {
       expiresIn: '1d'
     });
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
-      maxAge: 60 * 60 * 1000,
-    });
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'Lax',
+        expires: expiresAt,
+      });
   
     res.json({ token });
   };

@@ -294,6 +294,10 @@ body {
 .el-dropdown-menu__item:not(.is-disabled):focus, .el-dropdown-menu__item:not(.is-disabled):hover{
   color: var(--main-color) !important;
   background-color: rgb(236 255 239);
+  outline:none;
+}
+.el-menu-item *{
+  outline:none;
 }
  .profile-layout {
   padding: 24px;

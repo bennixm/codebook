@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="profile">
+    <div class="profile" v-if="!hasActiveChild">
       <el-avatar :size="60" :src="auth.user.avatar || 'https://example.com/avatar.jpg'" />
 
       <div class="info">
@@ -10,9 +10,7 @@
       </div>
     </div>
 
-    <el-divider />
-
-  <div class="profile-layout">
+  <div class="profile-layout" v-else>
 
       <el-menu
         class="el-menu-vertical-demo"
@@ -55,6 +53,11 @@
   const auth = useAuth()
   const route = useRoute()
   const activeMenu = computed(() => route.path)
+
+  const hasActiveChild = computed(() =>
+  route.path.startsWith('/profile/') && route.path !== '/profile'
+  )
+
 
 
   </script>

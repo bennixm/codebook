@@ -142,6 +142,9 @@ const submitForm = async () => {
     
    await updateProfile(formData);
     ElMessage.success('Profile updated!')
+    setTimeout(() => {
+    location.reload()
+    }, 500)
   } catch (err) {
     ElMessage.error(err.response?.data?.error || 'Update failed')
   }

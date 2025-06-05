@@ -61,18 +61,19 @@
   </el-menu-item>
 
   <el-menu-item v-if="auth.authReady && auth.isAuthenticated">
-    <el-dropdown trigger="click">
+    <el-dropdown >
       <span class="user-dropdown">
-        <el-avatar :size="60" :src="auth.user.avatar || 'https://example.com/avatar.jpg'" />
+        <el-avatar :src="auth.user.avatar || 'https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/user.png?alt=media&token=6cdb89f7-73b1-40b0-9307-78ae1a06f29f'" />
 
         <span class="username">{{ auth.user.name }}</span>
       </span>
 
       <template #dropdown>
         <el-dropdown-menu class="dropdown-menu">
-          <div class="dropdown-header">Bio</div>
 
-          <el-dropdown-item @click="showBioDialog = true"><SmilePlus :size="20" class="icon-nav-dropmenu"/> Set Status</el-dropdown-item>
+          <router-link to="/profile" class="dropdown-link">
+            <el-dropdown-item command="profile"><LayoutDashboard :size="20" class="icon-nav-dropmenu"/>  Dashboard</el-dropdown-item>
+          </router-link>
 
           <div class="dropdown-header">Blog Options</div>
 
@@ -93,6 +94,7 @@
 
           <div class="dropdown-header">Profile</div>
 
+
           <router-link to="/profile/settings" class="dropdown-link">
             <el-dropdown-item command="profile">Settings</el-dropdown-item>
           </router-link>
@@ -105,6 +107,10 @@
           <router-link to="/profile/performance" class="dropdown-link">
             <el-dropdown-item command="performance">Performance</el-dropdown-item>
           </router-link>
+
+          <div class="dropdown-header">Bio</div>
+
+          <el-dropdown-item @click="showBioDialog = true"><SmilePlus :size="20" class="icon-nav-dropmenu"/> Set Status</el-dropdown-item>
 
           <el-dropdown-item divided class="no-padding"></el-dropdown-item>
 
@@ -145,8 +151,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useAuth } from '../composables/useAuth';
-
-import { User, LogOut, SmilePlus, Inbox } from 'lucide-vue-next';
+import { User, LogOut, SmilePlus, Inbox, LayoutDashboard } from 'lucide-vue-next';
 
 const auth = useAuth();
 
