@@ -6,18 +6,18 @@
       </div>
     </template>
 
-  <el-upload
-    class="avatar-uploader"
-    action="#"
-    :limit="1"
-    :file-list="fileList"
-    list-type="picture-card"
-    :before-upload="beforeUpload"
-    :on-exceed="handleExceed"
-    :on-remove="handleRemove"
-    :on-preview="handlePreview"
-    :auto-upload="false"
-  >
+    <el-upload
+  class="avatar-uploader"
+  action="#"
+  :limit="1"
+  :file-list="fileList"
+  list-type="picture-card"
+  :http-request="handleUpload"
+  :on-exceed="handleExceed"
+  :on-remove="handleRemove"
+  :on-preview="handlePreview"
+  :auto-upload="true"
+>
     <el-icon><Plus /></el-icon>
   </el-upload>
 
@@ -55,46 +55,55 @@
 
 <script setup>
 import { ref } from 'vue'
+import axios from 'axios'
+import { useAuth } from '../../composables/useAuth';
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 
 const fileList = ref([])
 const dialogVisible = ref(false)
 const dialogImageUrl = ref('')
+const form = ref({ name: '', bio: '' })
+const avatarFile = ref(null)
+const {updateProfile} = useAuth();
 
-const beforeUpload = (file) => {
-  const isImage = file.type.startsWith('image/')
-  const isLt2M = file.size / 1024 / 1024 < 2
+
+const handleUpload = (uploadRequest) => {
+  const file = uploadRequest.file; 
+ 
+
+  const isImage = file.type.startsWith('image/');
+  const isLt2M = file.size / 1024 / 1024 < 2;
 
   if (!isImage) {
-    ElMessage.error('Only image files are allowed.')
-    return false
+    ElMessage.error('Only image files are allowed.');
+    return;
   }
 
   if (!isLt2M) {
-    ElMessage.error('Image must be smaller than 2MB.')
-    return false
+    ElMessage.error('Image must be smaller than 2MB.');
+    return;
   }
 
   fileList.value = [{
     name: file.name,
     url: URL.createObjectURL(file),
     raw: file
-  }]
+  }];
 
-  return false
-}
+  avatarFile.value = file;
+};
+
 
 const handleExceed = (files) => {
   ElMessage.warning('Replacing previous image...')
   fileList.value = []
-  setTimeout(() => {
-    beforeUpload(files[0])
-  }, 100)
+  setTimeout(() => beforeUpload(files[0]), 100)
 }
 
-const handleRemove = (file, files) => {
-  fileList.value = files
+const handleRemove = () => {
+  avatarFile.value = null
+  fileList.value = []
 }
 
 const handlePreview = (file) => {
@@ -102,44 +111,43 @@ const handlePreview = (file) => {
   dialogVisible.value = true
 }
 
-const formRef = ref(null)
-const form = ref({
-  name: '',
-  bio: ''
-})
-
-const submitForm = () => {
-  const payload = {}
-
+const submitForm = async () => {
   const nameTrimmed = form.value.name.trim()
   const bioTrimmed = form.value.bio.trim()
 
-  if (nameTrimmed) {
-    if (nameTrimmed.length > 50) {
-      ElMessage.error('Name cannot exceed 50 characters.')
-      return
-    }
-    payload.name = nameTrimmed
-  }
-
-  if (bioTrimmed) {
-    if (bioTrimmed.length > 200) {
-      ElMessage.error('Bio cannot exceed 200 characters.')
-      return
-    }
-    payload.bio = bioTrimmed
-  }
-
-  if (Object.keys(payload).length === 0) {
-    ElMessage.info('Nothing to update.')
+  if (!nameTrimmed) {
+    ElMessage.error('Name is required.')
     return
   }
 
-  // Simulate API call
-  console.log('Submitting payload:', payload)
-  ElMessage.success('Profile updated!')
+  if (nameTrimmed.length > 50) {
+    ElMessage.error('Name cannot exceed 50 characters.')
+    return
+  }
+
+  if (bioTrimmed.length > 500) {
+    ElMessage.error('Bio cannot exceed 500 characters.')
+    return
+  }
+
+  const formData = new FormData()
+  formData.append('name', nameTrimmed)
+  formData.append('bio', bioTrimmed)
+
+  if (avatarFile.value) {
+    formData.append('avatar', avatarFile.value)
+  }
+
+  try {
+    
+   await updateProfile(formData);
+    ElMessage.success('Profile updated!')
+  } catch (err) {
+    ElMessage.error(err.response?.data?.error || 'Update failed')
+  }
 }
 </script>
+
 
 <style scoped>
 

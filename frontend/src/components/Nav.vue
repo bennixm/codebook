@@ -63,7 +63,8 @@
   <el-menu-item v-if="auth.authReady && auth.isAuthenticated">
     <el-dropdown trigger="click">
       <span class="user-dropdown">
-        <el-avatar :size="30" src="https://example.com/avatar.jpg" />
+        <el-avatar :size="60" :src="auth.user.avatar || 'https://example.com/avatar.jpg'" />
+
         <span class="username">{{ auth.user.name }}</span>
       </span>
 

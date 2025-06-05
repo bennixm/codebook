@@ -1,7 +1,8 @@
 <template>
   <div class="container">
     <div class="profile">
-      <el-avatar :size="60" src="https://example.com/avatar.jpg" />
+      <el-avatar :size="60" :src="auth.user.avatar || 'https://example.com/avatar.jpg'" />
+
       <div class="info">
         <h2>{{ auth.user.name }} <span class="handle">@{{ auth.user.username }}</span></h2>
         <p class="email">{{ auth.user.email }}</p>

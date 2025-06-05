@@ -29,6 +29,19 @@ export const useAuth = defineStore('auth', () => {
       authReady.value = true;
     }
   };
+  const updateProfile = async (profileData) => {
+    try {
+      const res = await secureApi.post('/user/update-profile', profileData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+  
+      await fetchProfile();
+      return { success: true };
+    } catch (err) {
+      console.error('Update profile error:', err);
+      throw err; 
+    }
+  };
 
   const logout = async (shouldRedirect = true) => {
         try {
@@ -51,6 +64,7 @@ export const useAuth = defineStore('auth', () => {
     isAuthenticated,
     authReady,
     fetchProfile,
+    updateProfile,
     logout,
   };
 });

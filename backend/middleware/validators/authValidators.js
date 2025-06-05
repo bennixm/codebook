@@ -46,7 +46,8 @@ const validateUser = (req, res, next) => {
 };
 
 module.exports = {
-  validateUserRules,
-  validateLoginRules,
-  validateUser
-};
+    validateUserRules,
+    validateLoginRules,
+    validateUser
+  };
+  

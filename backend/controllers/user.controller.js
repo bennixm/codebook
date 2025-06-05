@@ -1,7 +1,11 @@
 const User = require('../models/user');
+const admin = require('../firebase');
+const { v4: uuidv4 } = require('uuid');
 
-// controllers/user.controller.js
-exports.userProfile = async (req, res) => {
+
+const bucket = admin.storage().bucket();
+
+exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) return res.status(404).json({ error: 'User not found' });
@@ -11,19 +15,67 @@ exports.userProfile = async (req, res) => {
     res.status(500).json({ error: 'Server error: ' + err.message });
   }
 };
+
 exports.updateProfile = async (req, res) => {
-  const { name, email } = req.body;
+  const { name, bio } = req.body || {};
+  const userId = req.user.id;
+
+  let newAvatarUrl;
+
+ 
 
   try {
-    const user = await User.findById(req.user.id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log('❌ User not found');
+      return res.status(404).json({ error: 'User not found' });
+    }
 
-    user.name = name || user.name;
-    user.email = email || user.email;
+    
+    if (req.fileBuffer && req.fileMeta) {
+      const filePath = `avatars/${userId}/avatar_${Date.now()}.${req.fileMeta.ext}`;
+      const fileUpload = bucket.file(filePath);
 
-    await user.save();
-    res.json({ message: 'Profile updated successfully', user });
+      await fileUpload.save(req.fileBuffer, {
+        metadata: { contentType: req.fileMeta.mime },
+        public: true,
+      });
+
+      newAvatarUrl = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+     
+
+      if (user.avatar) {
+        const oldFilePath = extractFirebasePath(user.avatar);
+        if (oldFilePath) {
+          try {
+            await bucket.file(oldFilePath).delete();
+           
+          } catch (err) {
+            console.warn('⚠️ Failed to delete old avatar:', err.message);
+          }
+        }
+      }
+    }
+
+    user.name = name;
+    user.bio = bio;
+    if (newAvatarUrl) user.avatar = newAvatarUrl;
+
+    const updated = await user.save();
+    
+
+    res.json({ success: true, user });
   } catch (err) {
-    res.status(500).json({ error: 'Server error: ' + err.message });
+    console.error('❌ Server error:', err);
+    res.status(500).json({ error: 'Failed to update profile' });
   }
 };
+
+function extractFirebasePath(url) {
+  try {
+    const match = url.match(/https:\/\/storage\.googleapis\.com\/[^\/]+\/(.+)/);
+    return match?.[1] ?? null;
+  } catch {
+    return null;
+  }
+}

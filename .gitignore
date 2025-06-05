@@ -54,3 +54,5 @@ docker-compose.override.yml
 
 # Local MongoDB data (if stored locally for dev)
 data/db/
+firebase-service-account.json
+
