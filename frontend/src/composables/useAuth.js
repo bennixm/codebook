@@ -12,17 +12,14 @@ export const useAuth = defineStore('auth', () => {
 
   const fetchProfile = async () => {
 
-    if (authReady.value && isAuthenticated.value) return;
-
+    if (authReady.value) return;
+    
     authReady.value = false;
     try {
-
       const res = await secureApi.get('/user/profile');
       user.value = res.data;
       isAuthenticated.value = true;
-
     } catch (err) {
-
         logout(false);
 
     } finally {
