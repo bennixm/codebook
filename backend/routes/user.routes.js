@@ -1,8 +1,6 @@
 // routes/user.routes.js
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const upload = multer(); 
 const auth = require('../middleware/auth/authMiddleware');
 const {validateProfile} = require('../middleware/validators/userValidators');
 const {validateProfileImage}= require('../middleware/imageUpload')
