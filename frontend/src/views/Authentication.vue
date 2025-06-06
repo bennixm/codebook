@@ -146,7 +146,7 @@ const handleLogin = async () => {
 
       showErrorAlert.value = false;
 
-      router.push('/profile');
+      router.push('/panel/dashboard');
     } catch (err) {
       errorMessage.value = 'Login failed: ' + (err.response?.data?.error || err.message);
       showErrorAlert.value = true;

@@ -56,7 +56,7 @@
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
-import { useAuth } from '../../composables/useAuth';
+import { useAuth } from '../../../composables/useAuth';
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 

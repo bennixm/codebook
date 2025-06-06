@@ -30,10 +30,10 @@
     router
   >
 
-  <el-menu-item index="/notifications" v-if="auth.authReady && auth.isAuthenticated" class="notification-menu-item">
+  <el-menu-item index="/panel/notifications" v-if="auth.authReady && auth.isAuthenticated" class="notification-menu-item">
     <el-dropdown trigger="hover" placement="bottom" @command="handleNotificationCommand">
       <span class="nav-link no-select">
-        <router-link to="/notifications" class="notification-link">
+        <router-link to="/panel/notifications" class="notification-link">
           <Inbox aria-hidden="true" />
           <span class="sr-only">Notifications</span>
         </router-link>
@@ -71,23 +71,20 @@
       <template #dropdown>
         <el-dropdown-menu class="dropdown-menu">
 
-          <router-link to="/profile" class="dropdown-link">
-            <el-dropdown-item command="profile"><LayoutDashboard :size="20" class="icon-nav-dropmenu"/>  Dashboard</el-dropdown-item>
+          <router-link to="/panel/dashboard" class="dropdown-link">
+            <el-dropdown-item command="dashboard"><LayoutDashboard :size="20" class="icon-nav-dropmenu"/>  Dashboard</el-dropdown-item>
           </router-link>
 
           <div class="dropdown-header">Blog Options</div>
 
-          <router-link to="/create-blog" class="dropdown-link">
+          <router-link to="/panel/create-blog" class="dropdown-link">
             <el-dropdown-item command="create">Create Blog</el-dropdown-item>
           </router-link>
-          <router-link to="/my-blogs" class="dropdown-link">
+          <router-link to="/panel/my-blogs" class="dropdown-link">
             <el-dropdown-item command="myBlogs">My Blogs</el-dropdown-item>
           </router-link>
-          <router-link to="/drafts" class="dropdown-link">
+          <router-link to="/panel/drafts" class="dropdown-link">
             <el-dropdown-item command="drafts">Drafts</el-dropdown-item>
-          </router-link>
-          <router-link to="/analytics" class="dropdown-link">
-            <el-dropdown-item command="analytics">Analytics</el-dropdown-item>
           </router-link>
 
           <el-dropdown-item divided class="no-padding"></el-dropdown-item>
@@ -95,16 +92,16 @@
           <div class="dropdown-header">Profile</div>
 
 
-          <router-link to="/profile/settings" class="dropdown-link">
+          <router-link to="/panel/profile/settings" class="dropdown-link">
             <el-dropdown-item command="profile">Settings</el-dropdown-item>
           </router-link>
-          <router-link to="/profile/reset-password" class="dropdown-link">
-            <el-dropdown-item command="preferences">Reset Password</el-dropdown-item>
+          <router-link to="/panel/profile/change-password" class="dropdown-link">
+            <el-dropdown-item command="preferences">Change Password</el-dropdown-item>
           </router-link>
-          <router-link to="/profile/security" class="dropdown-link">
+          <router-link to="/panel/profile/security" class="dropdown-link">
             <el-dropdown-item command="security">Security</el-dropdown-item>
           </router-link>
-          <router-link to="/profile/performance" class="dropdown-link">
+          <router-link to="/panel/profile/performance" class="dropdown-link">
             <el-dropdown-item command="performance">Performance</el-dropdown-item>
           </router-link>
 
