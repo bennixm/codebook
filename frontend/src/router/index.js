@@ -1,57 +1,86 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
-import Home from '../views/Home.vue'
-import Authentication from '../views/Authentication.vue'
-import Blogs from '../views/Blogs.vue'
-import Profile from '../views/Profile.vue'
-import CreateBlog from '../views/CreateBlog.vue'
-import Notifications from '../views/Notifications.vue'
-import ProfileSettings from '../views/settings/ProfileSettings.vue'
-import ResetPassword from '../views/settings/ResetPassword.vue'
-import SecuritySettings from '../views/settings/SecuritySettings.vue'
-import Performance from '../views/settings/Performance.vue'
-import NotFound from '../views/404.vue'
+
+
+import Home from '../views/Home.vue';
+import Authentication from '../views/Authentication.vue';
+import Blogs from '../views/Blogs.vue';
+import NotFound from '../views/404.vue';
+
+
+import Panel from '../views/panel/Panel.vue';
+import Dashboard from '../views/panel/Dashboard.vue';
+import CreateBlog from '../views/panel/blog/CreateBlog.vue';
+import Notifications from '../views/panel/Notifications.vue';
+
+
+import Profile from '../views/panel/Profile.vue';
+import ProfileSettings from '../views/panel/settings/ProfileSettings.vue';
+import ChangePassword from '../views/panel/settings/ChangePassword.vue';
+import SecuritySettings from '../views/panel/settings/SecuritySettings.vue';
+import Performance from '../views/panel/settings/Performance.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
   { path: '/auth', name: 'Authentication', component: Authentication },
   { path: '/blogs', name: 'Blogs', component: Blogs },
-  { path: '/create-blog', name: 'CreateBlog', component: CreateBlog },
-  { path: '/notifications', name: 'Notifications', component: Notifications },
 
   {
-      path: '/profile',
-      component: Profile,
-      meta: { requiresAuth: true },
-      children: [
-        {
-          path: 'settings',
-          name: 'ProfileSettings',
-          component: ProfileSettings
-        },
-        {
-          path: 'reset-password',
-          name: 'ResetPassword',
-          component: ResetPassword
-        },
-        {
-          path: 'security',
-          name: 'SecuritySettings',
-          component: SecuritySettings
-        },
-        {
-          path: 'performance',
-          name: 'Performance',
-          component: Performance
-        }
-      ]
-    },
-    {
-      path: '/:pathMatch(.*)*',
-      name: 'NotFound',
-      component: NotFound
-    }
-]
+    path: '/panel',
+    component: Panel,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '',
+        redirect: '/panel/dashboard',
+      },
+      {
+        path: 'dashboard',
+        name: 'Dashboard',
+        component: Dashboard,
+      },
+      {
+        path: 'create-blog',
+        name: 'CreateBlog',
+        component: CreateBlog,
+      },
+      {
+        path: 'notifications',
+        name: 'Notifications',
+        component: Notifications,
+      },
+      {
+        path: 'profile',
+        component: Profile,
+        redirect: '/panel/profile/settings',
+        children: [
+          {
+            path: 'settings',
+            name: 'ProfileSettings',
+            component: ProfileSettings,
+          },
+          {
+            path: 'change-password',
+            name: 'ChangePassword',
+            component: ChangePassword,
+          },
+          {
+            path: 'security',
+            name: 'SecuritySettings',
+            component: SecuritySettings,
+          },
+          {
+            path: 'performance',
+            name: 'Performance',
+            component: Performance,
+          },
+        ],
+      },
+    ],
+  },
+
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
+];
 
 const router = createRouter({
   history: createWebHistory(),
@@ -60,7 +89,6 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const auth = useAuth();
-
   await auth.fetchProfile();
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
@@ -71,7 +99,5 @@ router.beforeEach(async (to, from, next) => {
     next();
   }
 });
-
-
 
 export default router;
