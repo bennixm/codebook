@@ -1,5 +1,5 @@
 <template>
-  <div class="container space-y-6">
+  <div class="panel-container space-y-6">
     <div class="blog-block-header">
       <div class="flex items-center">
         <span class="mr-3 title">Create blog</span>

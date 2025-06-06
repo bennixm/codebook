@@ -14,10 +14,15 @@
           <span>Dashboard</span>
         </el-menu-item>
 
-        <el-menu-item index="/panel/create-blog">
-          <el-icon><PenLine /></el-icon>
-          <span>Create Blog</span>
-        </el-menu-item>
+        <el-sub-menu index="/panel/my-blogs">
+          <template #title>
+            <el-icon><BookOpen /></el-icon>
+            <span>Blogging</span>
+          </template>
+          <el-menu-item index="/panel/my-blogs">My Blogs</el-menu-item>
+          <el-menu-item index="/panel/create-blog">Create Blog</el-menu-item>
+          <el-menu-item index="/panel/drafts">Drafts</el-menu-item>
+        </el-sub-menu>
 
         <el-menu-item index="/panel/notifications">
           <el-icon><Bell /></el-icon>
@@ -38,7 +43,7 @@
     </el-aside>
 
     <!-- Main content -->
-    <el-container>
+    <el-container class="panel">
       <el-main style="padding: 20px;">
         <router-view />
       </el-main>
@@ -55,7 +60,7 @@ import 'element-plus/es/components/aside/style/css'
 import 'element-plus/es/components/sub-menu/style/css'
 import 'element-plus/es/components/icon/style/css'
 
-import { LayoutDashboard, PenLine, Bell, ShieldUser } from 'lucide-vue-next';
+import { LayoutDashboard, BookOpen, Bell, ShieldUser } from 'lucide-vue-next';
 
 
 </script>
