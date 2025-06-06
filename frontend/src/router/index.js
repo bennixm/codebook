@@ -11,6 +11,7 @@ import NotFound from '../views/404.vue';
 import Panel from '../views/panel/Panel.vue';
 import Dashboard from '../views/panel/Dashboard.vue';
 import CreateBlog from '../views/panel/blog/CreateBlog.vue';
+import MyBlogs from '../views/panel/blog/MyBlogs.vue';
 import Notifications from '../views/panel/Notifications.vue';
 
 
@@ -43,6 +44,11 @@ const routes = [
         path: 'create-blog',
         name: 'CreateBlog',
         component: CreateBlog,
+      },
+      {
+        path: 'my-blogs',
+        name: 'MyBlogs',
+        component: MyBlogs,
       },
       {
         path: 'notifications',
