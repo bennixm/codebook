@@ -39,6 +39,21 @@ export const useAuth = defineStore('auth', () => {
       throw err; 
     }
   };
+  const changePassword = async (passwordData) => {
+        try {
+          await secureApi.post('/user/change-password', passwordData);
+         
+            await logout(false);
+         
+      
+        } catch (err) {
+         
+      const serverMsg = err.response?.data?.error 
+      || err.response?.data?.message 
+      || 'Failed to change password'
+        throw new Error(serverMsg)
+        }
+    };
 
   const logout = async (shouldRedirect = true) => {
         try {
@@ -62,6 +77,7 @@ export const useAuth = defineStore('auth', () => {
     authReady,
     fetchProfile,
     updateProfile,
+    changePassword,
     logout,
   };
 });

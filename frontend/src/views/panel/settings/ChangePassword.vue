@@ -50,6 +50,8 @@
 <script setup>
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useAuth } from '../../../composables/useAuth';
+const {changePassword} = useAuth();
 
 const formRef = ref(null)
 
@@ -82,10 +84,17 @@ const rules = {
   ]
 }
 
-const submitForm = () => {
-  formRef.value.validate((valid) => {
+const submitForm =  () => {
+  formRef.value.validate(async(valid) => {
     if (valid) {
+      try{
+        await  changePassword(form.value);
       ElMessage.success('Password changed successfully!')
+      }
+      catch (error) {
+        ElMessage.error('Failed to change password: ' + error.message)
+      }
+      
       // Handle submission logic here
     } else {
       ElMessage.error('Please correct the errors in the form.')

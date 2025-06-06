@@ -19,7 +19,35 @@ const validateProfile = [
     next();
   }
 ];
+const validatePasswordChange = [
+  body('oldPassword')
+    .notEmpty().withMessage('Current password is required'),
+
+  body('newPassword')
+    .notEmpty().withMessage('New password is required')
+    .isLength({ min: 6 }).withMessage('New password must be at least 6 characters long'),
+
+  body('confirmPassword')
+    .notEmpty().withMessage('Confirm password is required')
+    .custom((value, { req }) => {
+      if (value !== req.body.newPassword) {
+        throw new Error('Passwords do not match');
+      }
+      return true;
+    }),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: errors.array()[0].msg
+      });
+    }
+    next();
+  }
+];
 
 module.exports = {
-  validateProfile
+  validateProfile,
+  validatePasswordChange
 };

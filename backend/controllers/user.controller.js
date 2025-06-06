@@ -1,5 +1,6 @@
 const User = require('../models/user');
 const admin = require('../firebase');
+const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 
 
@@ -11,10 +12,39 @@ exports.getProfile = async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     res.json(user);
-  } catch (err) {
+  }
+  catch (err) {
     res.status(500).json({ error: 'Server error: ' + err.message });
   }
+}
+exports.changePassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const userId = req.user.id;
+
+  try {
+   
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ success: true, message: 'Password updated successfully' });
+  } catch (err) {
+    console.error('Error changing password:', err);
+    res.status(500).json({ error: 'Something went wrong: ' + err.message });
+  }
 };
+
 
 exports.updateProfile = async (req, res) => {
   const { name, bio } = req.body || {};
