@@ -29,7 +29,7 @@
           <el-form-item label="Name">
             <el-input
               v-model="form.name"
-              placeholder="Enter your name"
+             placeholder="Enter your name"
               maxlength="50"
               show-word-limit
             />
@@ -59,11 +59,15 @@ import axios from 'axios'
 import { useAuth } from '../../../composables/useAuth';
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
+const auth = useAuth()
 
 const fileList = ref([])
 const dialogVisible = ref(false)
 const dialogImageUrl = ref('')
-const form = ref({ name: '', bio: '' })
+const form = ref({
+  name: auth.user.name, 
+  bio: auth.user.bio || ''
+})
 const avatarFile = ref(null)
 const {updateProfile} = useAuth();
 
