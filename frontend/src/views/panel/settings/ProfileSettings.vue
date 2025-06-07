@@ -7,17 +7,17 @@
     </template>
 
     <el-upload
-  class="avatar-uploader"
-  action="#"
-  :limit="1"
-  :file-list="fileList"
-  list-type="picture-card"
-  :http-request="handleUpload"
-  :on-exceed="handleExceed"
-  :on-remove="handleRemove"
-  :on-preview="handlePreview"
-  :auto-upload="true"
->
+      class="avatar-uploader"
+      action="#"
+      :limit="1"
+      :file-list="fileList"
+      list-type="picture-card"
+      :http-request="handleUpload"
+      :on-exceed="handleExceed"
+      :on-remove="handleRemove"
+      :on-preview="handlePreview"
+      :auto-upload="true"
+    >
     <el-icon><Plus /></el-icon>
   </el-upload>
 

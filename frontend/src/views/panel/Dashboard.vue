@@ -47,19 +47,23 @@
       </el-col>
     </el-row>
 
-    <div class="recent-activity">
-      <h3>Recent Blog Activity</h3>
-      <el-timeline>
-        <el-timeline-item
-          v-for="(activity, index) in recentBlogs"
-          :key="index"
-          :timestamp="activity.date"
-          placement="top"
-        >
-          <strong>{{ activity.title }}</strong> — {{ activity.status }}
-        </el-timeline-item>
-      </el-timeline>
-    </div>
+    <el-row :gutter="20" class="dashboard-grid">
+      <el-col :span="6">
+        <div class="recent-activity dashboard-element">
+          <span class="dash-title">Recent activity</span>
+          <el-timeline>
+            <el-timeline-item
+              v-for="(activity, index) in recentBlogs"
+              :key="index"
+              :timestamp="activity.date"
+              placement="top"
+            >
+              <strong>{{ activity.title }}</strong> — {{ activity.status }}
+            </el-timeline-item>
+          </el-timeline>
+        </div>
+      </el-col>
+    </el-row>
 
   </div>
   </template>
