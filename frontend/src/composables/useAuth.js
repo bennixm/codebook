@@ -43,7 +43,7 @@ export const useAuth = defineStore('auth', () => {
         try {
           await secureApi.post('/user/change-password', passwordData);
          
-            await logout(false);
+            await logout(true);
          
       
         } catch (err) {

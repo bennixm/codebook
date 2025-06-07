@@ -29,7 +29,7 @@
           <el-form-item label="Name">
             <el-input
               v-model="form.name"
-              placeholder="Enter your name"
+             placeholder="Enter your name"
               maxlength="50"
               show-word-limit
             />
@@ -54,19 +54,55 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import axios from 'axios'
 import { useAuth } from '../../../composables/useAuth';
+import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
+const auth = useAuth()
 
 const fileList = ref([])
 const dialogVisible = ref(false)
 const dialogImageUrl = ref('')
-const form = ref({ name: '', bio: '' })
+
+
+
+const form = ref({
+  name: auth.user.name, 
+  bio: auth.user.bio || ''
+})
 const avatarFile = ref(null)
 const {updateProfile} = useAuth();
 
+onMounted(async () => {
+
+  if (!auth.user.avatar) {
+    fileList.value = []
+    return
+  }
+
+  try {
+    const res = await fetch(auth.user.avatar)
+    if (!res.ok) throw new Error(`Failed to load avatar: ${res.status}`)
+    const blob     = await res.blob()
+    const filename = auth.user.avatar.split('/').pop().split('?')[0] || 'avatar.jpg'
+    const file     = new File([blob], filename, { type: blob.type })
+
+    fileList.value = [{
+      uid:    'initial',
+      name:   filename,
+      status: 'success',
+      url:    URL.createObjectURL(file),
+      raw:    file
+    }]
+    avatarFile.value = file
+    dialogImageUrl.value = URL.createObjectURL(file)
+    
+  } catch (err) {
+    console.warn('Could not preload avatar:', err)
+    fileList.value = []
+  }
+})
 
 const handleUpload = (uploadRequest) => {
   const file = uploadRequest.file; 

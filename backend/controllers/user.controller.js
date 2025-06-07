@@ -50,7 +50,7 @@ exports.updateProfile = async (req, res) => {
   const { name, bio } = req.body || {};
   const userId = req.user.id;
 
-  let newAvatarUrl;
+  let newAvatarUrl='';
 
  
 
@@ -85,11 +85,21 @@ exports.updateProfile = async (req, res) => {
           }
         }
       }
+    }else {
+      const oldFilePath = extractFirebasePath(user.avatar);
+        if (oldFilePath) {
+          try {
+            await bucket.file(oldFilePath).delete();
+           
+          } catch (err) {
+            console.warn('⚠️ Failed to delete old avatar:', err.message);
+          }
+        }
     }
 
     user.name = name;
     user.bio = bio;
-    if (newAvatarUrl) user.avatar = newAvatarUrl;
+     user.avatar = newAvatarUrl;
 
     const updated = await user.save();
     
