@@ -89,13 +89,11 @@ const submitForm =  () => {
     if (valid) {
       try{
         await  changePassword(form.value);
-      ElMessage.success('Password changed successfully!')
+        ElMessage.success('Password changed successfully!')
       }
       catch (error) {
         ElMessage.error('Failed to change password: ' + error.message)
       }
-      
-      // Handle submission logic here
     } else {
       ElMessage.error('Please correct the errors in the form.')
     }

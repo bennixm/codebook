@@ -449,6 +449,9 @@ body {
 .profile-settings-card {
   max-width: 60%;
 }
+.avatar-uploader{
+  margin-bottom: 1rem;
+}
 .avatar-uploader .avatar {
   width: 178px;
   height: 178px;
@@ -572,6 +575,11 @@ body {
 }
 .side-menu .el-menu{
   border:none !important;
+}
+.dash-title{
+  font-size:20px;
+  color: #28391d;
+  font-weight:600;
 }
 
 @media (max-width: 1025px) {
