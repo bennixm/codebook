@@ -148,14 +148,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref,watch } from 'vue';
 import { useAuth } from '../composables/useAuth';
+import { ElMessage } from 'element-plus'
 import { User, LogOut, SmilePlus, Inbox, LayoutDashboard } from 'lucide-vue-next';
 
 const auth = useAuth();
+const {setBio} = useAuth();
 
 const showBioDialog = ref(false);
-const bioText = ref('');
+const bioText =  ref('');
 const notifications = ref([
   { text: 'New comment on your blog' },
   { text: 'Follower liked your post' },
@@ -165,9 +167,22 @@ const notifications = ref([
   { text: 'You have a new follower' }
 ])
 
-function saveBio() {
-  console.log('Bio saved:', bioText.value);
-  // Here you can call an API or emit event to store the bio
+watch(showBioDialog, async (open) => {
+   if (!open) return;
+   bioText.value = auth.user?.bio ?? '';
+
+ });
+
+async function saveBio() {
+ 
+  try {
+    await setBio({ bio: bioText.value });
+    ElMessage.success('Bio updated!');
+   
+    
+  } catch (error) {
+    console.error('Error saving bio:', error);
+  }
   showBioDialog.value = false;
 }
 

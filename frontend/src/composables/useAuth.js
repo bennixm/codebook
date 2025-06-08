@@ -39,6 +39,17 @@ export const useAuth = defineStore('auth', () => {
       throw err; 
     }
   };
+  const setBio = async (bioData) => {
+        try {
+          const res = await secureApi.post('/user/set-bio', bioData);
+          user.value.bio = res.data.user.bio;
+          
+          return { success: true };
+        } catch (err) {
+          console.error('Set bio error:', err);
+          throw err; 
+        }
+    }
   const changePassword = async (passwordData) => {
         try {
           await secureApi.post('/user/change-password', passwordData);
@@ -78,6 +89,7 @@ export const useAuth = defineStore('auth', () => {
     fetchProfile,
     updateProfile,
     changePassword,
+    setBio,
     logout,
   };
 });

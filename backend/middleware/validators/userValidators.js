@@ -46,8 +46,24 @@ const validatePasswordChange = [
     next();
   }
 ];
+const validateBio = [
+  body('bio')
+    .optional()
+    .isLength({ max: 200 }).withMessage('Bio must be less than 200 characters'),
+
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: errors.array()[0].msg
+      });
+    }
+    next();
+  }
+];
 
 module.exports = {
   validateProfile,
-  validatePasswordChange
+  validatePasswordChange,
+  validateBio
 };
