@@ -2,7 +2,7 @@
   <el-container style="min-height: 100vh" class="side-menu">
     <el-aside width="220px" class="side-menu-nav">
       <el-menu
-        default-active="$route.path"
+        :default-active="$route.path"
         class="el-menu-vertical-demo"
         text-color="black"
         active-text-color="#409EFF"
