@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const { sendWelcomeEmail } = require('../services/mailService');
 
 exports.createUser = async (req, res) => {
   const { name, email, username, password } = req.body;
@@ -21,6 +22,9 @@ exports.createUser = async (req, res) => {
       email,
       username,
       password
+    });
+    sendWelcomeEmail(newUser).catch(err => {
+      console.error('Failed to send welcome email:', err);
     });
 
     res.status(201).json({

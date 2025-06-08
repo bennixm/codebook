@@ -133,7 +133,7 @@
     type="textarea"
     v-model="bioText"
     placeholder="Type your bio here..."
-    rows="4"
+    :rows="4"
     maxlength="200"
     show-word-limit
     style="margin-top: 10px;"
