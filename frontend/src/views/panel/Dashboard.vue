@@ -1,12 +1,15 @@
 <template>
   <div class="dashboard panel-container">
-    <div class="profile">
+    <div class="profile dash-element">
       <el-avatar :size="60" :src="auth.user.avatar || 'https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/user.png?alt=media&token=6cdb89f7-73b1-40b0-9307-78ae1a06f29f'" />
-
       <div class="info">
-        <h2>{{ auth.user.name }} <span class="handle">@{{ auth.user.username }}</span></h2>
-        <p class="email">{{ auth.user.email }}</p>
-        <p class="tagline">Tinker. Write. Share your code journey.</p>
+        <h2>{{ auth.user.name }}</h2>
+        <span class="handle">@{{ auth.user.username }}</span>
+        <el-divider direction="vertical" />
+        <span class="handle">Blogger</span>
+      </div>
+      <div class="profile-buttons">
+        <el-button round><Pencil :size="20" class="icon-nav-dropmenu"/> Edit</el-button>
       </div>
     </div>
 
@@ -47,7 +50,7 @@
       </el-col>
     </el-row>
 
-    <el-row :gutter="20" class="dashboard-grid">
+    <el-row :gutter="20" class="dashboard-grid dash-element">
       <el-col :span="6">
         <div class="recent-activity dashboard-element">
           <span class="dash-title">Recent activity</span>
@@ -70,7 +73,8 @@
   
   <script setup>
     import { useAuth } from '../../composables/useAuth';
-    import { Document, EditPen, Bell, Setting } from '@element-plus/icons-vue'
+    import { Document, EditPen, Bell, Setting } from '@element-plus/icons-vue';
+    import { Pencil } from 'lucide-vue-next';
     const auth = useAuth()
 
     const navigate = (routeName) => {
