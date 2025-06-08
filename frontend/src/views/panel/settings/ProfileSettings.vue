@@ -1,5 +1,5 @@
 <template>
-  <el-card class="profile-settings-card">
+  <el-card class="profile-settings-card dash-element">
     <template #header>
       <div class="card-header">
         <span>Profile Settings</span>

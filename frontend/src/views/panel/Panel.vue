@@ -1,11 +1,10 @@
 <template>
   <el-container style="min-height: 100vh" class="side-menu">
-    <el-aside width="220px" style="background-color: #003b19">
+    <el-aside width="220px" class="side-menu-nav">
       <el-menu
         default-active="$route.path"
         class="el-menu-vertical-demo"
-        background-color="#003b19"
-        text-color="#fff"
+        text-color="black"
         active-text-color="#409EFF"
         router
       >

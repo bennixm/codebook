@@ -7,11 +7,9 @@
       </div>
     </div>
 
-    <el-divider><NotebookText /></el-divider>
-
     <div class="blog-block flex gap-10">
-      <div class="blog-block-left w-2/3">
-        <div v-if="active === 0">
+      <div class="blog-block-left w-2/3 dash-element">
+        <div>
           <el-form label-position="top" class="space-y-4">
             <el-form-item label="Title">
               <el-input v-model="title" placeholder="Enter blog title" />
@@ -40,7 +38,7 @@
           <div id="editorjs" class="p-4 rounded bg-white" />
         </div>
 
-        <div v-else-if="active === 1">
+        <div>
           <h2 class="text-xl font-bold mb-2">{{ title }}</h2>
           <div class="mb-4">
             <el-tag
@@ -50,37 +48,13 @@
               class="mr-2"
             >{{ tag }}</el-tag>
           </div>
-
-          <div v-if="previewContent" class="border rounded p-4 bg-white prose max-w-none" v-html="previewContent"></div>
-          <div v-else class="text-gray-500 italic">No content to preview</div>
-        </div>
-
-
-        <div v-else-if="active === 2">
-          <el-result
-            icon="success"
-            title="Ready to publish"
-            sub-title="You can publish your blog or save it as a draft."
-          />
         </div>
       </div>
 
-      <div class="blog-block-right w-1/3">
+      <div class="blog-block-right w-1/3 dash-element">
         <div class="blog-menu-elements">
-        <el-steps :active="active" finish-status="success">
-          <el-step title="Editor" :icon="Edit" />
-          <el-step title="Preview" :icon="Picture" />
-          <el-step title="Publish" :icon="Upload" />
-        </el-steps>
-
         <div class="mt-6 flex flex-wrap gap-2 justify-center">
-          <el-button v-if="active > 0" @click="prev">Back</el-button>
-
-          <template v-if="active < 2">
-            <el-button type="primary" @click="next">Next</el-button>
-          </template>
-
-          <template v-else>
+          <template>
             <el-button @click="saveDraft">Save as Draft</el-button>
             <el-button type="success" @click="publish">Publish</el-button>
           </template>
@@ -103,8 +77,6 @@ import ImageTool from '@editorjs/image'
 import TextColor from 'editorjs-text-color-plugin'
 import Marker from '@editorjs/marker'
 import InlineCode from '@editorjs/inline-code'
-import { NotebookText } from 'lucide-vue-next'
-import { Edit, Picture, Upload } from '@element-plus/icons-vue'
 import EditorJsToHtml from 'editorjs-html'
 
 const title = ref('')
@@ -193,13 +165,6 @@ const destroyEditor = async () => {
 }
 
 
-const next = async () => {
-  if (active.value < 2) active.value++
-}
-
-const prev = () => {
-  if (active.value > 0) active.value--
-}
 
 const saveDraft = () => {
   console.log('Saving as draft...')
@@ -225,32 +190,9 @@ const publish = async () => {
   })
 }
 
-watch(active, async (newStep, oldStep) => {
-  if (oldStep === 0 && editor) {
-    await editor.isReady
-    const output = await editor.save()
-    savedEditorData.value = output
-
-      console.log('[Editor.js output]:', output)
-      const htmlBlocks = await ejToHtml.parse(output)
-      console.log('[Parsed HTML blocks]:', htmlBlocks)
-
-    previewContent.value = Array.isArray(htmlBlocks) ? htmlBlocks.join('') : ''
-
-    await destroyEditor()
-  }
-
-  if (newStep === 0) {
-    await initEditor(savedEditorData.value)
-  }
-})
 
 onBeforeUnmount(() => {
   destroyEditor()
-})
-
-onMounted(async () => {
-  if (active.value === 0) await initEditor()
 })
 
 </script>
