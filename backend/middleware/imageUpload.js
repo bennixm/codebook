@@ -1,18 +1,17 @@
-import Busboy from 'busboy';
-import { fileTypeFromBuffer } from 'file-type';
+const Busboy            = require('busboy');
+const { fileTypeFromBuffer } = require('file-type');
 
 const allowedMimePrefixes = ['image/'];
-const maxFileSizeMB = 2;
+const maxFileSizeMB      = 2;
 
-export function validateProfileImage() {
+function validateProfileImage() {
   return (req, res, next) => {
-    const busboy = Busboy({ headers: req.headers });
+    const busboy       = new Busboy({ headers: req.headers });
     const bufferChunks = [];
-    let totalBytes = 0;
-    let fileProcessedPromise = Promise.resolve(); 
+    let totalBytes     = 0;
+    let fileProcessedPromise = Promise.resolve();
 
     req.body = {};
-
     let fileCount = 0;
 
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
@@ -20,19 +19,17 @@ export function validateProfileImage() {
         file.resume();
         return;
       }
-
       if (fileCount >= 1) {
         file.resume();
         return res.status(400).json({ error: 'Only one image is allowed.' });
       }
-
       fileCount++;
 
       fileProcessedPromise = new Promise((resolve, reject) => {
         file.on('data', (chunk) => {
           totalBytes += chunk.length;
           if (totalBytes > maxFileSizeMB * 1024 * 1024) {
-            reject({ error: 'Image must be smaller than 2MB.' });
+            return reject({ error: 'Image must be smaller than 2MB.' });
           }
           bufferChunks.push(chunk);
         });
@@ -40,19 +37,21 @@ export function validateProfileImage() {
         file.on('end', async () => {
           try {
             const finalBuffer = Buffer.concat(bufferChunks);
-            const fileType = await fileTypeFromBuffer(finalBuffer);
+            const fileType    = await fileTypeFromBuffer(finalBuffer);
 
-            if (!fileType || !allowedMimePrefixes.some(prefix => fileType.mime.startsWith(prefix))) {
+            if (
+              !fileType ||
+              !allowedMimePrefixes.some(prefix => fileType.mime.startsWith(prefix))
+            ) {
               return reject({ error: 'Only image files are allowed.' });
             }
 
             req.fileBuffer = finalBuffer;
-            req.fileMeta = {
+            req.fileMeta   = {
               filename,
               mime: fileType.mime,
-              ext: fileType.ext,
+              ext:  fileType.ext,
             };
-
             resolve();
           } catch (err) {
             reject({ error: 'Failed to process image.', detail: err });
@@ -70,7 +69,7 @@ export function validateProfileImage() {
     busboy.on('finish', async () => {
       try {
         await fileProcessedPromise;
-        next(); 
+        next();
       } catch (err) {
         console.error('❌ File processing error:', err);
         res.status(400).json(err);
@@ -80,3 +79,5 @@ export function validateProfileImage() {
     req.pipe(busboy);
   };
 }
+
+module.exports = { validateProfileImage };
