@@ -200,7 +200,11 @@ body {
 .el-form-item {
   margin-bottom: 27px !important;
 }
-
+.auth-container .el-form-item__label{
+  height:unset !important;
+  line-height: unset !important;
+  align-items: center;
+}
 .auth-container {
   max-width: 450px;
   margin: 0 auto;
