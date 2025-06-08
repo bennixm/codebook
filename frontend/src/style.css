@@ -299,7 +299,7 @@ body {
 }
 .el-dropdown-menu__item:not(.is-disabled):focus, .el-dropdown-menu__item:not(.is-disabled):hover{
   color: var(--main-color) !important;
-  background-color: rgb(236 255 239);
+  background-color: rgb(236 255 239) !important;
   outline:none;
 }
 .el-menu-item *{
@@ -316,8 +316,6 @@ body {
   display: flex;
   align-items: center;
   gap: 20px;
-  width:40%;
-  margin-bottom: 1rem;
 }
 .profile-buttons .el-button:hover{
    background-color: rgb(236 255 242);
@@ -325,7 +323,7 @@ body {
     color: var(--main-color);
 }
 .info{
-  width:70%;
+  width:50%;
 }
 .info h2 {
   margin: 0;
@@ -587,9 +585,6 @@ body {
 .el-badge{
   position:absolute !important;
 }
-.recent-activity {
-  margin-top: 3rem;
-}
 .side-menu-nav{
   border-right:1px solid #e4e7ec;
   background-color: #fff;
@@ -602,12 +597,28 @@ body {
   font-size:20px;
   color: var(--text-color);
   font-weight:600;
+  padding-bottom: 1rem;
+}
+.dash-element .el-timeline{
+  margin-top: 1rem;
 }
 .dash-element{
   background-color: #ffffff;
   border: 1px solid #e4e7ec;
   border-radius: 1rem;
   padding:1rem;
+}
+.dash-element .bio-status{
+  background-color: rgba(0, 167, 111, .16) !important;
+  border-radius:1rem;
+  display:flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.bio-status .bio{
+  color: var(--main-color);
+  font-size: .875rem;
 }
 .profile-buttons{
   width:30%;
