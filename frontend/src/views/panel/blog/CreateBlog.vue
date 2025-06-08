@@ -54,10 +54,8 @@
       <div class="blog-block-right w-1/3 dash-element">
         <div class="blog-menu-elements">
         <div class="mt-6 flex flex-wrap gap-2 justify-center">
-          <template>
             <el-button @click="saveDraft">Save as Draft</el-button>
             <el-button type="success" @click="publish">Publish</el-button>
-          </template>
         </div>
       </div>
       </div>
