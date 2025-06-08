@@ -37,9 +37,9 @@
         />
       </el-form-item>
 
-      <el-form-item>
-        <a href="#" class="forgot-password">Forgot Password?</a>
-      </el-form-item>
+    <el-form-item>
+      <router-link to="/forgot-password" class="forgot-password">Forgot Password?</router-link>
+    </el-form-item>
 
 
       <el-form-item>

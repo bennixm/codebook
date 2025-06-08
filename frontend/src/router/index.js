@@ -4,6 +4,8 @@ import { useAuth } from '../composables/useAuth';
 
 import Home from '../views/Home.vue';
 import Authentication from '../views/Authentication.vue';
+import ResetPassword from '../views/ResetPassword.vue';
+import ForgotPassword from '../views/ForgotPassword.vue';
 import Blogs from '../views/Blogs.vue';
 import NotFound from '../views/404.vue';
 
@@ -24,6 +26,8 @@ import Performance from '../views/panel/settings/Performance.vue';
 const routes = [
   { path: '/', name: 'Home', component: Home },
   { path: '/auth', name: 'Authentication', component: Authentication },
+  { path: '/reset-password', name: 'ResetPassword', component: ResetPassword },
+  { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
   { path: '/blogs', name: 'Blogs', component: Blogs },
 
   {
