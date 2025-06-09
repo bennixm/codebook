@@ -1,9 +1,12 @@
 const nodemailer = require('nodemailer');
+const path       = require('path');
 const Mailgen    = require('mailgen');
+
 require('dotenv').config();
 
 const APP_NAME = process.env.PRODUCT_NAME || 'MyApp';
 const APP_URL  = process.env.PRODUCT_URL  || 'https://yourapp.com/';
+const LOGO_URL = process.env.PRODUCT_LOGO || `${APP_URL}/logo.png`;
 
 const transporter = nodemailer.createTransport({
   host:   process.env.SMTP_HOST,
@@ -20,11 +23,11 @@ transporter.verify()
   .catch(err => console.error('❌ SMTP transporter failed to verify:', err));
 
 const mailGenerator = new Mailgen({
-  theme: 'cerberus',
+  theme: 'salted',
   product: {
     name: APP_NAME,
     link: APP_URL,
-    logo: process.env.PRODUCT_LOGO || `${APP_URL}/logo.png`,
+    logo: '' 
   },
 });
 
@@ -52,4 +55,5 @@ module.exports = {
   sendMailgenEmail,
   APP_NAME,
   APP_URL,
+  LOGO_URL
 };

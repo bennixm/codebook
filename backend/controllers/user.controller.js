@@ -2,6 +2,7 @@ const User = require('../models/user');
 const admin = require('../firebase');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
+const { sendPasswordChangedEmail } = require('../services/mailService');
 
 
 const bucket = admin.storage().bucket();
@@ -37,6 +38,9 @@ exports.changePassword = async (req, res) => {
     
     user.password = newPassword;
     await user.save();
+    sendPasswordChangedEmail(user).catch(err => {
+      console.error('Failed to send welcome email:', err);
+    });
 
     res.json({ success: true, message: 'Password updated successfully' });
   } catch (err) {
