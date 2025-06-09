@@ -61,6 +61,16 @@ const form = ref({
   confirmPassword: ''
 })
 
+const validateNotReused = (rule, value, callback) => {
+  if (!value) {
+    return callback(new Error('New password is required'));
+  }
+  if (value === form.value.oldPassword) {
+    return callback(new Error('New password must be different from the old one'));
+  }
+  callback();
+};
+
 const validateConfirmPassword = (rule, value, callback) => {
   if (value === '') {
     callback(new Error('Please confirm your new password'))
@@ -76,7 +86,7 @@ const rules = {
     { required: true, message: 'Old password is required', trigger: 'blur' }
   ],
   newPassword: [
-    { required: true, message: 'New password is required', trigger: 'blur' },
+    {required: true, validator: validateNotReused, trigger: 'blur' },
     { min: 6, message: 'Password must be at least 6 characters', trigger: 'blur' }
   ],
   confirmPassword: [

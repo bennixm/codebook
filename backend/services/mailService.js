@@ -52,7 +52,7 @@ async function sendPasswordChangedEmail(user) {
         button: {
           color: '#e74c3c',
           text: 'Reset Password',
-          link: `${APP_URL}/reset-password`
+          link: `${APP_URL}reset-password`
         }
       },
       outro: 'If you changed your password, you can safely ignore this email.'
