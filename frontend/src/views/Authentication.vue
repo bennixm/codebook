@@ -23,6 +23,7 @@
       ref="loginFormRef"
       label-width="100px"
       class="form-box"
+      @submit.prevent="handleLogin"
     >
       <el-form-item label="Email" prop="email">
         <el-input v-model="loginForm.email" placeholder="Enter your email" />
@@ -40,10 +41,8 @@
     <el-form-item>
       <router-link to="/forgot-password" class="forgot-password">Forgot Password?</router-link>
     </el-form-item>
-
-
       <el-form-item>
-        <el-button type="primary" @click="handleLogin">Login</el-button>
+        <el-button type="primary" native-type="submit">Login</el-button>
       </el-form-item>
     </el-form>
 
@@ -54,6 +53,7 @@
       ref="registerFormRef"
       label-width="100px"
       class="form-box"
+      @submit.prevent="handleRegister"
     >
       <el-form-item label="Email" prop="email">
         <el-input v-model="registerForm.email" placeholder="Enter your email" />
@@ -84,7 +84,7 @@
 
 
       <el-form-item>
-        <el-button type="primary" @click="handleRegister">Register</el-button>
+        <el-button type="primary" native-type="submit">Register</el-button>
       </el-form-item>
     </el-form>
      <el-alert

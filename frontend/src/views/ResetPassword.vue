@@ -100,6 +100,9 @@ const submitNewPassword = () => {
 
       showSuccessAlert.value = true;
       showErrorAlert.value = false;
+
+      
+
     } catch (error) {
       showErrorAlert.value = true;
       errorMessage.value = error.response?.data?.message || 'Failed to reset password.';
