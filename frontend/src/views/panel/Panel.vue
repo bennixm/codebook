@@ -18,8 +18,8 @@
             <el-icon><BookOpen /></el-icon>
             <span>Blogging</span>
           </template>
-          <el-menu-item index="/panel/my-blogs">My Blogs</el-menu-item>
           <el-menu-item index="/panel/create-blog">Create Blog</el-menu-item>
+          <el-menu-item index="/panel/my-blogs">My Blogs</el-menu-item>
           <el-menu-item index="/panel/drafts">Drafts</el-menu-item>
         </el-sub-menu>
 

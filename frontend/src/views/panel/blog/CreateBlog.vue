@@ -3,7 +3,6 @@
     <div class="blog-block-header">
       <div class="flex items-center">
         <span class="mr-3 title">Create blog</span>
-        <el-tag>Draft</el-tag>
       </div>
     </div>
 
@@ -15,14 +14,51 @@
               <el-input v-model="title" placeholder="Enter blog title" />
             </el-form-item>
 
+            <el-form-item label="Description">
+              <el-input
+                v-model="description"
+                type="textarea"
+                :rows="3"
+                placeholder="Enter a brief description"
+              />
+            </el-form-item>
+          </el-form>
+
+          <el-divider content-position="left">Blog content</el-divider>
+          <div id="editorjs" class="p-4 rounded bg-white" />
+
+          <el-divider content-position="left">Cover Photo</el-divider>
+          <el-form class="mt-4">
+            <el-form-item label="Upload Cover Image">
+              <el-upload
+                class="cover-uploader w-full"
+                :limit="1"
+                :file-list="coverFileList"
+                :on-change="handleCoverChange"
+                :on-remove="removeCoverImage"
+                :auto-upload="false"
+                list-type="picture-card"
+                :show-file-list="true"
+              >
+                <template #default>
+                  <div v-if="coverFileList.length === 0" class="w-full h-48 flex items-center justify-center border border-dashed border-gray-300 rounded">
+                    <el-icon class="text-2xl text-gray-400"><i-ep-plus /></el-icon>
+                  </div>
+                </template>
+              </el-upload>
+            </el-form-item>
+          </el-form>
+
+
+
+          <el-form class="mt-4">
             <el-form-item label="Tags (Programming Languages)">
               <el-select
                 v-model="selectedTags"
                 multiple
                 filterable
-                allow-create
                 default-first-option
-                placeholder="Select or create languages"
+                placeholder="Select languages"
               >
                 <el-option
                   v-for="lang in programmingLanguages"
@@ -34,34 +70,29 @@
             </el-form-item>
           </el-form>
 
-          <el-divider content-position="left">Blog content</el-divider>
-          <div id="editorjs" class="p-4 rounded bg-white" />
+        <div class="mt-4 space-y-4">
+          <el-form label-position="top">
+            <el-form-item label="Allow Comments">
+              <el-switch v-model="allowComments" active-text="Yes" inactive-text="No" />
+            </el-form-item>
+          </el-form>
         </div>
 
-        <div>
-          <h2 class="text-xl font-bold mb-2">{{ title }}</h2>
-          <div class="mb-4">
-            <el-tag
-              v-for="tag in selectedTags"
-              :key="tag"
-              type="info"
-              class="mr-2"
-            >{{ tag }}</el-tag>
-          </div>
         </div>
       </div>
 
       <div class="blog-block-right w-1/3 dash-element">
         <div class="blog-menu-elements">
-        <div class="mt-6 flex flex-wrap gap-2 justify-center">
+          <div class="mt-6 flex flex-wrap gap-2 justify-center">
             <el-button @click="saveDraft">Save as Draft</el-button>
             <el-button type="success" @click="publish">Publish</el-button>
+          </div>
         </div>
-      </div>
       </div>
     </div>
   </div>
 </template>
+
 
 
 
@@ -79,9 +110,9 @@ import EditorJsToHtml from 'editorjs-html'
 
 const title = ref('')
 const selectedTags = ref([])
-const previewContent = ref('')
-const active = ref(0)
-const savedEditorData = ref(null)
+const description = ref('')
+const allowComments = ref(true)
+const isDraft = ref(true)
 
 
 const programmingLanguages = [
@@ -91,12 +122,34 @@ const programmingLanguages = [
 let editor = null
 const uploadedFiles = []
 
+import { ElMessage } from 'element-plus'
+import 'element-plus/es/components/message/style/css'
+
+
+const coverImage = ref(null)
+const coverFileList = ref([])
+
+const handleCoverChange = (uploadFile, uploadFiles) => {
+  coverImage.value = uploadFile.raw
+  coverFileList.value = [{
+    name: uploadFile.name,
+    url: URL.createObjectURL(uploadFile.raw)
+  }]
+}
+
+const removeCoverImage = () => {
+  coverImage.value = null
+  coverFileList.value = []
+}
+
+
 const ejToHtml = EditorJsToHtml({
   paragraph: data => `<p class="mb-4 text-base">${data.text}</p>`,
   header: data => `<h${data.level} class="mb-2 font-bold text-lg">${data.text}</h${data.level}>`,
   code: data => `<pre class="bg-gray-100 p-3 rounded"><code>${data.code}</code></pre>`,
   image: data => `<img src="${data.file.url}" alt="image" class="my-4 rounded" />`
 })
+
 
 const initEditor = async (data = null) => {
   editor = new EditorJS({
@@ -155,43 +208,6 @@ tools: {
 }
 
 
-const destroyEditor = async () => {
-  if (editor && typeof editor.destroy === 'function') {
-    await editor.destroy()
-    editor = null
-  }
-}
-
-
-
-const saveDraft = () => {
-  console.log('Saving as draft...')
-}
-
-const publish = async () => {
-  if (!editor) return
-  const output = await editor.save()
-
-  const uploadedUrls = await Promise.all(uploadedFiles.map(async (file) => {
-    const formData = new FormData()
-    formData.append('image', file)
-    const res = await fetch('/api/upload', { method: 'POST', body: formData })
-    const data = await res.json()
-    return data.url
-  }))
-
-  console.log('Publishing blog:', {
-    title: title.value,
-    tags: selectedTags.value,
-    content: output,
-    images: uploadedUrls
-  })
-}
-
-
-onBeforeUnmount(() => {
-  destroyEditor()
-})
 
 </script>
 
