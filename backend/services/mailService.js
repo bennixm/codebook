@@ -1,6 +1,10 @@
 const { sendMailgenEmail,APP_NAME,APP_URL,LOGO_URL } = require('../mailer/mailer');
 
-async function sendWelcomeEmail(user) {
+async function sendWelcomeEmail(user,token) {
+
+ 
+const activationUrl = `${APP_URL}activate/${user._id}/${token}`;
+
 
   const body = {
     body: {
@@ -21,7 +25,7 @@ async function sendWelcomeEmail(user) {
         button: {
           color: '#00a76f',
           text: 'Verify Email',
-          link: `${APP_NAME}${user._id}`
+          link: `${activationUrl}`
         }
       },
       outro: 'If you didn’t sign up, just ignore this email.'

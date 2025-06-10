@@ -41,6 +41,11 @@
     <el-form-item>
       <router-link to="/forgot-password" class="forgot-password">Forgot Password?</router-link>
     </el-form-item>
+    <el-form-item v-if="showResendActivation">
+       <router-link to="/resend-activation" class="forgot-password">
+         Didn’t get your activation email? Resend it.
+      </router-link>
+    </el-form-item>
       <el-form-item>
         <el-button type="primary" native-type="submit">Login</el-button>
       </el-form-item>
@@ -145,10 +150,17 @@ const handleLogin = async () => {
       await fetchProfile();
 
       showErrorAlert.value = false;
+      showResendActivation.value = false;
 
       router.push('/panel/dashboard');
     } catch (err) {
-      errorMessage.value = 'Login failed: ' + (err.response?.data?.error || err.message);
+      const errCode = err.response?.data?.error
+      errorMessage.value = errCode === 'ACCOUNT_NOT_ACTIVATED'
+        ? err.response.data.message
+        : 'Login failed: ' + (err.response?.data?.error || err.message)
+
+    
+      showResendActivation.value = errCode === 'ACCOUNT_NOT_ACTIVATED'
       showErrorAlert.value = true;
       showSuccessAlert.value = false;
     }
@@ -163,7 +175,7 @@ const registerForm = ref({
   password: '',
   accepted: false, 
 })
-
+const showResendActivation = ref(false)
 const showSuccessAlert = ref(false);
 const showErrorAlert = ref(false);
 const errorMessage = ref('');

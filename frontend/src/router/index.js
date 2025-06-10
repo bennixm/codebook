@@ -22,6 +22,8 @@ import ProfileSettings from '../views/panel/settings/ProfileSettings.vue';
 import ChangePassword from '../views/panel/settings/ChangePassword.vue';
 import SecuritySettings from '../views/panel/settings/SecuritySettings.vue';
 import Performance from '../views/panel/settings/Performance.vue';
+import ActivateAccount from '../views/ActivationPage.vue'; 
+import ResendActivationPage from '../views/ResendActivationPage.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -29,6 +31,9 @@ const routes = [
   { path: '/reset-password', name: 'ResetPassword', component: ResetPassword },
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
   { path: '/blogs', name: 'Blogs', component: Blogs },
+  {  path: '/activate/:userId/:token', name: 'ActivateAccount', component: ActivateAccount },
+  { path: '/resend-activation', name: 'ResendActivation', component: ResendActivationPage },
+
 
   {
     path: '/panel',
