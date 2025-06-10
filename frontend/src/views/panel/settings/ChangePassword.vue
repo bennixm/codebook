@@ -49,8 +49,9 @@
 
 <script setup>
 import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage , ElMessageBox } from 'element-plus'
 import { useAuth } from '../../../composables/useAuth';
+
 const {changePassword} = useAuth();
 
 const formRef = ref(null)
@@ -94,21 +95,39 @@ const rules = {
   ]
 }
 
-const submitForm =  () => {
-  formRef.value.validate(async(valid) => {
-    if (valid) {
-      try{
-        await  changePassword(form.value);
-        ElMessage.success('Password changed successfully!')
-      }
-      catch (error) {
-        ElMessage.error('Failed to change password: ' + error.message)
-      }
-    } else {
+const submitForm = () => {
+  formRef.value.validate(async (valid) => {
+    if (!valid) {
       ElMessage.error('Please correct the errors in the form.')
+      return
+    }
+
+    try {
+      await ElMessageBox.confirm(
+        'Are you sure you want to change your password?',
+        'Confirm Change',
+        {
+          confirmButtonText: 'Yes',
+          cancelButtonText: 'Cancel',
+          type: 'warning'
+        }
+      )
+
+      await changePassword(form.value)
+      ElMessage.success('Password changed successfully!')
+      
+      form.value.oldPassword = ''
+      form.value.newPassword = ''
+      form.value.confirmPassword = ''
+
+    } catch (err) {
+      if (err !== 'cancel') {
+        ElMessage.error('Failed to change password: ' + (err?.message || err))
+      }
     }
   })
 }
+
 </script>
 
 <style scoped>
