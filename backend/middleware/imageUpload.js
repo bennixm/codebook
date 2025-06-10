@@ -1,12 +1,14 @@
-const Busboy            = require('busboy');
+const Busboy = require('busboy');
 const { fileTypeFromBuffer } = require('file-type');
+
+
 
 const allowedMimePrefixes = ['image/'];
 const maxFileSizeMB      = 2;
 
 function validateProfileImage() {
   return (req, res, next) => {
-    const busboy       = new Busboy({ headers: req.headers });
+    const busboy = Busboy({ headers: req.headers });
     const bufferChunks = [];
     let totalBytes     = 0;
     let fileProcessedPromise = Promise.resolve();
