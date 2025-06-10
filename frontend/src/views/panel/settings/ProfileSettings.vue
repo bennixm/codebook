@@ -6,24 +6,39 @@
       </div>
     </template>
 
-    <el-upload
-      class="avatar-uploader"
-      action="#"
-      :limit="1"
-      :file-list="fileList"
-      list-type="picture-card"
-      :http-request="handleUpload"
-      :on-exceed="handleExceed"
-      :on-remove="handleRemove"
-      :on-preview="handlePreview"
-      :auto-upload="true"
-    >
-    <el-icon><Plus /></el-icon>
-  </el-upload>
+               <el-form-item>
+              <div class="upload-cover" v-if="fileList.length === 0">
+                <el-upload
+                    class="avatar-uploader"
+                    action="#"
+                    :limit="1"
+                    :file-list="fileList"
+                    list-type="picture-card"
+                    :http-request="handleUpload"
+                    :on-exceed="handleExceed"
+                    :on-remove="handleRemove"
+                    :on-preview="handlePreview"
+                    :auto-upload="true"
+                >
+                  <el-icon class="el-icon--upload"><Plus /></el-icon>
+                </el-upload>
+              </div>
 
-  <el-dialog v-model="dialogVisible">
-    <img style="width: 100%" :src="dialogImageUrl" alt="Avatar preview" />
-  </el-dialog>
+              <div v-else class="relative profile-picture-preview">
+                <img
+                  :src="fileList[0].url"
+                  alt="Cover Preview"
+                  class="rounded border w-full h-auto object-cover"
+                />
+                <el-button
+                  size="large"
+                  class="mt-2 remove-cover-btn remove-profile-btn"
+                  @click="handleRemove"
+                >
+                  <Trash2 />
+                </el-button>
+              </div>
+            </el-form-item>
 
         <el-form :model="form" label-position="top" class="profile-form">
           <el-form-item label="Name">
@@ -54,11 +69,12 @@
 </template>
 
 <script setup>
-import axios from 'axios'
 import { useAuth } from '../../../composables/useAuth';
 import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
+
 import { Plus } from '@element-plus/icons-vue'
+import { Trash2 } from 'lucide-vue-next';
 const auth = useAuth()
 
 const fileList = ref([])
@@ -164,6 +180,22 @@ const submitForm = async () => {
   if (bioTrimmed.length > 500) {
     ElMessage.error('Bio cannot exceed 500 characters.')
     return
+  }
+
+    if (!avatarFile.value && auth.user.avatar) {
+    try {
+      await ElMessageBox.confirm(
+        'Are you sure you want to remove your current profile image?',
+        'Confirm Image Removal',
+        {
+          confirmButtonText: 'Yes, remove it',
+          cancelButtonText: 'Cancel',
+          type: 'warning',
+        }
+      )
+    } catch {
+      return
+    }
   }
 
   const formData = new FormData()
