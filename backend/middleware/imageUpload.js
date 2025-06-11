@@ -84,7 +84,10 @@ function validateProfileImage() {
         await fileProcessedPromise;
         next();
       } catch (err) {
-        console.error('❌ File processing error:', err);
+        if (process.env.NODE_ENV !== 'test') {
+          console.error('❌ File processing error:', err);
+        }
+        
         res.status(400).json(err);
       }
     });

@@ -1,9 +1,19 @@
-// tests/controllers/userController.test.js
-//unit-tests for  controller file
+//unit-tests for user.controller.js
 jest.mock('bcrypt');
 jest.mock('../../models/user', () => ({ findById: jest.fn() }));
 jest.mock('../../services/mailService', () => ({
   sendPasswordChangedEmail: jest.fn().mockResolvedValue(undefined),
+}));
+jest.mock('../../firebase', () => ({
+  storage: () => ({
+    bucket: () => ({
+      file: jest.fn().mockReturnValue({
+        save: jest.fn().mockResolvedValue(),
+        delete: jest.fn().mockResolvedValue()
+      }),
+      name: 'test-bucket'
+    })
+  })
 }));
 
 const bcrypt       = require('bcrypt');
@@ -13,7 +23,8 @@ const { sendPasswordChangedEmail } = require('../../services/mailService');
 const {
   getProfile,
   changePassword,
-  setBio
+  setBio,
+  updateProfile
 } = require('../../controllers/user.controller');
 
 function mockResponse() {
@@ -28,9 +39,7 @@ describe('User Controller', () => {
 
   describe('getProfile', () => {
     it('404 if not found', async () => {
-      User.findById.mockReturnValue({
-        select: jest.fn().mockResolvedValue(null)
-      });
+      User.findById.mockReturnValue({ select: jest.fn().mockResolvedValue(null) });
       const req = httpMocks.createRequest({ user: { id: 'u1' } });
       const res = mockResponse();
       await getProfile(req, res);
@@ -40,9 +49,7 @@ describe('User Controller', () => {
 
     it('200 with user data', async () => {
       const data = { _id: 'u1', name: 'Alice' };
-      User.findById.mockReturnValue({
-        select: jest.fn().mockResolvedValue(data)
-      });
+      User.findById.mockReturnValue({ select: jest.fn().mockResolvedValue(data) });
       const req = httpMocks.createRequest({ user: { id: 'u1' } });
       const res = mockResponse();
       await getProfile(req, res);
@@ -50,9 +57,7 @@ describe('User Controller', () => {
     });
 
     it('500 on exception', async () => {
-      User.findById.mockReturnValue({
-        select: jest.fn().mockRejectedValue(new Error('db error'))
-      });
+      User.findById.mockReturnValue({ select: jest.fn().mockRejectedValue(new Error('db error')) });
       const req = httpMocks.createRequest({ user: { id: 'u1' } });
       const res = mockResponse();
       await getProfile(req, res);
@@ -64,10 +69,7 @@ describe('User Controller', () => {
   describe('changePassword', () => {
     it('404 if no user', async () => {
       User.findById.mockResolvedValue(null);
-      const req = httpMocks.createRequest({
-        user: { id: 'u1' },
-        body: { oldPassword: 'a', newPassword: 'b' }
-      });
+      const req = httpMocks.createRequest({ user: { id: 'u1' }, body: { oldPassword: 'a', newPassword: 'b' } });
       const res = mockResponse();
       await changePassword(req, res);
       expect(res.status).toHaveBeenCalledWith(404);
@@ -77,10 +79,7 @@ describe('User Controller', () => {
     it('401 if old password incorrect', async () => {
       User.findById.mockResolvedValue({ password: 'hash' });
       bcrypt.compare.mockResolvedValue(false);
-      const req = httpMocks.createRequest({
-        user: { id: 'u1' },
-        body: { oldPassword: 'a', newPassword: 'b' }
-      });
+      const req = httpMocks.createRequest({ user: { id: 'u1' }, body: { oldPassword: 'a', newPassword: 'b' } });
       const res = mockResponse();
       await changePassword(req, res);
       expect(res.status).toHaveBeenCalledWith(401);
@@ -90,43 +89,29 @@ describe('User Controller', () => {
     it('400 if new password same', async () => {
       User.findById.mockResolvedValue({ password: 'hash' });
       bcrypt.compare.mockResolvedValueOnce(true).mockResolvedValueOnce(true);
-      const req = httpMocks.createRequest({
-        user: { id: 'u1' },
-        body: { oldPassword: 'a', newPassword: 'a' }
-      });
+      const req = httpMocks.createRequest({ user: { id: 'u1' }, body: { oldPassword: 'a', newPassword: 'a' } });
       const res = mockResponse();
       await changePassword(req, res);
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        error: 'Your new password must be different from your current one.'
-      });
+      expect(res.json).toHaveBeenCalledWith({ error: 'Your new password must be different from your current one.' });
     });
 
     it('200 on success', async () => {
       const user = { password: 'hash', save: jest.fn().mockResolvedValue(true) };
       User.findById.mockResolvedValue(user);
       bcrypt.compare.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
-      const req = httpMocks.createRequest({
-        user: { id: 'u1' },
-        body: { oldPassword: 'a', newPassword: 'b' }
-      });
+      const req = httpMocks.createRequest({ user: { id: 'u1' }, body: { oldPassword: 'a', newPassword: 'b' } });
       const res = mockResponse();
       await changePassword(req, res);
       expect(user.password).toBe('b');
       expect(user.save).toHaveBeenCalled();
       expect(sendPasswordChangedEmail).toHaveBeenCalledWith(user);
-      expect(res.json).toHaveBeenCalledWith({
-        success: true,
-        message: 'Password updated successfully'
-      });
+      expect(res.json).toHaveBeenCalledWith({ success: true, message: 'Password updated successfully' });
     });
 
     it('500 on exception', async () => {
       User.findById.mockRejectedValue(new Error('oops'));
-      const req = httpMocks.createRequest({
-        user: { id: 'u1' },
-        body: { oldPassword: 'a', newPassword: 'b' }
-      });
+      const req = httpMocks.createRequest({ user: { id: 'u1' }, body: { oldPassword: 'a', newPassword: 'b' } });
       const res = mockResponse();
       await changePassword(req, res);
       expect(res.status).toHaveBeenCalledWith(500);
@@ -137,10 +122,7 @@ describe('User Controller', () => {
   describe('setBio', () => {
     it('404 if user not found', async () => {
       User.findById.mockResolvedValue(null);
-      const req = httpMocks.createRequest({
-        user: { id: 'u1' },
-        body: { bio: 'hi' }
-      });
+      const req = httpMocks.createRequest({ user: { id: 'u1' }, body: { bio: 'hi' } });
       const res = mockResponse();
       await setBio(req, res);
       expect(res.status).toHaveBeenCalledWith(404);
@@ -150,10 +132,7 @@ describe('User Controller', () => {
     it('200 on success', async () => {
       const user = { save: jest.fn().mockResolvedValue(true) };
       User.findById.mockResolvedValue(user);
-      const req = httpMocks.createRequest({
-        user: { id: 'u1' },
-        body: { bio: 'hello' }
-      });
+      const req = httpMocks.createRequest({ user: { id: 'u1' }, body: { bio: 'hello' } });
       const res = mockResponse();
       await setBio(req, res);
       expect(user.bio).toBe('hello');
@@ -163,10 +142,7 @@ describe('User Controller', () => {
 
     it('500 on exception', async () => {
       User.findById.mockRejectedValue(new Error('fail'));
-      const req = httpMocks.createRequest({
-        user: { id: 'u1' },
-        body: { bio: 'x' }
-      });
+      const req = httpMocks.createRequest({ user: { id: 'u1' }, body: { bio: 'x' } });
       const res = mockResponse();
       await setBio(req, res);
       expect(res.status).toHaveBeenCalledWith(500);

@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const { sendPasswordChangedEmail } = require('../services/mailService');
 
-
 const bucket = admin.storage().bucket();
 
 exports.getProfile = async (req, res) => {
@@ -17,60 +16,61 @@ exports.getProfile = async (req, res) => {
   catch (err) {
     res.status(500).json({ error: 'Server error: ' + err.message });
   }
-}
+};
+
 exports.changePassword = async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   const userId = req.user.id;
 
   try {
-   
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Current password is incorrect' });
     }
+
     const isTheSame = await bcrypt.compare(newPassword, user.password);
     if (isTheSame) {
       return res.status(400).json({ error: 'Your new password must be different from your current one.' });
     }
-    
 
-    
     user.password = newPassword;
     await user.save();
+
     sendPasswordChangedEmail(user).catch(err => {
-      console.error('Failed to send welcome email:', err);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Failed to send welcome email:', err);
+      }
     });
 
     res.json({ success: true, message: 'Password updated successfully' });
   } catch (err) {
-    console.error('Error changing password:', err);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('Error changing password:', err);
+    }
     res.status(500).json({ error: 'Something went wrong: ' + err.message });
   }
 };
-
 
 exports.updateProfile = async (req, res) => {
   const { name, bio } = req.body || {};
   const userId = req.user.id;
 
-  let newAvatarUrl='';
-
- 
+  let newAvatarUrl = '';
 
   try {
     const user = await User.findById(userId);
     if (!user) {
-      console.log('❌ User not found');
+      if (process.env.NODE_ENV !== 'test') {
+        console.log('❌ User not found');
+      }
       return res.status(404).json({ error: 'User not found' });
     }
 
-    
     if (req.fileBuffer && req.fileMeta) {
       const filePath = `avatars/${userId}/avatar_${Date.now()}.${req.fileMeta.ext}`;
       const fileUpload = bucket.file(filePath);
@@ -81,44 +81,47 @@ exports.updateProfile = async (req, res) => {
       });
 
       newAvatarUrl = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
-     
 
       if (user.avatar) {
         const oldFilePath = extractFirebasePath(user.avatar);
         if (oldFilePath) {
           try {
             await bucket.file(oldFilePath).delete();
-           
           } catch (err) {
+            if (process.env.NODE_ENV !== 'test') {
+              console.warn('⚠️ Failed to delete old avatar:', err.message);
+            }
+          }
+        }
+      }
+    } else {
+      const oldFilePath = extractFirebasePath(user.avatar);
+      if (oldFilePath) {
+        try {
+          await bucket.file(oldFilePath).delete();
+        } catch (err) {
+          if (process.env.NODE_ENV !== 'test') {
             console.warn('⚠️ Failed to delete old avatar:', err.message);
           }
         }
       }
-    }else {
-      const oldFilePath = extractFirebasePath(user.avatar);
-        if (oldFilePath) {
-          try {
-            await bucket.file(oldFilePath).delete();
-           
-          } catch (err) {
-            console.warn('⚠️ Failed to delete old avatar:', err.message);
-          }
-        }
     }
 
     user.name = name;
     user.bio = bio;
-     user.avatar = newAvatarUrl;
+    user.avatar = newAvatarUrl;
 
     const updated = await user.save();
-    
 
     res.json({ success: true, user });
   } catch (err) {
-    console.error('❌ Server error:', err);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('❌ Server error:', err);
+    }
     res.status(500).json({ error: 'Failed to update profile' });
   }
 };
+
 exports.setBio = async (req, res) => {
   const { bio } = req.body;
   const userId = req.user.id;
@@ -132,7 +135,9 @@ exports.setBio = async (req, res) => {
 
     res.json({ success: true, user });
   } catch (err) {
-    console.error('❌ Server error:', err);
+    if (process.env.NODE_ENV !== 'test') {
+      console.error('❌ Server error:', err);
+    }
     res.status(500).json({ error: 'Failed to update bio' });
   }
 };
