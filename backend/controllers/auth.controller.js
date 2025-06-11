@@ -46,6 +46,7 @@ exports.createUser = async (req, res) => {
     });
 
   } catch (err) {
+    console.error('createUser ERROR:', err);
     res.status(500).json({ error: 'Something went wrong: ' + err.message });
   }
 };
