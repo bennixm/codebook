@@ -11,25 +11,24 @@
         v-else-if="status === 'success'"
         description="Your account has been activated!"
       >
-        <el-button type="primary" @click="goToLogin">Go to Login</el-button>
       </el-empty>
   
       <el-empty
         v-else-if="status === 'already'"
         description="Your account was already activated."
       >
-        <el-button type="primary" @click="goToLogin">Go to Login</el-button>
       </el-empty>
   
       <el-empty
         v-else
         :description="message || 'Activation link is invalid or has expired.'"
+        class="form-buttons"
       >
-        <el-button type="primary" @click="resendActivation">
+        <el-button type="primary" @click="router.push('/resend-activation')">
           Resend Activation Email
         </el-button>
-        <el-button @click="goToRegister">Go to Signup</el-button>
       </el-empty>
+      <el-button @click="router.push('/auth')">Login</el-button>
     </div>
   </template>
   
@@ -68,15 +67,6 @@
   }
   
   onMounted(activate)
-  
-  const goToLogin = () => {
-    router.push({ name: 'Login' })
-  }
-  const resendActivation = () => {
-    router.push({ name: 'ResendActivation' })
-  }
-  const goToRegister = () => {
-    router.push({ name: 'Register' })
-  }
+
   </script>
   

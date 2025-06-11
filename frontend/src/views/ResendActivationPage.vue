@@ -18,7 +18,8 @@
             />
           </el-form-item>
   
-          <el-form-item>
+          <el-form-item class="form-buttons">
+            <el-button @click="router.push('/auth')">Back to Login</el-button>
             <el-button
               type="primary"
               :loading="loading"
@@ -26,7 +27,6 @@
             >
               Send Link
             </el-button>
-            <el-button @click="goToLogin">Back to Login</el-button>
           </el-form-item>
         </el-form>
   
@@ -100,9 +100,6 @@
     })
   }
   
-  const goToLogin = () => {
-    router.push({ name: 'Login' })
-  }
   </script>
   
   <style scoped>

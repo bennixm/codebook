@@ -11,18 +11,7 @@
         <span class="handle">Blogger</span>
       </div>
       <div class="profile-buttons">
-        <el-button round><Pencil :size="20" class="icon-nav-dropmenu"/> Edit</el-button>
-      </div>
-    </div>
-    </el-col>
-    <el-col :span="8">
-    <div class="profile dash-element">
-      <div class="bio-status">
-        <div class="icon-bio"><MessageCircle /></div>
-        <span class="bio">{{ auth.user.bio }}</span>
-      </div>
-       <div class="profile-buttons">
-        <el-button round><Pencil :size="20" class="icon-nav-dropmenu"/> Edit</el-button>
+        <el-button @click="router.push('/panel/profile/settings')" round><Pencil :size="20" class="icon-nav-dropmenu"/> Edit</el-button>
       </div>
     </div>
     </el-col>
@@ -30,7 +19,7 @@
 
      <el-row :gutter="20" class="dashboard-grid">
       <el-col :span="6">
-        <div class="dashboard-card" @click="navigate('my-blogs')">
+        <div class="dashboard-card" @click="router.push('/panel/my-blogs')">
           <el-icon size="28"><Document /></el-icon>
           <h3>My Blogs</h3>
           <p>{{ stats.blogs }} blogs published</p>
@@ -38,7 +27,7 @@
       </el-col>
 
       <el-col :span="6">
-        <div class="dashboard-card" @click="navigate('create-blog')">
+        <div class="dashboard-card" @click="router.push('/panel/create-blog')">
           <el-icon size="28"><EditPen /></el-icon>
           <h3>Create Blog</h3>
           <p>Start a new post</p>
@@ -46,7 +35,7 @@
       </el-col>
 
       <el-col :span="6">
-        <div class="dashboard-card" @click="navigate('notifications')">
+        <div class="dashboard-card" @click="router.push('/panel/notifications')">
           <div class="icon-badge">
             <el-icon size="28"><Bell /></el-icon>
             <el-badge :value="stats.unreadNotifications" class="badge" />
@@ -57,7 +46,7 @@
       </el-col>
 
       <el-col :span="6">
-        <div class="dashboard-card" @click="navigate('profile-settings')">
+        <div class="dashboard-card" @click="router.push('/panel/profile/settings')">
           <el-icon size="28"><Setting /></el-icon>
           <h3>Profile Settings</h3>
           <p>Manage your account</p>
@@ -66,7 +55,7 @@
     </el-row>
 
     <el-row :gutter="20" class="dashboard-grid">
-      <el-col :span="6">
+      <el-col :span="12">
         <div class="recent-activity dash-element">
           <span class="dash-title">Recent activity</span>
           <el-timeline>
@@ -89,12 +78,10 @@
   <script setup>
     import { useAuth } from '../../composables/useAuth';
     import { Document, EditPen, Bell, Setting } from '@element-plus/icons-vue';
-    import { Pencil,MessageCircle } from 'lucide-vue-next';
+    import { Pencil } from 'lucide-vue-next';
+    import { useRouter } from 'vue-router'
     const auth = useAuth()
-
-    const navigate = (routeName) => {
-        router.push({ name: routeName })
-    }
+    const router = useRouter()
 
     const stats = {
     blogs: 12,
