@@ -213,7 +213,7 @@ const handleRegister = () => {
       const formData = registerForm.value; 
 
       try {
-        const res = await api.post('http://localhost:5000/auth/register', formData);
+        const res = await api.post('/auth/register', formData);
         showErrorAlert.value = false;
         registerForm.value = {
           email: '',
