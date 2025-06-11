@@ -18,9 +18,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-transporter.verify()
-  .then(() => console.log('✅ SMTP transporter is ready'))
-  .catch(err => console.error('❌ SMTP transporter failed to verify:', err));
+
 
 const mailGenerator = new Mailgen({
   theme: 'salted',

@@ -1,7 +1,6 @@
+// middleware/imageUpload.js
 const Busboy = require('busboy');
 const { fileTypeFromBuffer } = require('file-type');
-
-
 
 const allowedMimePrefixes = ['image/'];
 const maxFileSizeMB      = 2;
@@ -10,17 +9,29 @@ function validateProfileImage() {
   return (req, res, next) => {
     const busboy = Busboy({ headers: req.headers });
     const bufferChunks = [];
-    let totalBytes     = 0;
+    let totalBytes = 0;
     let fileProcessedPromise = Promise.resolve();
 
     req.body = {};
     let fileCount = 0;
 
-    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+    busboy.on('file', (fieldname, file, info) => {
+      // info = { filename, encoding, mimeType }
+      const { filename, encoding, mimeType } = info;
+      const mimetype = mimeType;
+
+      // ignore other fields
       if (fieldname !== 'avatar') {
         file.resume();
         return;
       }
+
+      // early mime‐type guard
+      if (!allowedMimePrefixes.some(prefix => mimetype.startsWith(prefix))) {
+        file.resume();
+        return res.status(400).json({ error: 'Only image files are allowed.' });
+      }
+
       if (fileCount >= 1) {
         file.resume();
         return res.status(400).json({ error: 'Only one image is allowed.' });
@@ -28,7 +39,7 @@ function validateProfileImage() {
       fileCount++;
 
       fileProcessedPromise = new Promise((resolve, reject) => {
-        file.on('data', (chunk) => {
+        file.on('data', chunk => {
           totalBytes += chunk.length;
           if (totalBytes > maxFileSizeMB * 1024 * 1024) {
             return reject({ error: 'Image must be smaller than 2MB.' });
@@ -51,8 +62,8 @@ function validateProfileImage() {
             req.fileBuffer = finalBuffer;
             req.fileMeta   = {
               filename,
-              mime: fileType.mime,
-              ext:  fileType.ext,
+              mime:     fileType.mime,
+              ext:      fileType.ext,
             };
             resolve();
           } catch (err) {
@@ -60,7 +71,7 @@ function validateProfileImage() {
           }
         });
 
-        file.on('error', (err) => reject({ error: 'File stream error', detail: err }));
+        file.on('error', err => reject({ error: 'File stream error', detail: err }));
       });
     });
 
