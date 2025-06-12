@@ -656,11 +656,24 @@ body {
   margin:0;
 }
 @media (max-width: 1025px) {
+  .dropdown-menu {
+    min-width: 100vw !important;
+    border-radius: 0;
+  }
+  .user-dropdown .username{
+    display:none !important; 
+  }
+  .el-dropdown-menu__item {
+    padding: 12px 20px;
+  }
+  .dashboard-card{
+    margin-bottom: 1rem;
+  }
+  .dash-element{
+    width:100%;
+  }
   .notification-menu-item{
     display:none !important;
-  }
-  .nav-right{
-    width:30%;
   }
   .home-s{
     flex-direction: column;
@@ -685,4 +698,20 @@ body {
     margin:0 !important;
     margin-bottom: 12px !important;
   }
+  .side-menu-nav{
+    display:none;
+  }
+  .blog-block{
+    flex-direction: column;
+  }
+  .profile-settings-card{
+    max-width: 100%;
+  }
+  .el-dialog__body {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .el-dialog {
+    --el-dialog-width: 90% !important;
+  }  
 }

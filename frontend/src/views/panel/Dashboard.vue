@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard panel-container">
    <el-row :gutter="20" class="dashboard-grid">
-    <el-col :span="8">
+    <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
     <div class="profile dash-element">
       <el-avatar :size="60" :src="auth.user.avatar || 'https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/user.png?alt=media&token=6cdb89f7-73b1-40b0-9307-78ae1a06f29f'" />
       <div class="info">
@@ -17,8 +17,8 @@
     </el-col>
    </el-row>
 
-     <el-row :gutter="20" class="dashboard-grid">
-      <el-col :span="6">
+   <el-row :gutter="20" class="dashboard-grid">
+      <el-col :xs="24" :sm="12" :md="6">
         <div class="dashboard-card" @click="router.push('/panel/my-blogs')">
           <el-icon size="28"><Document /></el-icon>
           <h3>My Blogs</h3>
@@ -26,7 +26,7 @@
         </div>
       </el-col>
 
-      <el-col :span="6">
+      <el-col :xs="24" :sm="12" :md="6">
         <div class="dashboard-card" @click="router.push('/panel/create-blog')">
           <el-icon size="28"><EditPen /></el-icon>
           <h3>Create Blog</h3>
@@ -34,7 +34,7 @@
         </div>
       </el-col>
 
-      <el-col :span="6">
+      <el-col :xs="24" :sm="12" :md="6">
         <div class="dashboard-card" @click="router.push('/panel/notifications')">
           <div class="icon-badge">
             <el-icon size="28"><Bell /></el-icon>
@@ -45,7 +45,7 @@
         </div>
       </el-col>
 
-      <el-col :span="6">
+      <el-col :xs="24" :sm="12" :md="6">
         <div class="dashboard-card" @click="router.push('/panel/profile/settings')">
           <el-icon size="28"><Setting /></el-icon>
           <h3>Profile Settings</h3>
@@ -54,8 +54,9 @@
       </el-col>
     </el-row>
 
+
     <el-row :gutter="20" class="dashboard-grid">
-      <el-col :span="12">
+      <el-col :xs="24" :sm="12">
         <div class="recent-activity dash-element">
           <span class="dash-title">Recent activity</span>
           <el-timeline>
@@ -71,6 +72,7 @@
         </div>
       </el-col>
     </el-row>
+
 
   </div>
   </template>
