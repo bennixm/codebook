@@ -56,15 +56,23 @@ import api from '../api';
 const route = useRoute();
 const router = useRouter();
 
-const token = ref('');
+const token = route.params.token;
 const showSuccessAlert = ref(false);
 const showErrorAlert = ref(false);
 const errorMessage = ref('');
 
+
+
 const resetFormRef = ref(null);
 const form = reactive({
+  token: '',
   password: '',
   confirmPassword: ''
+});
+
+onMounted(() => {
+  form.token = route.params.token || '';  
+  console.log('Extracted token:', form.token);
 });
 
 const rules = {
@@ -84,19 +92,25 @@ const rules = {
   ]
 };
 
-onMounted(() => {
-  token.value = route.query.token || '';
-});
+
 
 const submitNewPassword = () => {
+  console.log('Sending payload:', {
+  token: form.token,
+  password: form.password,
+  confirmPassword: form.confirmPassword
+});
+
   resetFormRef.value.validate(async (valid) => {
     if (!valid) return;
 
     try {
-      await api.post('/auth/reset-password', {
-        token: token.value,
-        newPassword: form.password
-      });
+      await api.post(`/auth/reset-password/`, {
+          token: form.token,
+          password: form.password,
+          confirmPassword: form.confirmPassword
+      } );
+
 
       showSuccessAlert.value = true;
       showErrorAlert.value = false;

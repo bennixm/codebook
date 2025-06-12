@@ -69,6 +69,8 @@ const userSchema = new mongoose.Schema({
   
   resetToken: String,
   resetTokenExpires: Date,
+  passwordResetToken: String,
+  passwordResetExpiresAt: Date,
 
   postsCount: {
     type: Number,
