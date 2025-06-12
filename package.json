@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "editorjs-text-color-plugin": "^2.0.4",
     "jsonwebtoken": "^9.0.2"
   }
 }

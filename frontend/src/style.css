@@ -479,6 +479,7 @@ body {
 }
 .blog-block-right{
   width:20%;
+  height: max-content;
   display:flex;
   align-items: center;
 }
