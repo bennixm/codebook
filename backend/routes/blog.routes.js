@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth/authMiddleware');
 const {createBlog} = require('../controllers/blog.controller');
-const {createBlogRules} = require('../middleware/validators/blogValidators');
-router.post('/create-blog',auth,createBlogRules,createBlog);
+const {createBlogRules,validateBlog} = require('../middleware/validators/blogValidators');
+const {validateBlogCoverImage,validateBlogContentImages}= require('../middleware/imageUpload')
+router.post('/create',auth,validateBlogCoverImage(),validateBlogContentImages,createBlogRules,validateBlog,createBlog);
 module.exports = router

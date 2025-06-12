@@ -65,6 +65,17 @@ export const useAuth = defineStore('auth', () => {
         throw new Error(serverMsg)
         }
     };
+    const createBlogPost = async (postData) => {
+        try {
+          const res = await secureApi.post('/blog/create', postData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          });
+          return res.data;
+        } catch (err) {
+          console.error('Create blog post server response:', err.response?.data || err.message);
+          throw err; 
+        }
+    }
 
   const logout = async (shouldRedirect = true) => {
         try {
@@ -89,6 +100,7 @@ export const useAuth = defineStore('auth', () => {
     fetchProfile,
     updateProfile,
     changePassword,
+    createBlogPost,
     setBio,
     logout,
   };

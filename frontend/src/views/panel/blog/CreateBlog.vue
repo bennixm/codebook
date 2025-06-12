@@ -116,6 +116,7 @@
 
 <script>
 import { ref, reactive, onMounted, onBeforeUnmount } from 'vue';
+import { useAuth } from '../../../composables/useAuth';
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import CodeTool from '@editorjs/code';
@@ -134,6 +135,7 @@ export default {
   name: 'RichTextEditor',
   components: { UploadFilled },
   setup() {
+    const {createBlogPost} = useAuth();
     const tags = ref([]); 
   
     const isDraft = ref(true);
@@ -358,6 +360,15 @@ export default {
           formDataToSend.append('coverImage', coverFileList.value[0].raw);
 
           console.log('Sending form data:', [...formDataToSend.entries()]);
+          try{
+          await createBlogPost(formDataToSend);
+            ElMessage.success('Blog was created successfully.');
+          }
+          catch (error) {
+            console.error('Error creating blog post:', error);
+            ElMessage.error('Failed to create blog post.');
+            return;
+          }
          
 
         } catch (err) {
