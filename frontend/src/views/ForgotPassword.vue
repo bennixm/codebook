@@ -57,12 +57,14 @@ const showSuccessAlert = ref(false);
 const showErrorAlert = ref(false);
 const errorMessage = ref('');
 
+
+
 const submitResetEmail = () => {
   emailFormRef.value.validate(async (valid) => {
     if (!valid) return;
 
     try {
-      await api.post('/auth/request-reset', {
+      await api.post('/auth/forgot-password', {
         email: form.email
       });
 
@@ -70,7 +72,11 @@ const submitResetEmail = () => {
       showErrorAlert.value = false;
     } catch (error) {
       showErrorAlert.value = true;
-      errorMessage.value = error.response?.data?.message || 'Failed to send reset email.';
+      if (error.response?.status === 429) {
+        errorMessage.value = 'Too many requests. Please wait a while before trying again.';
+      } else {
+        errorMessage.value = error.response?.data?.message || 'Failed to send reset email.';
+      }
     }
   });
 };

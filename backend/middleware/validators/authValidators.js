@@ -1,4 +1,5 @@
-const { body, validationResult } = require('express-validator');
+const { body, param,validationResult } = require('express-validator');
+
 
 const validateUserRules = [
   body('email')
@@ -34,6 +35,28 @@ const validateLoginRules = [
   body('password')
     .notEmpty().withMessage('Password is required')
 ];
+const validateForgotPassword = [
+  body('email')
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Invalid email format')
+    .normalizeEmail(),
+];
+
+const validateResetPassword = [
+  param('token')
+    .notEmpty().withMessage('Token is required'),
+
+  body('password')
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+
+  body('confirmPassword')
+    .custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error('Passwords do not match');
+      }
+      return true;
+    }),
+];
 
 const validateUser = (req, res, next) => {
   const errors = validationResult(req);
@@ -44,9 +67,13 @@ const validateUser = (req, res, next) => {
   next();
 };
 
+
+
 module.exports = {
     validateUserRules,
     validateLoginRules,
+    validateForgotPassword,
+    validateResetPassword,
     validateUser
   };
   

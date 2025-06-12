@@ -28,7 +28,7 @@ import ResendActivationPage from '../views/ResendActivationPage.vue';
 const routes = [
   { path: '/', name: 'Home', component: Home },
   { path: '/auth', name: 'Authentication', component: Authentication },
-  { path: '/reset-password', name: 'ResetPassword', component: ResetPassword },
+  { path: '/reset-password/:token', name: 'ResetPassword', component: ResetPassword },
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
   { path: '/blogs', name: 'Blogs', component: Blogs },
   {  path: '/activate/:userId/:token', name: 'ActivateAccount', component: ActivateAccount },
