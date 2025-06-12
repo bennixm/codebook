@@ -37,12 +37,13 @@
               filterable
               default-first-option
               placeholder="Select languages"
+              
             >
               <el-option
                 v-for="lang in programmingLanguages"
-                :key="lang"
-                :label="lang"
-                :value="lang"
+                :key="lang.value"
+                :label="lang.label"
+                :value="lang.value"
               />
             </el-select>
           </el-form-item>
@@ -127,11 +128,14 @@ import { ElMessage } from 'element-plus';
 import { Trash2 } from 'lucide-vue-next';
 
 import { UploadFilled } from '@element-plus/icons-vue';
+import api from '../../../api';
 
 export default {
   name: 'RichTextEditor',
   components: { UploadFilled },
   setup() {
+    const tags = ref([]); 
+  
     const isDraft = ref(true);
     const coverFileList = ref([]);
 
@@ -162,9 +166,7 @@ export default {
     };
 
 
-    const programmingLanguages = [
-      'JavaScript', 'Python', 'Java', 'C++', 'Go', 'Rust', 'TypeScript', 'Ruby', 'PHP', 'C#',
-    ];
+    const programmingLanguages = ref([]);
 
     let editor = null;
     const editorHolder = ref(null);
@@ -198,7 +200,17 @@ export default {
       coverFileList.value = [];
     };
 
-    onMounted(() => {
+    onMounted(async () => {
+      try {
+        const { data } = await api.get('/tags/tags');
+       
+        programmingLanguages.value = data.tags.map(tag => ({
+          label: tag.name,   
+          value: tag._id      
+           }))
+      } catch (err) {
+        ElMessage.error('Failed to load tags.');
+      }
       editor = new EditorJS({
         holder: editorHolder.value,
         autofocus: true,
@@ -346,6 +358,8 @@ export default {
           formDataToSend.append('coverImage', coverFileList.value[0].raw);
 
           console.log('Sending form data:', [...formDataToSend.entries()]);
+         
+
         } catch (err) {
           ElMessage.error('Failed to save blog content.');
         }
@@ -363,6 +377,8 @@ export default {
       editorHolder,
       publish,
       rules,
+      tags,
+      
     };
   },
 };

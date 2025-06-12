@@ -7,6 +7,11 @@ const blogSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  description: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   slug: {
     type: String,
     required: true,
@@ -29,10 +34,6 @@ const blogSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  },
-  category: {
-    type: String,
-    default: 'General'
   },
  
   tags: [
@@ -60,6 +61,10 @@ const blogSchema = new mongoose.Schema({
       }
     }
   ],
+  allowComments: {
+    type: Boolean,
+    default: true
+  },
   views: {
     type: Number,
     default: 0

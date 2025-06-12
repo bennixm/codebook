@@ -21,11 +21,7 @@ const tagSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-/**
- * Upsert‐based seeder:
- * – For each default language, if a tag with that name exists, leave it;
- * – Otherwise insert it with name+slug.
- */
+
 tagSchema.statics.seedDefaults = async function() {
   const docs = programmingLanguages.map(name => ({
     name,
