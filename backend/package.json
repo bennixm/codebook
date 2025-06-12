@@ -5,7 +5,8 @@
   "scripts": {
     "test": "jest --runInBand",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "seed:tags": "node scripts/seedTags.js"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +31,7 @@
     "multer": "^2.0.1",
     "nodemailer": "^7.0.3",
     "nodemailer-express-handlebars": "^7.0.0",
+    "slugify": "^1.6.6",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
