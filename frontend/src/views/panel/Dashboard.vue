@@ -78,25 +78,45 @@
   </template>
   
   <script setup>
-    import { useAuth } from '../../composables/useAuth';
-    import { Document, EditPen, Bell, Setting } from '@element-plus/icons-vue';
-    import { Pencil } from 'lucide-vue-next';
-    import { useRouter } from 'vue-router'
-    const auth = useAuth()
-    const router = useRouter()
-
-    const stats = {
-    blogs: 12,
-    unreadNotifications: 3
+  import { ref, onMounted } from 'vue';
+  import { useAuth } from '../../composables/useAuth';
+  import { Document, EditPen, Bell, Setting } from '@element-plus/icons-vue';
+  import { Pencil } from 'lucide-vue-next';
+  import { useRouter } from 'vue-router';
+  
+  const auth = useAuth();
+  const router = useRouter();
+  
+  const stats = ref({
+    blogs: 0,
+    unreadNotifications: 3,
+  });
+  
+  const recentBlogs = ref([]);
+  
+  const fetchStats = async () => {
+    try {
+      const blogs = await auth.fetchMyBlogs();
+      stats.value.blogs = blogs.length;
+  
+      recentBlogs.value = blogs
+        .sort((a, b) => new Date(b.createdAt || b.publishedAt) - new Date(a.createdAt || a.publishedAt))
+        .slice(0, 3)
+        .map(blog => ({
+          title: blog.title,
+          status: blog.isPublished ? 'Published' : 'Draft',
+          date: new Date(blog.publishedAt || blog.createdAt).toLocaleDateString(),
+        }));
+    } catch (error) {
+      console.error('Failed to fetch blog stats:', error);
     }
-
-    const recentBlogs = [
-    { title: 'Top 5 Vue Tips', status: 'Published', date: '2025-06-05' },
-    { title: 'Behind the Scenes of Blogging', status: 'Draft saved', date: '2025-06-04' },
-    { title: 'Productivity with Markdown', status: 'Published', date: '2025-06-01' }
-    ]
-
+  };
+  
+  onMounted(() => {
+    fetchStats();
+  });
   </script>
+  
   
   <style scoped>
  
