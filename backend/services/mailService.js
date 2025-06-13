@@ -118,59 +118,58 @@ async function sendPasswordResetSuccessEmail(user) {
   await sendMailgenEmail(user.email, `${APP_NAME} - Password successfully reset`, body);
 }
 async function sendBlogCreatedEmail(user, blog) {
-  // Build HTML snippet for the cover image if available
+  const isDraft = blog.isPublished === false;
+  const subject = isDraft
+    ? `Your ${APP_NAME} Draft "${blog.title}" Has Been Saved`
+    : `Your ${APP_NAME} Post "${blog.title}" Is Live`;
+
   const coverHtml = blog.coverImage
-    ? `
-      <div style="text-align:center; margin:20px 0;">
-        <img
-          src="${blog.coverImage}"
-          alt="Cover Image for ${blog.title}"
-          style="width:100%; max-width:600px; border-radius:8px;"
-        />
-      </div>`
+    ? `<div style="text-align:center; margin:20px 0;">
+         <img src="${blog.coverImage}" alt="Cover Image for ${blog.title}" style="width:100%; max-width:600px; border-radius:8px;" />
+       </div>`
     : '';
+
+  const introMessage = isDraft
+    ? 'Your draft has been saved. You can publish it anytime from your dashboard.'
+    : 'Great news — your new blog post has just been published!';
 
   const body = {
     body: {
       name: user.name,
-      intro: `
-        <style>
-          .email-logo {
-            width: 200px !important;
-            height: 150px !important;
-            max-height: 150px !important;
-          }
-        </style>
-        <div style="text-align:center; margin-bottom:20px;">
-          <img src="${LOGO_URL}" class="email-logo" alt="${APP_NAME} logo" />
-        </div>
-        ${coverHtml}
-        Great news — your new blog post has just been published!
-      `,
+      intro: `<style>
+                .email-logo {
+                  width: 200px !important;
+                  height: 150px !important;
+                  max-height: 150px !important;
+                }
+              </style>
+              <div style="text-align:center; margin-bottom:20px;">
+                <img src="${LOGO_URL}" class="email-logo" alt="${APP_NAME} logo" />
+              </div>
+              ${coverHtml}
+              <p>${introMessage}</p>`,
       table: {
         data: [
-          { label: 'Title',       value: blog.title },
-          { label: 'Excerpt',     value: blog.excerpt || '(no excerpt provided)' },
-          { label: 'Published At', value: blog.publishedAt.toLocaleString() }
+          { label: 'Title', value: blog.title },
+          { label: 'Excerpt', value: blog.excerpt || '(no excerpt provided)' },
+          { label: isDraft ? 'Saved At' : 'Published At', value: (blog.publishedAt || new Date()).toLocaleString() }
         ]
       },
       action: {
-        instructions: 'View your post now:',
+        instructions: isDraft ? 'Edit your draft now:' : 'View your post now:',
         button: {
           color: '#3498db',
-          text:  'Read Post',
-          link:  `${APP_URL}/blogs/${blog.slug}`
+          text: isDraft ? 'Edit your draft' : 'Read Post',
+          link: `${APP_URL}blogs/${blog.slug}`
         }
       },
-      outro: 'Thanks for sharing your story with the community. We can’t wait to see the reactions!'
+      outro: isDraft
+        ? 'Keep up the great work—publish when you’re ready!'
+        : 'Thanks for sharing your story with the community. We can’t wait to see the reactions!'
     }
   };
 
-  await sendMailgenEmail(
-    user.email,
-    `Your ${APP_NAME} Post "${blog.title}" Is Live`,
-    body
-  );
+  await sendMailgenEmail(user.email, subject, body);
 }
 
 
