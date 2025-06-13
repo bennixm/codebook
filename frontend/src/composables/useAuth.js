@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import secureApi from '../secureApi';
+import api from '../api';
 import { useRouter } from 'vue-router';
 
 export const useAuth = defineStore('auth', () => {
@@ -88,7 +89,6 @@ export const useAuth = defineStore('auth', () => {
       }
     };
 
-
     const fetchMyBlogs = async () => {
       try {
         const res = await secureApi.get('/blog/my-blogs');
@@ -97,6 +97,16 @@ export const useAuth = defineStore('auth', () => {
         console.error('Failed to fetch user blogs:', err.response?.data || err.message);
         throw err;
       }
+  };
+
+    const fetchBlogBySlug = async (slug) => {
+    try {
+      const response = await api.get(`/blog/get-blog/${slug}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch blog by slug:', error);
+      throw error;
+    }
   };
 
 
@@ -127,6 +137,7 @@ export const useAuth = defineStore('auth', () => {
     createBlogPost,
     deleteMyBlog,
     fetchMyBlogs,
+    fetchBlogBySlug,
     setBio,
     logout,
   };

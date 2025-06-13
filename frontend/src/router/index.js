@@ -14,6 +14,7 @@ import Panel from '../views/panel/Panel.vue';
 import Dashboard from '../views/panel/Dashboard.vue';
 import CreateBlog from '../views/panel/blog/CreateBlog.vue';
 import MyBlogs from '../views/panel/blog/MyBlogs.vue';
+import BlogPage from '../views/BlogPage.vue';
 import Notifications from '../views/panel/Notifications.vue';
 
 
@@ -31,6 +32,7 @@ const routes = [
   { path: '/reset-password/:token', name: 'ResetPassword', component: ResetPassword },
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
   { path: '/blogs', name: 'Blogs', component: Blogs },
+  { path: '/blog/:slug', name: 'BlogPage', component: BlogPage,rops: true},
   {  path: '/activate/:userId/:token', name: 'ActivateAccount', component: ActivateAccount },
   { path: '/resend-activation', name: 'ResendActivation', component: ResendActivationPage },
 
