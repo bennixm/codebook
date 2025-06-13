@@ -222,10 +222,8 @@ const handleRegister = () => {
           password: '',
           accepted: false,
         };
-        setTimeout(() => {
           activeForm.value = 'login';
-          showSuccessAlert.value = true; 
-        }, 1500);
+          showSuccessAlert.value = true;
       } catch (err) {
         errorMessage.value = 'Registration failed: ' + (err.response?.data?.error || err.message);
         showErrorAlert.value = true;
