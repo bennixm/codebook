@@ -1,14 +1,41 @@
 <template>
   <div class="panel-container space-y-6">
-    <div class="blog-block-header mb-4">
-      <div class="flex items-center">
-        <span class="mr-3 title">My Blogs</span>
+    <div class="blog-block-header mb-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <span class="title">My Blogs</span>
+
+      <div class="panel-filters">
+        <el-input
+          v-model="filters.search"
+          placeholder="Search title or description"
+          size="medium"
+          class="panel-filter"
+          clearable
+        />
+
+        <el-select v-model="filters.status" placeholder="Status" size="medium" class="panel-filter" clearable>
+          <el-option label="Published" value="published" />
+          <el-option label="Draft" value="draft" />
+        </el-select>
+
+        <el-select v-model="filters.tag" placeholder="Tag" size="medium" class="panel-filter" clearable>
+          <el-option
+            v-for="tag in allTags"
+            :key="tag"
+            :label="tag"
+            :value="tag"
+          />
+        </el-select>
+
+        <el-select v-model="filters.sort" placeholder="Sort by date" class="panel-filter" size="medium">
+          <el-option label="Newest" value="desc" />
+          <el-option label="Oldest" value="asc" />
+        </el-select>
       </div>
     </div>
 
     <div v-loading="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <el-card
-        v-for="blog in blogs"
+        v-for="blog in paginatedBlogs"
         :key="blog._id"
         class="blog-card"
         shadow="hover"
@@ -18,7 +45,6 @@
             v-if="blog.coverImage"
             :src="blog.coverImage"
             fit="cover"
-            style="width: 100%; height: 100%; border-radius: 6px;"
           />
           <div v-else class="no-image-placeholder">
             No Image
@@ -41,24 +67,14 @@
           </el-tag>
         </div>
 
-
         <div class="blog-buttons mb-3 flex items-center justify-between text-sm">
           <el-button type="primary" :icon="Edit" circle />
-          <el-button
-              type="primary"
-              size="small"
-              @click="viewBlog(blog.slug)"
-              class="w-full"
-            >
-              View
-        </el-button>
-        <el-button type="danger" :icon="Delete" circle />
+          <el-button type="primary" size="small" @click="viewBlog(blog.slug)" class="w-full">View</el-button>
+          <el-button type="danger" :icon="Delete" circle />
         </div>
+
         <div class="status-date mb-3 flex items-center justify-between text-sm">
-          <el-tag
-            :type="blog.isPublished ? 'success' : 'warning'"
-            size="small"
-          >
+          <el-tag :type="blog.isPublished ? 'success' : 'warning'" size="small">
             {{ blog.isPublished ? 'Published' : 'Draft' }}
           </el-tag>
           <span class="text-gray-500">{{ formatDate(blog.publishedAt || blog.createdAt) }}</span>
@@ -66,26 +82,44 @@
       </el-card>
     </div>
 
-    <div v-if="blogs.length === 0 && !loading" class="text-center mt-6 text-gray-500">
-      You have not created any blogs yet.
+    <div v-if="filteredBlogs.length === 0 && !loading" class="text-center mt-6 text-gray-500">
+      No blogs match your filters.
+    </div>
+
+    <div class="pagination-container flex justify-center mt-6" v-if="filteredBlogs.length > perPage">
+      <el-pagination
+        layout="prev, pager, next"
+        :page-size="perPage"
+        :current-page="currentPage"
+        :total="filteredBlogs.length"
+        @current-change="currentPage = $event"
+      />
     </div>
   </div>
 </template>
 
+
 <script setup>
-import {
-  Check,
-  Delete,
-  Edit,
-} from '@element-plus/icons-vue'
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { useAuth } from '../../../composables/useAuth';
+import { Check, Delete, Edit } from '@element-plus/icons-vue';
 
 const auth = useAuth();
-const loading = ref(false);
+const router = useRouter();
+
 const blogs = ref([]);
+const loading = ref(false);
+const currentPage = ref(1);
+const perPage = 6;
+
+const filters = ref({
+  status: null,
+  tag: null,
+  search: '',
+  sort: 'desc',
+});
 
 const fetchMyBlogs = async () => {
   loading.value = true;
@@ -93,7 +127,7 @@ const fetchMyBlogs = async () => {
     const data = await auth.fetchMyBlogs();
     blogs.value = data;
   } catch (err) {
-    console.log(err);
+    console.error(err);
     ElMessage.error('Failed to load your blogs.');
   } finally {
     loading.value = false;
@@ -109,15 +143,48 @@ const formatDate = (date) => {
   });
 };
 
-const router = useRouter();
 const viewBlog = (slug) => {
   router.push(`/blog/${slug}`);
 };
+
+const allTags = computed(() => {
+  const tagSet = new Set();
+  blogs.value.forEach((blog) => {
+    blog.tags.forEach((tag) => tagSet.add(tag.name));
+  });
+  return [...tagSet];
+});
+
+const filteredBlogs = computed(() => {
+  return blogs.value
+    .filter((blog) => {
+      if (filters.value.status === 'published' && !blog.isPublished) return false;
+      if (filters.value.status === 'draft' && blog.isPublished) return false;
+      if (
+        filters.value.search &&
+        !`${blog.title} ${blog.description}`.toLowerCase().includes(filters.value.search.toLowerCase())
+      )
+        return false;
+      if (filters.value.tag && !blog.tags.some((tag) => tag.name === filters.value.tag)) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.publishedAt || a.createdAt);
+      const dateB = new Date(b.publishedAt || b.createdAt);
+      return filters.value.sort === 'asc' ? dateA - dateB : dateB - dateA;
+    });
+});
+
+const paginatedBlogs = computed(() => {
+  const start = (currentPage.value - 1) * perPage;
+  return filteredBlogs.value.slice(start, start + perPage);
+});
 
 onMounted(() => {
   fetchMyBlogs();
 });
 </script>
+
 
 <style scoped>
 </style>

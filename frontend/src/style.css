@@ -705,7 +705,27 @@ body {
   background-color: #eee;
   border-radius: 6px;
 }
+.pagination-container{
+  padding-top: 1rem;
+}
+.panel-filters{
+  display:flex;
+  width:80%;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.panel-filters .panel-filter{
+  width:24%;
+}
 @media (max-width: 1025px) {
+  .panel-filters{
+    width:100%;
+    flex-direction: column;
+  }
+  .panel-filters .panel-filter{
+    width:100%;
+    margin-bottom: .5rem;
+  }
   .dropdown-menu {
     min-width: 100vw !important;
     border-radius: 0;
