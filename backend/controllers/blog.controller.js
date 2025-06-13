@@ -4,6 +4,7 @@ const slugify = require('slugify');
 const admin   = require('../firebase');
 const bucket  = admin.storage().bucket();
 const { generateUniqueSlug } = require('../utils/slug');
+const { sendBlogCreatedEmail } = require('../services/mailService');
 
 exports.createBlog = async (req, res, next) => {
   try {
@@ -79,11 +80,14 @@ exports.createBlog = async (req, res, next) => {
       });
     }
 
-    await newPost.save();
+    //await newPost.save();
+    const savedPost = await newPost.save();
+    await savedPost.populate({ path: 'userId', select: 'name email' });
+    await sendBlogCreatedEmail(savedPost.userId, savedPost);
 
     res.status(201).json({
       message: 'Blog post created successfully',
-      post:    newPost
+      post:    savedPost
     });
   } catch (err) {
     console.error('❌ createBlog error:', err);
