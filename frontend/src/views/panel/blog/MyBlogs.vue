@@ -70,7 +70,7 @@
         <div class="blog-buttons mb-3 flex items-center justify-between text-sm">
           <el-button type="primary" :icon="Edit" circle />
           <el-button type="primary" size="small" @click="viewBlog(blog.slug)" class="w-full">View</el-button>
-          <el-button type="danger" :icon="Delete" circle />
+          <el-button type="danger" :icon="Delete" circle @click="confirmDelete(blog)" />
         </div>
 
         <div class="status-date mb-3 flex items-center justify-between text-sm">
@@ -101,7 +101,7 @@
 
 <script setup>
 import { onMounted, ref, computed, watch } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { useAuth } from '../../../composables/useAuth';
 import { Check, Delete, Edit } from '@element-plus/icons-vue';
@@ -145,6 +145,34 @@ const formatDate = (date) => {
 
 const viewBlog = (slug) => {
   router.push(`/blog/${slug}`);
+};
+
+const confirmDelete = (blog) => {
+  ElMessageBox.confirm(
+    `Are you sure you want to delete "${blog.title}"? This action is permanent`,
+    'Confirm Deletion',
+    {
+      confirmButtonText: 'Delete',
+      cancelButtonText: 'Cancel',
+      type: 'warning',
+      dangerouslyUseHTMLString: true,
+    }
+  )
+    .then(() => deleteBlog(blog))
+    .catch(() => {
+      // Cancelled
+    });
+};
+
+const deleteBlog = async (blog) => {
+  try {
+    await auth.deleteMyBlog(blog._id);
+    blogs.value = blogs.value.filter((b) => b._id !== blog._id);
+    ElMessage.success('Blog deleted successfully.');
+  } catch (err) {
+    console.error(err);
+    ElMessage.error('Failed to delete the blog.');
+  }
 };
 
 const allTags = computed(() => {

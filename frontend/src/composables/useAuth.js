@@ -78,6 +78,17 @@ export const useAuth = defineStore('auth', () => {
         }
     }
 
+    const deleteMyBlog = async (blogId) => {
+      try {
+          const res = await secureApi.post('/blog/create', blogId);
+          return res.data;
+      } catch (error) {
+        console.error('Error deleting blog:', error);
+        throw error;
+      }
+    };
+
+
     const fetchMyBlogs = async () => {
       try {
         const res = await secureApi.get('/blog/my-blogs');
@@ -87,6 +98,8 @@ export const useAuth = defineStore('auth', () => {
         throw err;
       }
   };
+
+
 
   const logout = async (shouldRedirect = true) => {
         try {
@@ -112,6 +125,7 @@ export const useAuth = defineStore('auth', () => {
     updateProfile,
     changePassword,
     createBlogPost,
+    deleteMyBlog,
     fetchMyBlogs,
     setBio,
     logout,

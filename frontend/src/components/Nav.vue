@@ -83,9 +83,6 @@
           <router-link to="/panel/my-blogs" class="dropdown-link">
             <el-dropdown-item command="myBlogs">My Blogs</el-dropdown-item>
           </router-link>
-          <router-link to="/panel/drafts" class="dropdown-link">
-            <el-dropdown-item command="drafts">Drafts</el-dropdown-item>
-          </router-link>
 
           <el-dropdown-item divided class="no-padding"></el-dropdown-item>
 
