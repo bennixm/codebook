@@ -3,6 +3,7 @@ const admin = require('../firebase');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const { sendPasswordChangedEmail } = require('../services/mailService');
+const { extractFirebasePath }   = require('../utils/extract-firebase-path');
 
 const bucket = admin.storage().bucket();
 
@@ -142,11 +143,4 @@ exports.setBio = async (req, res) => {
   }
 };
 
-function extractFirebasePath(url) {
-  try {
-    const match = url.match(/https:\/\/storage\.googleapis\.com\/[^\/]+\/(.+)/);
-    return match?.[1] ?? null;
-  } catch {
-    return null;
-  }
-}
+

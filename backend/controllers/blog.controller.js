@@ -5,6 +5,7 @@ const admin   = require('../firebase');
 const bucket  = admin.storage().bucket();
 const { generateUniqueSlug } = require('../utils/slug');
 const { sendBlogCreatedEmail } = require('../services/mailService');
+const { extractFirebasePath }   = require('../utils/extract-firebase-path');
 
 exports.createBlog = async (req, res, next) => {
   try {
@@ -120,4 +121,62 @@ exports.fetchBlogsByUser = async (req, res, next) => {
     next(err);
   }
 };
+exports.deleteBlog = async (req, res, next) => {
+    try {
+      const blogId = req.params.id;
+      const userId = req.user._id || req.user.id;
+  
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized: missing user ID' });
+      }
+  
+      
+      const blog = await Blog.findOne({ _id: blogId, userId });
+      if (!blog) {
+        return res.status(404).json({ error: 'Blog post not found or no permission to delete.' });
+      }
+  
+      
+      if (blog.coverImage) {
+        const coverPath = extractFirebasePath(blog.coverImage);
+        if (coverPath) {
+          try {
+            await bucket.file(coverPath).delete();
+          } catch (err) {
+            console.warn('⚠️ Failed to delete cover image:', err.message);
+          }
+        }
+      }
+  
+     
+      if (blog.content) {
+        const contentObj =
+          typeof blog.content === 'string'
+            ? JSON.parse(blog.content)
+            : blog.content;
+  
+        if (Array.isArray(contentObj.blocks)) {
+          for (const blk of contentObj.blocks) {
+            if (blk.type === 'image' && blk.data?.file?.url) {
+              const imgPath = extractFirebasePath(blk.data.file.url);
+              if (imgPath) {
+                try {
+                  await bucket.file(imgPath).delete();
+                } catch (err) {
+                  console.warn('⚠️ Failed to delete block image:', err.message);
+                }
+              }
+            }
+          }
+        }
+      }
+ 
+      await blog.deleteOne();
+  
+      res.status(200).json({ message: 'Blog post deleted successfully' });
+    } catch (err) {
+      console.error('❌ deleteBlog error:', err);
+      next(err);
+    }
+  };
 
