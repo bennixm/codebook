@@ -83,7 +83,7 @@
     </div>
 
     <div v-if="filteredBlogs.length === 0 && !loading" class="text-center mt-6 text-gray-500">
-      No blogs match your filters.
+      <el-empty description="No blogs match your filters." />
     </div>
 
     <div class="pagination-container flex justify-center mt-6" v-if="filteredBlogs.length > perPage">
@@ -100,7 +100,7 @@
 
 
 <script setup>
-import { onMounted, ref, computed } from 'vue';
+import { onMounted, ref, computed, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import { useAuth } from '../../../composables/useAuth';
@@ -180,10 +180,15 @@ const paginatedBlogs = computed(() => {
   return filteredBlogs.value.slice(start, start + perPage);
 });
 
+watch(filters, () => {
+  currentPage.value = 1;
+}, { deep: true });
+
 onMounted(() => {
   fetchMyBlogs();
 });
 </script>
+
 
 
 <style scoped>
