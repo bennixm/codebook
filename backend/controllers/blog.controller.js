@@ -121,3 +121,22 @@ exports.fetchBlogsByUser = async (req, res, next) => {
   }
 };
 
+exports.fetchBlogBySlug = async (req, res, next) => {
+  try {
+    const { slug } = req.params;
+
+    const blog = await Blog.findOne({ slug })
+      .populate('tags', 'name')
+      .populate('userId', 'name username avatar');
+
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+
+    res.status(200).json(blog);
+  } catch (err) {
+    console.error('❌ fetchBlogBySlug error:', err);
+    next(err);
+  }
+};
+
