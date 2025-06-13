@@ -8,6 +8,7 @@ export const useAuth = defineStore('auth', () => {
   const user = ref(null);
   const isAuthenticated = ref(false);
   const authReady = ref(false);
+
   
 
   const fetchProfile = async () => {
@@ -77,6 +78,16 @@ export const useAuth = defineStore('auth', () => {
         }
     }
 
+    const fetchMyBlogs = async () => {
+      try {
+        const res = await secureApi.get('/blog/my-blogs');
+        return res.data;
+      } catch (err) {
+        console.error('Failed to fetch user blogs:', err.response?.data || err.message);
+        throw err;
+      }
+  };
+
   const logout = async (shouldRedirect = true) => {
         try {
           await secureApi.post('/auth/logout');
@@ -101,6 +112,7 @@ export const useAuth = defineStore('auth', () => {
     updateProfile,
     changePassword,
     createBlogPost,
+    fetchMyBlogs,
     setBio,
     logout,
   };
