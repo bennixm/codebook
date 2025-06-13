@@ -117,6 +117,62 @@ async function sendPasswordResetSuccessEmail(user) {
 
   await sendMailgenEmail(user.email, `${APP_NAME} - Password successfully reset`, body);
 }
+async function sendBlogCreatedEmail(user, blog) {
+  // Build HTML snippet for the cover image if available
+  const coverHtml = blog.coverImage
+    ? `
+      <div style="text-align:center; margin:20px 0;">
+        <img
+          src="${blog.coverImage}"
+          alt="Cover Image for ${blog.title}"
+          style="width:100%; max-width:600px; border-radius:8px;"
+        />
+      </div>`
+    : '';
+
+  const body = {
+    body: {
+      name: user.name,
+      intro: `
+        <style>
+          .email-logo {
+            width: 200px !important;
+            height: 150px !important;
+            max-height: 150px !important;
+          }
+        </style>
+        <div style="text-align:center; margin-bottom:20px;">
+          <img src="${LOGO_URL}" class="email-logo" alt="${APP_NAME} logo" />
+        </div>
+        ${coverHtml}
+        Great news — your new blog post has just been published!
+      `,
+      table: {
+        data: [
+          { label: 'Title',       value: blog.title },
+          { label: 'Excerpt',     value: blog.excerpt || '(no excerpt provided)' },
+          { label: 'Published At', value: blog.publishedAt.toLocaleString() }
+        ]
+      },
+      action: {
+        instructions: 'View your post now:',
+        button: {
+          color: '#3498db',
+          text:  'Read Post',
+          link:  `${APP_URL}/blogs/${blog.slug}`
+        }
+      },
+      outro: 'Thanks for sharing your story with the community. We can’t wait to see the reactions!'
+    }
+  };
+
+  await sendMailgenEmail(
+    user.email,
+    `Your ${APP_NAME} Post "${blog.title}" Is Live`,
+    body
+  );
+}
 
 
-module.exports = { sendWelcomeEmail, sendPasswordChangedEmail, sendForgotPasswordEmail,sendPasswordResetSuccessEmail};
+
+module.exports = { sendWelcomeEmail, sendPasswordChangedEmail, sendForgotPasswordEmail,sendPasswordResetSuccessEmail, sendBlogCreatedEmail };

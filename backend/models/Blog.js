@@ -87,15 +87,48 @@ const blogSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Pre-save hook to auto-generate excerpt and calculate reading time
 blogSchema.pre('save', function(next) {
   if (this.isModified('content')) {
-    this.excerpt = this.content.slice(0, 200) + '...';
-    const words = this.content.split(/\s+/).length;
-    // Assuming average reading speed of 200 wpm
-    this.readingTime = Math.ceil(words / 200);
+    let blocks = []
+
+    // 1) get the blocks array, whether content is stored as a string or object
+    if (typeof this.content === 'string') {
+      try {
+        blocks = JSON.parse(this.content).blocks || []
+      } catch (e) {
+        blocks = []
+      }
+    } else if (this.content && Array.isArray(this.content.blocks)) {
+      blocks = this.content.blocks
+    }
+
+    // 2) extract *only* the text from each block
+    const textSegments = blocks
+      .filter(b => {
+        // include any block types that carry human‐readable text
+        return b.type === 'text' || b.type === 'header' || b.type === 'paragraph'
+      })
+      .map(b => {
+        // for each block, pull out whichever field holds the text
+        if (typeof b.data.text === 'string')         return b.data.text
+        if (typeof b.data.caption === 'string')      return b.data.caption
+        if (typeof b.data.description === 'string')  return b.data.description
+        return ''
+      })
+
+    const fullText = textSegments.join(' ').trim()
+
+    // 3) generate the excerpt (first 200 chars) and readingTime
+    this.excerpt = fullText.length > 200
+      ? fullText.slice(0, 200) + '…'
+      : fullText
+
+    const wordCount = fullText.split(/\s+/).filter(Boolean).length
+    this.readingTime = Math.ceil(wordCount / 200)
   }
-  next();
-});
+
+  next()
+})
+
 
 module.exports = mongoose.model('Blog', blogSchema);
