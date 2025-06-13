@@ -1,4 +1,3 @@
-// controllers/blogController.js
 const Blog    = require('../models/Blog');
 const Tag     = require('../models/Tag');
 const slugify = require('slugify');
@@ -8,9 +7,6 @@ const { generateUniqueSlug } = require('../utils/slug');
 
 exports.createBlog = async (req, res, next) => {
   try {
-    // Debugging: ensure req.user and req.body are present
-    console.log('👤 req.user:', req.user);
-    console.log('📦 req.body:', req.body);
 
     const {
       title,
@@ -21,7 +17,6 @@ exports.createBlog = async (req, res, next) => {
       isDraft
     } = req.body;
 
-    // Determine author ID (handle different auth shapes)
     const userId = req.user._id || req.user.id;
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized: missing user ID' });
@@ -32,7 +27,6 @@ exports.createBlog = async (req, res, next) => {
     const draft         = isDraft === 'true';
     const commentsAllowed = allowComments === 'true';
 
-    // Validate tags exist
     const existingTags = await Tag.find({ _id: { $in: parsedTags } }).select('_id');
     if (existingTags.length !== parsedTags.length) {
       const foundIds   = existingTags.map(t => t._id.toString());
@@ -40,7 +34,6 @@ exports.createBlog = async (req, res, next) => {
       return res.status(400).json({ error: `Invalid tag IDs: ${invalidIds.join(', ')}` });
     }
 
-    // Generate slug and initialize new post
     const uniqueSlug = await generateUniqueSlug(title);
     const newPost = new Blog({
       title:        title.trim(),
@@ -54,7 +47,6 @@ exports.createBlog = async (req, res, next) => {
     });
     const blogId = newPost._id.toString();
 
-    // Handle cover image (req.fileBuffer populated by middleware)
     if (req.fileBuffer && req.fileMeta) {
       const { mime, ext } = req.fileMeta;
       const filePath = `blogs/${blogId}/cover/cover_${Date.now()}.${ext}`;
@@ -66,7 +58,6 @@ exports.createBlog = async (req, res, next) => {
       newPost.coverImage = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
     }
 
-    // Process EditorJS image blocks
     if (parsedContent.blocks) {
       newPost.content = JSON.stringify({
         ...parsedContent,
@@ -97,7 +88,6 @@ exports.createBlog = async (req, res, next) => {
   } catch (err) {
     console.error('❌ createBlog error:', err);
     if (err.name === 'ValidationError') {
-      // Mongoose schema validation error
       return res.status(400).json({ errors: err.errors });
     }
     if (err.name === 'MongoError' && err.code === 11000) {
@@ -106,3 +96,24 @@ exports.createBlog = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.fetchBlogsByUser = async (req, res, next) => {
+  try {
+    const userId = req.user._id || req.user.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: missing user ID' });
+    }
+
+    const blogs = await Blog.find({ userId })
+      .populate('tags', 'name')
+      .sort({ createdAt: -1 }) 
+      .select('title slug description coverImage tags isPublished publishedAt createdAt');
+
+    res.status(200).json(blogs);
+  } catch (err) {
+    console.error('❌ fetchBlogsByUser error:', err);
+    next(err);
+  }
+};
+

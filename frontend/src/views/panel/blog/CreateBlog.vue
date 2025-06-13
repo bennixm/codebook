@@ -128,6 +128,8 @@ import Paragraph from '@editorjs/paragraph';
 import { ElMessage } from 'element-plus';
 import { Trash2 } from 'lucide-vue-next';
 
+import { useRouter } from 'vue-router';
+
 import { UploadFilled } from '@element-plus/icons-vue';
 import api from '../../../api';
 
@@ -140,6 +142,7 @@ export default {
   
     const isDraft = ref(true);
     const coverFileList = ref([]);
+    const router = useRouter();
 
     const coverError = ref(false);
 
@@ -363,6 +366,7 @@ export default {
           try{
           await createBlogPost(formDataToSend);
             ElMessage.success('Blog was created successfully.');
+            router.push('/panel/my-blogs');
           }
           catch (error) {
             console.error('Error creating blog post:', error);
