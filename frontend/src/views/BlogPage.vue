@@ -1,5 +1,5 @@
 <template>
-    <div class="blog-page panel-container" v-loading="loading">
+    <div class="blog-page" v-loading="loading">
       <div v-if="blog">
       <div v-if="blog.coverImage" class="cover-image rounded-xl overflow-hidden" style="width:100%;height:288px;">
         <el-image
@@ -69,19 +69,25 @@
         const parsed = edjsParser.parse(editorData);
         const htmlBlocks = Object.values(parsed).flat();
 
-        const enhancedHtml = htmlBlocks.map(html => {
-          if (html.startsWith('<pre><code')) {
-            const codeMatch = html.match(/<code.*?>([\s\S]*?)<\/code>/);
-            const rawCode = codeMatch?.[1]
-              ?.replace(/&lt;/g, '<')
-              .replace(/&gt;/g, '>')
-              .replace(/&amp;/g, '&') || '';
+      const enhancedHtml = htmlBlocks.map(html => {
+        if (html.startsWith('<pre><code')) {
+          const codeMatch = html.match(/<code.*?>([\s\S]*?)<\/code>/);
+          const rawCode = codeMatch?.[1]
+            ?.replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&') || '';
 
-            const highlighted = Prism.highlight(rawCode, Prism.languages.javascript, 'javascript');
-            return `<pre class="language-javascript"><code class="language-javascript">${highlighted}</code></pre>`;
-          }
-          return html;
-        });
+          const highlighted = Prism.highlight(rawCode, Prism.languages.javascript, 'javascript');
+
+          return `
+            <div class="code-block-wrapper relative">
+              <button class="copy-button absolute top-2 right-2 text-xs px-2 py-1 bg-gray-700 text-white rounded z-10">Copy</button>
+              <pre class="language-javascript"><code class="language-javascript">${highlighted}</code></pre>
+            </div>`;
+        }
+        return html;
+      });
+
 
         return enhancedHtml.join('');
       } catch (error) {
@@ -111,6 +117,7 @@
 
           blog.value = data;
           nextTick(() => Prism.highlightAll());
+
         } catch (err) {
           console.error(err);
           ElMessage.error('Failed to load the blog.');
@@ -128,13 +135,40 @@
       });
     };
 
-    onMounted(() => {
-      fetchBlog();
+onMounted(() => {
+  fetchBlog().then(() => {
+    nextTick(() => {
+      Prism.highlightAll();
+
+      document.querySelectorAll('.blog-content pre').forEach((block) => {
+        if (block.parentElement?.classList.contains('code-block-wrapper')) return;
+
+        const btn = document.createElement('button');
+        btn.className = 'copy-button';
+        btn.innerText = 'Copy';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'code-block-wrapper';
+        block.parentNode.insertBefore(wrapper, block);
+        wrapper.appendChild(block);
+        wrapper.appendChild(btn);
+
+        btn.addEventListener('click', () => {
+          const code = block.textContent || '';
+          navigator.clipboard.writeText(code).then(() => {
+            btn.innerText = 'Copied!';
+            setTimeout(() => (btn.innerText = 'Copy'), 1500);
+          });
+        });
+      });
     });
+  });
+});
+
+
 </script>
 
-  
-  <style scoped>
+<style scoped>
 .blog-content :deep(p) {
   margin-bottom: 1rem;
 }
@@ -170,8 +204,6 @@
   padding: 0;
   font-family: inherit;
 }
-
-/* Additional Prism-specific overrides */
 .blog-content :deep(.token.comment) { color: #999988; font-style: italic; }
 .blog-content :deep(.token.punctuation) { color: #ccc; }
 .blog-content :deep(.token.keyword) { color: #cc99cd; }
@@ -181,6 +213,33 @@
 .blog-content :deep(pre) {
   border-left: 4px solid #00a76f;
 }
+.blog-content :deep(.code-block-wrapper) {
+  position: relative;
+  margin: 2rem 0;
+}
 
+.blog-content :deep(.code-block-wrapper pre) {
+  margin: 0 !important;
+}
+
+.blog-content :deep(.copy-button) {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #4b5563;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0.7;
+  z-index: 10;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.blog-content :deep(.copy-button:hover) {
+  opacity: 1;
+}
   </style>
   

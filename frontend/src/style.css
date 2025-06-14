@@ -762,6 +762,7 @@ body {
 }
 .blog-container-content{
   margin:0 auto;
+  padding:1rem;
 }
 .blog-page .main-title{
   padding-top:1rem;
