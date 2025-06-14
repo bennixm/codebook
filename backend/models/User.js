@@ -58,24 +58,13 @@ const userSchema = new mongoose.Schema({
     default: ''
   },
 
-  // Social Links
-  social: {
-    twitter: { type: String, default: '' },
-    github: { type: String, default: '' },
-    website: { type: String, default: '' },
-    linkedin: { type: String, default: '' }
-  },
 
-  
   resetToken: String,
   resetTokenExpires: Date,
   passwordResetToken: String,
   passwordResetExpiresAt: Date,
 
-  postsCount: {
-    type: Number,
-    default: 0
-  },
+ 
 
   followers: [{
     type: mongoose.Schema.Types.ObjectId,

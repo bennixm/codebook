@@ -142,5 +142,108 @@ exports.setBio = async (req, res) => {
     res.status(500).json({ error: 'Failed to update bio' });
   }
 };
+exports.followUser = async (req, res, next) => {
+  try {
+    const currentUserId = req.user.id || req.user._id;
+    const targetUserId = req.params.id;
+
+    if (currentUserId === targetUserId) {
+      return res.status(400).json({ error: 'You cannot follow yourself.' });
+    }
+
+    const currentUser = await User.findByIdAndUpdate(
+      currentUserId,
+      { $addToSet: { following: targetUserId } },
+      { new: true }
+    );
+
+    const targetUser = await User.findByIdAndUpdate(
+      targetUserId,
+      { $addToSet: { followers: currentUserId } },
+      { new: true }
+    );
+
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User to follow not found.' });
+    }
+
+    res.status(200).json({
+      message: `You are now following ${targetUser.name}.`,
+      following: currentUser.following,
+      followersCount: targetUser.followers.length
+    });
+  } catch (err) {
+    console.error('❌ followUser error:', err);
+    next(err);
+  }
+};
+
+exports.unfollowUser = async (req, res, next) => {
+  try {
+    const currentUserId = req.user.id || req.user._id;
+    const targetUserId = req.params.id;
+
+    if (currentUserId === targetUserId) {
+      return res.status(400).json({ error: 'You cannot unfollow yourself.' });
+    }
+
+    const currentUser = await User.findByIdAndUpdate(
+      currentUserId,
+      { $pull: { following: targetUserId } },
+      { new: true }
+    );
+
+    const targetUser = await User.findByIdAndUpdate(
+      targetUserId,
+      { $pull: { followers: currentUserId } },
+      { new: true }
+    );
+
+    if (!targetUser) {
+      return res.status(404).json({ error: 'User to unfollow not found.' });
+    }
+
+    res.status(200).json({
+      message: `You have unfollowed ${targetUser.name}.`,
+      following: currentUser.following,
+      followersCount: targetUser.followers.length
+    });
+  } catch (err) {
+    console.error('❌ unfollowUser error:', err);
+    next(err);
+  }
+};
+
+exports.getFollowers = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId)
+      .populate('followers', 'name avatar')
+      .select('followers');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    res.status(200).json({ followers: user.followers });
+  } catch (err) {
+    console.error('❌ getFollowers error:', err);
+    next(err);
+  }
+};
+
+exports.getFollowing = async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId)
+      .populate('following', 'name avatar')
+      .select('following');
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    res.status(200).json({ following: user.following });
+  } catch (err) {
+    console.error('❌ getFollowing error:', err);
+    next(err);
+  }
+};
 
 

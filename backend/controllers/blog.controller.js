@@ -1,5 +1,6 @@
 const Blog    = require('../models/Blog');
 const Tag     = require('../models/Tag');
+const Guest = require('../models/Guest');
 const slugify = require('slugify');
 const admin   = require('../firebase');
 const bucket  = admin.storage().bucket();
@@ -214,4 +215,179 @@ exports.fetchBlogBySlug = async (req, res, next) => {
     next(err);
   }
 };
+exports.addComment = async (req, res, next) => {
+    try {
+      const blogId = req.params.id;
+      const { text, guestname, replyid } = req.body;
+      const userId = req.user?.id || req.user?._id;
+      const { guestId } = req.guest;
+  
+     
+      const comment = {
+        text: text.trim(),
+        createdAt: new Date(),
+        replyid
+      };
+  
+      if (userId) {
+        comment.userId = userId;
+      } else {
+        res.cookie('guestName', name, {
+            httpOnly: false,
+            sameSite: 'lax',
+            maxAge: 1000 * 60 * 60 * 24 * 365
+          });
+
+        await Guest.findOneAndUpdate(
+            { guestId },
+            { guestId, guestName },
+            { upsert: true, new: true }
+          );
+       
+        comment.guestId   = guestId;
+        req.guest.guestName = guestname;
+       
+      }
+  
+      if (replyid) {
+        const exists = await Blog.findOne({ _id: blogId, 'comments._id': replyid });
+        if (!exists) {
+          return res.status(400).json({ error: 'Parent comment not found.' });
+        }
+        comment.replyid = replyid;
+      }
+  
+      const updated = await Blog.findByIdAndUpdate(
+        blogId,
+        { $push: { comments: comment } },
+        { new: true, runValidators: true }
+      ).populate('comments.userId', 'name avatar');
+  
+      if (!updated) {
+        return res.status(404).json({ error: 'Blog post not found.' });
+      }
+  
+      res.status(201).json({ comments: updated.comments });
+    } catch (err) {
+      console.error('❌ addComment error:', err);
+      next(err);
+    }
+  };
+  
+  exports.deleteComment = async (req, res, next) => {
+    try {
+      const blogId = req.params.id;
+      const commentId = req.params.commentId;
+      const userId = req.user?.id || req.user?._id;
+  
+      if (!userId) {
+        return res.status(403).json({ error: 'Not authorized to delete comments.' });
+      }
+  
+      const blog = await Blog.findById(blogId);
+      if (!blog) {
+        return res.status(404).json({ error: 'Blog post not found.' });
+      }
+  
+      const comment = blog.comments.id(commentId);
+      if (!comment) {
+        return res.status(404).json({ error: 'Comment not found.' });
+      }
+  
+      const isAuthor = comment.userId?.toString() === userId.toString();
+      const isOwner  = blog.userId.toString() === userId.toString();
+      if (!isAuthor && !isOwner) {
+        return res.status(403).json({ error: 'Not authorized to delete this comment.' });
+      }
+  
+      // Remove the targeted comment and its direct replies
+      blog.comments = blog.comments.filter(c => {
+        const isTarget = c._id.toString() === commentId;
+        const isChild  = c.replyid?.toString() === commentId;
+        return !(isTarget || isChild);
+      });
+  
+      await blog.save();
+      res.status(200).json({ comments: blog.comments });
+    } catch (err) {
+      console.error('❌ deleteComment error:', err);
+      next(err);
+    }
+  };
+  exports.incrementViews = async (req, res, next) => {
+    try {
+      const blogId = req.params.id;
+      const userId = req.user?.id || req.user?._id;
+      const { guestId, guestName } = req.guest;
+      let viewEntry = { at: new Date() };
+  
+      if (userId) {
+        viewEntry.userId = userId;
+      } else {
+       
+        viewEntry.guestId = guestId;
+       
+      }
+  
+      const updated = await Blog.findByIdAndUpdate(
+        blogId,
+        { $addToSet: { views: viewEntry } },
+        { new: true }
+      );
+      if (!updated) return res.status(404).json({ error: 'Blog post not found.' });
+  
+      res.status(200).json({
+        totalViews: updated.views.length,
+        viewers:    updated.views
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+  
+
+  exports.likeBlog = async (req, res, next) => {
+    try {
+      const blogId = req.params.id;
+      const userId = req.user?.id || req.user?._id;
+      if (!userId) return res.status(401).json({ error: 'Authentication required to like.' });
+  
+      const updated = await Blog.findByIdAndUpdate(
+        blogId,
+        { $addToSet: { likes: userId } },
+        { new: true }
+      );
+      if (!updated) return res.status(404).json({ error: 'Blog post not found.' });
+  
+      res.status(200).json({
+        likesCount: updated.likes.length,
+        likers:     updated.likes
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+  
+
+  exports.unlikeBlog = async (req, res, next) => {
+    try {
+      const blogId = req.params.id;
+      const userId = req.user?.id || req.user?._id;
+      if (!userId) return res.status(401).json({ error: 'Authentication required to unlike.' });
+  
+      const updated = await Blog.findByIdAndUpdate(
+        blogId,
+        { $pull: { likes: userId } },
+        { new: true }
+      );
+      if (!updated) return res.status(404).json({ error: 'Blog post not found.' });
+  
+      res.status(200).json({
+        likesCount: updated.likes.length,
+        likers:     updated.likes
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
 
