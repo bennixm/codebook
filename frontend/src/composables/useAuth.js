@@ -81,13 +81,14 @@ export const useAuth = defineStore('auth', () => {
 
     const deleteMyBlog = async (blogId) => {
       try {
-          const res = await secureApi.post('/blog/create', blogId);
-          return res.data;
+        const res = await secureApi.delete(`/blog/delete/${blogId}`);
+        return res.data;
       } catch (error) {
         console.error('Error deleting blog:', error);
         throw error;
       }
     };
+
 
     const fetchMyBlogs = async () => {
       try {
@@ -97,7 +98,7 @@ export const useAuth = defineStore('auth', () => {
         console.error('Failed to fetch user blogs:', err.response?.data || err.message);
         throw err;
       }
-  };
+    };
 
     const fetchBlogBySlug = async (slug) => {
     try {

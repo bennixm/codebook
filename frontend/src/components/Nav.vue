@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <router-link to="/" class="logo nav-left" aria-label="CodeBook Home">
-      <img src="../assets/img/logo.png" alt="CodeBook logo" />
+      <img src="https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/logo.png?alt=media&token=3ca2bb58-59af-482a-8cd8-f869b060c5b1" alt="CodeBook logo" />
     </router-link>
   <el-menu
     :default-active="$route.path"
