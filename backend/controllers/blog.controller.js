@@ -184,13 +184,29 @@ exports.fetchBlogBySlug = async (req, res, next) => {
   try {
     const { slug } = req.params;
 
+    const userId = req.user?.id || req.user?._id;
+
     const blog = await Blog.findOne({ slug })
       .populate('tags', 'name')
       .populate('userId', 'name username avatar');
 
+    const isPublished = blog.isPublished;
+
+    let isOwner = false;
+  
+    if(userId){
+      isOwner = blog.userId._id.toString() === userId.toString();
+    }
+
+
     if (!blog) {
       return res.status(404).json({ error: 'Blog not found' });
     }
+
+    if (!isOwner && !isPublished) {
+      return res.status(403).json({ error: 'You are not allowed to view this.' });
+    }
+
 
     res.status(200).json(blog);
   } catch (err) {
