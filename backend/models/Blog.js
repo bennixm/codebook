@@ -44,35 +44,29 @@ const blogSchema = new mongoose.Schema({
        }
      ],
 
-  comments: [
-    {
-      userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-      },
-      text: {
-        type: String,
-        required: true
-      },
-      createdAt: {
-        type: Date,
-        default: Date.now
+     comments: [
+      {
+        userId:    { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        guestId:   { type: mongoose.Schema.Types.ObjectId, ref: 'Guest' },
+        text:      { type: String, required: true },
+        createdAt: { type: Date,   default: Date.now },
+        replyid:   { type: mongoose.Schema.Types.ObjectId }
       }
-    }
-  ],
+    ],
   allowComments: {
     type: Boolean,
     default: true
   },
-  views: {
-    type: Number,
-    default: 0
-  },
-  likes: {
-    type: Number,
-    default: 0
-  },
+  views: [
+    {
+      userId:    { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      guestId:   { type: mongoose.Schema.Types.ObjectId, ref: 'Guest' },
+      at:        { type: Date,   default: Date.now }
+    }
+  ],
+  likes: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  ],
   readingTime: {
     type: Number
   },

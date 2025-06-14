@@ -66,6 +66,28 @@ const createBlogRules = [
       return true;
     }),
 ];
+const validateAddComment = [
+
+    body('text')
+      .trim()
+      .notEmpty().withMessage('Comment text is required.')
+      .isLength({ max: 500 }).withMessage('Comment text must be at most 500 characters.'),
+  
+    body('guestname')
+      .if((value, { req }) => !req.user)
+      .trim()
+      .notEmpty().withMessage('Guest name is required for anonymous comments.'),
+  
+    
+  
+    (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    }
+  ];
 
 const validateBlog = (req, res, next) => {
   const errors = validationResult(req);
@@ -79,4 +101,5 @@ const validateBlog = (req, res, next) => {
 module.exports = {
   createBlogRules,
   validateBlog,
+  validateAddComment
 };
