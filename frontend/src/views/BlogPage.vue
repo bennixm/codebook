@@ -1,7 +1,34 @@
 <template>
-    <div class="blog-page" v-loading="loading">
-      <div v-if="blog">
-      <div v-if="blog.coverImage" class="cover-image rounded-xl overflow-hidden" style="width:100%;height:288px;">
+    <div v-if="blog" class="blog-page" v-loading="loading">
+      <div class="blog-primary">
+      <div class="mx-auto space-y-6">
+
+      <el-page-header :icon="ArrowLeft" @back="router.back()" class="page-header-blog">
+        <template #content>
+         <router-link :to="`/blog/${blog.slug}`" class="page-header-slug text-large font-600 mr-3 text-primary hover:underline">
+        {{ blog.slug }}
+         </router-link>
+        </template>
+      </el-page-header>
+  
+      <h1 class="main-title text-3xl font-bold">{{ blog.title }}</h1>
+      <span class="main-desc text-2xl">{{ blog.description }}</span>
+    
+       <el-divider />
+
+       <div class="profile-section-blog-heading text-gray-500 text-sm flex items-center gap-4 justify-between">
+        <div class="flex items-center gap-2">
+          <el-avatar :src="blog.userId.avatar || ''" size="small" />
+          <span>by <strong>{{ blog.userId.name }} on {{ formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
+        </div>
+        <div class="flex items-center gap-2">
+          <el-button circle @click="shareOnTwitter"><Twitter :size="15" /></el-button>
+          <el-button circle @click="shareOnFacebook"><Facebook :size="15" /></el-button>
+          <el-button circle @click="copyLink"><Share2 :size="15" /></el-button>
+        </div>
+       </div>
+
+      <div v-if="blog.coverImage" class="cover-image rounded-xl overflow-hidden" style="width:100%;height:70vh;">
         <el-image
           :src="blog.coverImage"
           fit="cover"
@@ -10,13 +37,10 @@
           lazy
         />
       </div>
-        <div class="blog-container-content max-w-4xl mx-auto space-y-6">
-  
-        <h1 class="main-title text-3xl font-bold">{{ blog.title }}</h1>
   
         <div class="blog-content text-base leading-relaxed" v-html="blog.content" />
 
-        <el-divider border-style="dotted" />
+        <el-divider />
 
           <div class="tags">
                 <el-tag
@@ -30,22 +54,55 @@
                 </el-tag>
         </div>
 
-        <el-divider border-style="dotted" />
+      <el-divider />
 
-      <div class="text-gray-500 text-sm flex items-center gap-4 justify-end">
-        <span>Published on {{ formatDate(blog.publishedAt || blog.createdAt) }}</span>
+      <div class="comments-section mt-6">
+        <h2 class="text-lg font-semibold mb-4">Comments</h2>
+
+        <el-empty v-if="!comments.length" description="No comments yet." />
+          <el-card
+            v-for="(comment, index) in comments"
+            :key="index"
+            class="mb-4"
+            shadow="hover"
+          >
+          <div class="flex items-center gap-2 mb-2">
+            <el-avatar :src="comment.userId?.avatar || ''" size="small" />
+            <strong>{{ comment.userId?.name || 'Anonymous' }}</strong>
+          </div>
+          <p class="text-gray-700">{{ comment.text }}</p>
+        </el-card>
+
+        <el-form @submit.prevent class="mt-4" :model="newComment">
+          <el-form-item>
+            <el-input
+              type="textarea"
+              v-model="newComment.text"
+              placeholder="Write a comment..."
+               :rows="3"
+            />
+          </el-form-item>
+          <el-form-item>
+            <el-button 
+              type="primary" 
+              :disabled="!newComment.text.trim()" 
+              @click="submitComment"
+            >
+              Submit
+            </el-button>
+          </el-form-item>
+        </el-form>
       </div>
-  
-        <div class="mt-10">
-          <el-button @click="router.back()" type="primary" plain>← Back</el-button>
-        </div>
-        </div>
-      </div>
-  
+     </div>
+    </div>
+    <div class="blog-secondary">
+
+    </div>
+
+    </div>
       <div v-else-if="!loading" class="text-center text-gray-500">
         <el-empty description="Blog not found." />
       </div>
-    </div>
   </template>
   
 <script setup>
@@ -55,13 +112,60 @@
     import { useAuth } from '../composables/useAuth';
     import EditorJSHTML from 'editorjs-html';
     import Prism from 'prismjs';
+    
+
+    import { Share2, Twitter, Facebook, ArrowLeft} from 'lucide-vue-next';
 
     const route = useRoute();
     const router = useRouter();
     const auth = useAuth();
 
     const blog = ref(null);
+
     const loading = ref(true);
+
+    const blogUrl = window.location.href; 
+
+      const shareOnTwitter = () => {
+        const url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(blogUrl)}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      };
+
+      const shareOnFacebook = () => {
+        const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(blogUrl)}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+      };
+
+      const copyLink = async () => {
+        try {
+          await navigator.clipboard.writeText(blogUrl);
+          ElMessage.success('Link copied to clipboard!');
+        } catch (err) {
+          ElMessage.error('Failed to copy link.');
+        }
+      };
+
+
+    const likes = ref(0);
+    const comments = ref([]);
+    const newComment = ref({ text: '' });
+
+    const submitComment = async () => {
+        if (!newComment.value.text.trim()) return;
+
+        try {
+            const result = await auth.addComment(blog.value._id, newComment.value.text.trim());
+
+            console.log(result);
+
+            const refreshedComments = await auth.fetchComments(blog.value._id);
+            comments.value = refreshedComments;
+            
+          newComment.value.text = '';
+        } catch (err) {
+          ElMessage.error('Failed to post comment.');
+        }
+      };
 
     const parseEditorContent = (editorData) => {
       try {
@@ -116,6 +220,9 @@
           }
 
           blog.value = data;
+          const commentData = await auth.fetchComments(blog.value._id);
+          comments.value = commentData;
+
           nextTick(() => Prism.highlightAll());
 
         } catch (err) {
@@ -240,6 +347,9 @@ onMounted(() => {
 
 .blog-content :deep(.copy-button:hover) {
   opacity: 1;
+}
+.comments-section {
+  padding-bottom: 2rem;
 }
   </style>
   
