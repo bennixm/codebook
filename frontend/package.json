@@ -16,6 +16,7 @@
     "@editorjs/inline-code": "^1.5.1",
     "@editorjs/marker": "^1.4.0",
     "@editorjs/paragraph": "^2.11.7",
+    "@element-plus/icons-vue": "^2.3.1",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
     "@tiptap/extension-code-block-lowlight": "^2.12.0",

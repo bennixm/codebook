@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createUser,loginUser,logoutUser,activateUser,resendActivation,resetPassword,forgotPassword } = require('../controllers/auth.controller');
+const { createUser,loginUser,logoutUser,activateUser,resendActivation,resetPassword,forgotPassword,googleCallback } = require('../controllers/auth.controller');
 const { validateUserRules,validateLoginRules,validateForgotPassword,validateResetPassword, validateUser } = require('../middleware/validators/authValidators');
 const rateLimit = require('express-rate-limit');
 const forgotPasswordLimiter = rateLimit({
@@ -16,4 +16,6 @@ router.post('/resend-activation', resendActivation);
 
 router.post('/forgot-password',forgotPasswordLimiter, validateForgotPassword, forgotPassword);
 router.post('/reset-password/', validateResetPassword, resetPassword);
+router.get('/google/callback',googleCallback);
+
 module.exports = router;

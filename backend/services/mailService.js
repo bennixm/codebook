@@ -34,6 +34,40 @@ const activationUrl = `${APP_URL}activate/${user._id}/${token}`;
 
   await sendMailgenEmail(user.email,  `Welcome to ${APP_NAME}!`, body);
 }
+async function sendGoogleWelcomeEmail(user) {
+  
+  const dashboardLink = `${APP_URL}panel/dashboard`;
+
+  const body = {
+    body: {
+      name: user.name,
+      intro: `
+        <style>
+          .email-logo { width:200px !important; height:150px !important;max-height:150px !important; }
+        </style>
+        <div style="text-align:center; margin-bottom:20px;">
+          <img src="${LOGO_URL}" class="email-logo" alt="${APP_NAME} logo" />
+        </div>
+        Thanks for signing up with Google! You’re all set—just click below to dive in.
+      `,
+      action: {
+        instructions: 'Go to your dashboard:',
+        button: {
+          color: '#00a76f',
+          text: 'Start Exploring',
+          link: dashboardLink
+        }
+      },
+      outro: `If you ever need help, just reply to this email. Welcome aboard!`
+    }
+  };
+
+  await sendMailgenEmail(
+    user.email,
+    `Welcome to ${APP_NAME}!`,
+    body
+  );
+}
 async function sendPasswordChangedEmail(user) {
   const body = {
     body: {
@@ -171,7 +205,40 @@ async function sendBlogCreatedEmail(user, blog) {
 
   await sendMailgenEmail(user.email, subject, body);
 }
+async function sendPasswordSetConfirmationEmail(user) {
+  const loginLink = `${APP_URL}auth`;
+
+  const body = {
+    body: {
+      name: user.name,
+      intro: `
+        <style>
+          .email-logo { width:200px !important; height:150px !important; }
+        </style>
+        <div style="text-align:center; margin-bottom:20px;">
+          <img src="${LOGO_URL}" class="email-logo" alt="${APP_NAME} logo" />
+        </div>
+        Your password has been successfully set!
+      `,
+      action: {
+        instructions: 'You can now log in using your email and new password:',
+        button: {
+          color: '#00a76f',
+          text: 'Log In',
+          link: loginLink
+        }
+      },
+      outro: 'If you did not request this change, please contact our support immediately.'
+    }
+  };
+
+  await sendMailgenEmail(
+    user.email,
+    `Your ${APP_NAME} password has been set`,
+    body
+  );
+}
 
 
 
-module.exports = { sendWelcomeEmail, sendPasswordChangedEmail, sendForgotPasswordEmail,sendPasswordResetSuccessEmail, sendBlogCreatedEmail };
+module.exports = { sendWelcomeEmail, sendPasswordChangedEmail, sendForgotPasswordEmail,sendPasswordResetSuccessEmail, sendBlogCreatedEmail,sendGoogleWelcomeEmail,sendPasswordSetConfirmationEmail };

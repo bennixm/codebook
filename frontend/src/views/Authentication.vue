@@ -48,7 +48,14 @@
     </el-form-item>
       <el-form-item>
         <el-button type="primary" native-type="submit">Login</el-button>
+        
       </el-form-item>
+      <el-form-item>
+        <el-button icon="GoogleIcon" @click="onGoogleAuth">
+         Continue with Google
+      </el-button>
+      </el-form-item>
+      
     </el-form>
 
     <el-form
@@ -88,10 +95,16 @@
       </el-form-item>
 
 
-      <el-form-item>
-        <el-button type="primary" native-type="submit">Register</el-button>
-      </el-form-item>
-    </el-form>
+    <el-form-item>
+      <el-button type="primary" native-type="submit">Register</el-button>
+    </el-form-item>
+    <el-form-item>
+      <el-button type="danger" @click="onGoogleAuth">
+        <el-icon><GoogleIcon /></el-icon>
+        Continue with Google
+      </el-button>
+    </el-form-item>
+  </el-form>
      <el-alert
       v-if="showSuccessAlert"
       title="Success"
@@ -119,6 +132,7 @@ import { ref } from 'vue'
 import api from '../api'
 import { useRouter } from 'vue-router';
 import { useAuth } from '../composables/useAuth';
+
 
 const { fetchProfile } = useAuth();
 const router = useRouter();
@@ -232,7 +246,21 @@ const handleRegister = () => {
     }
   });
 };
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const GOOGLE_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+function onGoogleAuth() {
+  console.log('API_BASE is', API_BASE); 
+  const params = new URLSearchParams({
+    client_id:     GOOGLE_ID,
+    redirect_uri:  `${API_BASE}/auth/google/callback`,
+    response_type: 'code',
+    scope:         'openid profile email',
+    prompt:        'select_account'
+  });
+  window.location = `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
+}
 </script>
 
 <style scoped>
+
 </style>

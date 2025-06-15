@@ -1,8 +1,11 @@
+const axios = require('axios');
 const crypto = require('crypto');
 const User = require('../models/user');
+const qs       = require('querystring');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const { sendWelcomeEmail,sendForgotPasswordEmail,sendPasswordResetSuccessEmail} = require('../services/mailService');
+const { sendWelcomeEmail,sendForgotPasswordEmail,sendPasswordResetSuccessEmail, sendGoogleWelcomeEmail} = require('../services/mailService');
+const { generateUniqueUsername } = require('../utils/generateUniqueUsername');
 
 exports.createUser = async (req, res) => {
   const { name, email, username, password } = req.body;
@@ -51,6 +54,83 @@ exports.createUser = async (req, res) => {
       console.error('createUser ERROR:', err);
     }
     res.status(500).json({ error: 'Something went wrong: ' + err.message });
+  }
+};
+exports.googleCallback = async (req, res) => {
+  try {
+    const code = req.query.code;
+
+    
+    const tokenRes = await axios.post(
+      'https://oauth2.googleapis.com/token',
+      qs.stringify({
+        code,
+        client_id:     process.env.GOOGLE_CLIENT_ID,
+        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        redirect_uri:  process.env.API_URL + '/auth/google/callback',
+        grant_type:    'authorization_code'
+      }),
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    );
+    const { access_token } = tokenRes.data;
+
+   
+    const profileRes = await axios.get(
+      'https://www.googleapis.com/oauth2/v2/userinfo',
+      { headers: { Authorization: `Bearer ${access_token}` } }
+    );
+    const { id, email, name, picture } = profileRes.data;
+
+    let user = await User.findOne({ googleId: id });
+   
+    const username = await generateUniqueUsername(email,User);
+    const raw = crypto.randomBytes(32).toString('hex');
+    if (!user) {
+      user = await User.findOne({ email });
+      if (user) {
+        user.googleId     = id;
+        user.provider     = 'google';
+        user.name         = user.name   || name;
+        user.avatar       = user.avatar || picture;
+        await user.save();
+      }
+      else{
+        user = await User.create({
+          provider: 'google',
+          googleId: id,
+          email,
+          isVerified: true,
+          username,
+          password: raw, 
+          name,
+          avatar: picture
+        });
+       sendGoogleWelcomeEmail(user).catch(err => {
+        if (process.env.NODE_ENV !== 'test') {
+          console.error('Failed to send welcome email:', err);
+        }
+      });
+      }
+    }
+   
+   
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '1d'
+    });
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure:   process.env.NODE_ENV === 'production',
+      sameSite: 'Lax',
+      expires:  expiresAt
+    });
+
+    
+    res.redirect(process.env.PRODUCT_URL + 'panel/dashboard');
+
+  } catch (err) {
+    console.error('Google OAuth error', err);
+    res.redirect(process.env.PRODUCT_URL + '/auth?error=oauth_failed');
   }
 };
 

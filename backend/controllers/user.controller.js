@@ -2,7 +2,7 @@ const User = require('../models/user');
 const admin = require('../firebase');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
-const { sendPasswordChangedEmail } = require('../services/mailService');
+const { sendPasswordChangedEmail,sendPasswordSetConfirmationEmail } = require('../services/mailService');
 const { extractFirebasePath }   = require('../utils/extract-firebase-path');
 
 const bucket = admin.storage().bucket();
@@ -142,6 +142,31 @@ exports.setBio = async (req, res) => {
     res.status(500).json({ error: 'Failed to update bio' });
   }
 };
+exports.setPassword = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { newPassword, confirmPassword } = req.body;
+
+  
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+  
+    user.password = newPassword;
+    user.provider = 'local';
+    await user.save();
+
+    sendPasswordSetConfirmationEmail(user).catch(console.error);
+
+    res.json({ message: 'Password set successfully.' });
+  } catch (err) {
+    console.error('setPassword error:', err);
+    res.status(500).json({ error: 'Server error. Please try again later.' });
+  }
+};
+
 exports.followUser = async (req, res, next) => {
   try {
     const currentUserId = req.user.id || req.user._id;
