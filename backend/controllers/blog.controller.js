@@ -488,3 +488,43 @@ exports.addComment = async (req, res, next) => {
     }
   };
 
+
+exports.filterBlogs = async (req, res, next) => {
+  try {
+    const { tags, search, page = 1, limit = 10 } = req.query;
+    const filter = { isPublished: true };
+    if (tags)   filter.tags = { $all: tags.split(',') };
+    if (search) filter.$or = [
+      { title:       new RegExp(search, 'i') },
+      { description: new RegExp(search, 'i') }
+    ];
+
+    const pageNum  = Math.max(parseInt(page, 10), 1);
+    const perPage  = Math.max(parseInt(limit, 10), 1);
+    const skip     = (pageNum - 1) * perPage;
+
+    
+    const total = await Blog.countDocuments(filter);
+
+   
+    const blogs = await Blog.find(filter)
+      .populate('userId','name username avatar')
+      .populate('tags','name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(perPage)
+      .select('title slug description content coverImage tags publishedAt');
+
+    res.json({
+      data:       blogs,
+      page:       pageNum,
+      perPage,
+      totalPages: Math.ceil(total / perPage),
+      total
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+

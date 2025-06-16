@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth/authMiddleware');
 const authOptional = require('../middleware/auth/optionalAuthMiddleware');
-const {createBlog, fetchBlogsByUser , fetchBlogBySlug,deleteBlog,addComment,deleteComment,likeBlog,unlikeBlog,incrementViews,fetchBlogById} = require('../controllers/blog.controller');
+const {createBlog, fetchBlogsByUser , fetchBlogBySlug,deleteBlog,addComment,deleteComment,likeBlog,unlikeBlog,incrementViews,fetchBlogById,filterBlogs} = require('../controllers/blog.controller');
 const {createBlogRules,validateAddComment,validateBlog} = require('../middleware/validators/blogValidators');
 const {validateBlogCoverImage,validateBlogContentImages}= require('../middleware/imageUpload')
 router.post('/create',auth,validateBlogCoverImage(),validateBlogContentImages,createBlogRules,validateBlog,createBlog);
@@ -15,6 +15,7 @@ router.post('/views/:id',incrementViews);
 router.post('/like/:id',   auth, likeBlog);
 router.post('/unlike/:id', auth, unlikeBlog);
 router.get('/get-blog-by/:id', authOptional, fetchBlogById);
+router.get('/filter-blogs',authOptional,filterBlogs);
 
 
 module.exports = router
