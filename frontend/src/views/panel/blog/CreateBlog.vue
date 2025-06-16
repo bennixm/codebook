@@ -370,7 +370,14 @@ export default {
           }
           catch (error) {
             console.error('Error creating blog post:', error);
+            const message = err.response?.data?.error
+    || JSON.stringify(err.response?.data)
+    || err.message;
+  console.error('Error creating blog post:', message);
+  ElMessage.error(message);
+            
             ElMessage.error('Failed to create blog post.');
+
             return;
           }
          
