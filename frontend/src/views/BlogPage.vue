@@ -78,7 +78,7 @@
                 :rows="3"
               />
             </el-form-item>
-            <el-form-item v-if="!isAuthenticated">
+            <el-form-item v-if="!isAuthenticated && !newComment.guestName">
               <el-input
                 v-model="newComment.guestName"
                 placeholder="Your name"
@@ -115,6 +115,8 @@
     import EditorJSHTML from 'editorjs-html';
     import Prism from 'prismjs';
     import CommentCard from '../components/CommentCard.vue';
+
+    import { getCookie } from '../composables/getCookie';
     
 
     import { Share2, Twitter, Facebook, ArrowLeft} from 'lucide-vue-next';
@@ -275,6 +277,10 @@
     };
 
 onMounted(() => {
+  const savedGuestName = getCookie('guestName');
+  if (savedGuestName && !isAuthenticated.value) {
+    newComment.value.guestName = savedGuestName;
+  }
   fetchBlog().then(() => {
     nextTick(() => {
       Prism.highlightAll();

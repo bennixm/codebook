@@ -1,25 +1,31 @@
 <template>
   <el-card class="mb-4" shadow="hover">
-    <div class="flex items-center gap-2 mb-2">
-      <el-avatar :src="comment.userId?.avatar || ''" size="small" />
-      <strong>{{ comment.userId?.name || comment.guestName || 'Anonymous' }}</strong>
+    <div class="comment">
+    <el-avatar class="avatar-comment" :src="comment.userId?.avatar || ''" size="large" />
+    <div class="comment-body">
+      <div class="comment-header">
+        <span>{{ comment.userId?.name || comment.guestName || 'Anonymous' }}<span class="name-comment"></span> <el-divider direction="vertical" /> <span class="date-comment"></span></span>
+        <el-button size="small" text @click="toggleReplyForm">Reply</el-button>
+      </div>
+        <p class="text-gray-700">{{ comment.text }}</p>
     </div>
-    <p class="text-gray-700">{{ comment.text }}</p>
-
-    <el-button size="small" text @click="toggleReplyForm">Reply</el-button>
+    </div>
 
     <div v-if="showReplyForm" class="mt-2 ml-4">
+      <el-input
+        v-if="!isAuthenticated && !guestName"
+        v-model="guestName"
+        placeholder="Your name"
+        class="mt-2"
+      />
+      <div v-if="!isAuthenticated && guestName" class="mt-2 text-sm text-gray-600">
+        Replying as <strong>{{ guestName }}</strong>
+      </div>
       <el-input
         type="textarea"
         v-model="replyText"
         placeholder="Write a reply..."
         rows="2"
-      />
-      <el-input
-        v-if="!isAuthenticated"
-        v-model="guestName"
-        placeholder="Your name"
-        class="mt-2"
       />
       <el-button
         size="small"
@@ -48,6 +54,8 @@
 <script setup>
 import { ref , computed } from 'vue'
 import { useAuth } from '../composables/useAuth'
+import { getCookie } from '../composables/getCookie';
+
 
 const auth = useAuth();
 
@@ -63,7 +71,7 @@ const props = defineProps({
 
 
 const replyText = ref('')
-const guestName = ref('')
+const guestName = ref(!isAuthenticated.value ? getCookie('guestName') || '' : '')
 const showReplyForm = ref(false)
 
 const toggleReplyForm = () => {
