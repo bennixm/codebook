@@ -121,10 +121,7 @@ export const useAuth = defineStore('auth', () => {
     }
   };
 
-    // Logout function
-   
-
-    const fetchComments = async (blogId) => {
+  const fetchComments = async (blogId) => {
       try {
         const res = await api.get(`/blog/comments/${blogId}`);
         return res.data.comments;
@@ -134,9 +131,9 @@ export const useAuth = defineStore('auth', () => {
       }
     };
 
-    const addComment = async (blogId, text) => {
+    const addComment = async (blogId, payload) => {
       try {
-        const res = await secureApi.post(`/blog/add-comment/${blogId}`, { text });
+        const res = await secureApi.post(`/blog/add-comment/${blogId}`, payload);
         return res.data;
       } catch (err) {
         console.error('Failed to add comment:', err.response?.data || err.message);

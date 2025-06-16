@@ -60,38 +60,40 @@
         <h2 class="text-lg font-semibold mb-4">Comments</h2>
 
         <el-empty v-if="!comments.length" description="No comments yet." />
-          <el-card
-            v-for="(comment, index) in comments"
-            :key="index"
-            class="mb-4"
-            shadow="hover"
-          >
-          <div class="flex items-center gap-2 mb-2">
-            <el-avatar :src="comment.userId?.avatar || ''" size="small" />
-            <strong>{{ comment.userId?.name || 'Anonymous' }}</strong>
-          </div>
-          <p class="text-gray-700">{{ comment.text }}</p>
-        </el-card>
+          <CommentCard
+            v-for="comment in structuredComments"
+            :key="comment._id"
+            :comment="comment"
+            :blog-id="blog._id"
+            :on-reply-submitted="handleReplySubmitted"
+            :is-authenticated="isAuthenticated.value"
+          />
 
-        <el-form @submit.prevent class="mt-4" :model="newComment">
-          <el-form-item>
-            <el-input
-              type="textarea"
-              v-model="newComment.text"
-              placeholder="Write a comment..."
-               :rows="3"
-            />
-          </el-form-item>
-          <el-form-item>
-            <el-button 
-              type="primary" 
-              :disabled="!newComment.text.trim()" 
-              @click="submitComment"
-            >
-              Submit
-            </el-button>
-          </el-form-item>
-        </el-form>
+          <el-form @submit.prevent class="mt-4" :model="newComment">
+            <el-form-item>
+              <el-input
+                type="textarea"
+                v-model="newComment.text"
+                placeholder="Write a comment..."
+                :rows="3"
+              />
+            </el-form-item>
+            <el-form-item v-if="!isAuthenticated.value">
+              <el-input
+                v-model="newComment.guestName"
+                placeholder="Your name"
+              />
+            </el-form-item>
+            <el-form-item>
+              <el-button 
+                type="primary" 
+                :disabled="!newComment.text.trim() || (!isAuthenticated.value && !newComment.guestName?.trim())" 
+                @click="submitComment"
+              >
+                Submit
+              </el-button>
+            </el-form-item>
+          </el-form>
       </div>
      </div>
     </div>
@@ -106,12 +108,13 @@
   </template>
   
 <script setup>
-    import { ref, onMounted, nextTick } from 'vue';
+    import { ref, onMounted, nextTick, computed } from 'vue';
     import { useRoute, useRouter } from 'vue-router';
     import { ElMessage } from 'element-plus';
     import { useAuth } from '../composables/useAuth';
     import EditorJSHTML from 'editorjs-html';
     import Prism from 'prismjs';
+    import CommentCard from '../components/CommentCard.vue';
     
 
     import { Share2, Twitter, Facebook, ArrowLeft} from 'lucide-vue-next';
@@ -126,44 +129,73 @@
 
     const blogUrl = window.location.href; 
 
-      const shareOnTwitter = () => {
+    const shareOnTwitter = () => {
         const url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(blogUrl)}`;
         window.open(url, '_blank', 'noopener,noreferrer');
-      };
+    };
 
-      const shareOnFacebook = () => {
+    const shareOnFacebook = () => {
         const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(blogUrl)}`;
         window.open(url, '_blank', 'noopener,noreferrer');
-      };
+    };
 
-      const copyLink = async () => {
+    const copyLink = async () => {
         try {
           await navigator.clipboard.writeText(blogUrl);
           ElMessage.success('Link copied to clipboard!');
         } catch (err) {
           ElMessage.error('Failed to copy link.');
         }
-      };
+    };
 
 
     const likes = ref(0);
     const comments = ref([]);
-    const newComment = ref({ text: '' });
 
-    const submitComment = async () => {
+    const newComment = ref({ text: '', guestName: '' })
+
+    const isAuthenticated = computed(() => auth.authReady && auth.isAuthenticated)
+
+    const handleReplySubmitted = async () => {
+      const refreshed = await auth.fetchComments(blog.value._id)
+      comments.value = refreshed
+    }
+
+    const structuredComments = computed(() => {
+        const commentMap = {};
+        const roots = [];
+
+        comments.value.forEach(comment => {
+          comment.children = [];
+          commentMap[comment._id] = comment;
+        });
+
+        comments.value.forEach(comment => {
+          if (comment.replyid && commentMap[comment.replyid]) {
+            commentMap[comment.replyid].children.push(comment);
+          } else {
+            roots.push(comment);
+          }
+        });
+        console.log(roots);
+
+        return roots;
+      });
+
+      const submitComment = async () => {
         if (!newComment.value.text.trim()) return;
 
+        const payload = { text: newComment.value.text.trim() }
+        if (!isAuthenticated.value) payload.guestName = newComment.value.guestName.trim()
+
         try {
-            const result = await auth.addComment(blog.value._id, newComment.value.text.trim());
-
-            console.log(result);
-
-            const refreshedComments = await auth.fetchComments(blog.value._id);
-            comments.value = refreshedComments;
-            
-          newComment.value.text = '';
+          await auth.addComment(blog.value._id, payload)
+          const refreshedComments = await auth.fetchComments(blog.value._id)
+          comments.value = refreshedComments
+          newComment.value.text = ''
+          newComment.value.guestName = ''
         } catch (err) {
-          ElMessage.error('Failed to post comment.');
+          ElMessage.error('Failed to post comment.')
         }
       };
 
