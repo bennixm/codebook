@@ -1,14 +1,18 @@
 const Notification = require('../models/Notification');
 
 async function createNotification({ app, recipient, actor, type, targetType, targetId }) {
-  // avoid self-notifs
-  if (actor.toString() === recipient.toString()) return;
+ 
+  if (actor && recipient && actor.toString() === recipient.toString()) return;
+
+  if (!recipient || !targetId) {
+    console.warn('Missing recipient or targetId in createNotification');
+    return;
+  }
 
   const notif = await Notification.create({
     recipient, actor, type, targetType, targetId
   });
 
-  // real-time push via Socket.io
   const io = app.locals.io;
   io.to(`user_${recipient}`).emit('notification', notif);
 

@@ -268,8 +268,6 @@ exports.getComments = async (req, res, next) => {
 
     comments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-    console.log(comments);
-
     res.status(200).json({ comments });
   } catch (err) {
     console.error('❌ getComments error:', err);
@@ -281,6 +279,9 @@ exports.addComment = async (req, res, next) => {
     try {
       const blogId = req.params.id;
       const { text, guestname, replyid } = req.body;
+
+      console.log(req.body);
+
       const userId = req.user?.id || req.user?._id;
       const { guestId } = req.guest;
   
@@ -333,11 +334,11 @@ exports.addComment = async (req, res, next) => {
   
       await createNotification({
         app:        req.app,
-        recipient:  blog.userId,
+        recipient:  updated.userId,
         actor:      userId || null,
         type:       notifType,
         targetType: 'Blog',
-        targetId:   blog._id
+        targetId:   updated._id       
       });
   
       res.status(201).json({ comments: updated.comments });
