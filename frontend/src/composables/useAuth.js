@@ -17,7 +17,11 @@ export const useAuth = defineStore('auth', () => {
     authReady.value = false;
     try {
       const res = await secureApi.get('/user/profile');
-      user.value = res.data;
+      user.value = {
+        ...res.data,
+        _id: res.data._id,
+        id: res.data._id
+      };
       isAuthenticated.value = true;
     } catch (err) {
         logout(false);

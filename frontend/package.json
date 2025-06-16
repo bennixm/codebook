@@ -52,7 +52,15 @@
     "@vitejs/plugin-vue": "^5.2.4",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
+<<<<<<< HEAD
     "sass": "^1.89.2",
+=======
+<<<<<<< Updated upstream
+=======
+    "sass": "^1.89.2",
+    "sass-embedded": "^1.89.2",
+>>>>>>> Stashed changes
+>>>>>>> 0181a8f (Start notification + auth refactor)
     "tailwindcss": "^4.1.7",
     "unplugin-auto-import": "^19.3.0",
     "unplugin-vue-components": "^28.7.0",

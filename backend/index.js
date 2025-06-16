@@ -46,10 +46,14 @@ io.use((socket, next) => {
 });
 
 io.on('connection', socket => {
+  console.log(`📡 Socket server connected: ${socket.id}`);
   socket.on('join', ({ userId }) => {
+    console.log(`→ Got join with userId: ${userId}`);
+    if (!userId) return console.warn('join without userId');
     socket.join(`user_${userId}`);
   });
 });
+
 
 app.get('/', (req, res) => {
   res.send('Hello from Express backend!');
