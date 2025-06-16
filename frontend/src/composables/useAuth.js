@@ -109,6 +109,17 @@ export const useAuth = defineStore('auth', () => {
       throw error;
     }
   };
+  const fetchBlogById  = async (id) => {
+    try {
+      const response = await api.get(`/blog/get-blog-by/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch all blogs:', error);
+      throw error;
+    }
+  };
+
+    // Logout function
 
 
 
@@ -138,6 +149,7 @@ export const useAuth = defineStore('auth', () => {
     createBlogPost,
     deleteMyBlog,
     fetchMyBlogs,
+    fetchBlogById,
     fetchBlogBySlug,
     setBio,
     logout,

@@ -191,6 +191,14 @@ exports.followUser = async (req, res, next) => {
     if (!targetUser) {
       return res.status(404).json({ error: 'User to follow not found.' });
     }
+    await createNotification({
+            app: req.app,
+            recipient: targetUserId,    
+            actor:     currentUserId,    
+            type:      'follow',      
+            targetType:'User',         
+            targetId:  targetUserId
+     });
 
     res.status(200).json({
       message: `You are now following ${targetUser.name}.`,
