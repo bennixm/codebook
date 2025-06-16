@@ -46,10 +46,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref , computed } from 'vue'
 import { useAuth } from '../composables/useAuth'
 
 const auth = useAuth();
+
+const isAuthenticated = computed(() => auth.authReady && auth.isAuthenticated)
 
 
 const props = defineProps({
