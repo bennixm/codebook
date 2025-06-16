@@ -1,0 +1,10 @@
+/* element-variables.scss */
+$--color-primary: #00a76f;
+
+/* Optional: override other colors */
+$--color-success: #21ba45;
+$--color-warning: #f2711c;
+$--color-danger:  #db2828;
+$--color-info:    #42b8dd;
+
+@use "element-plus/theme-chalk/src/index.scss" as *;
