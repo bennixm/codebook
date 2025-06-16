@@ -78,7 +78,7 @@
                 :rows="3"
               />
             </el-form-item>
-            <el-form-item v-if="!isAuthenticated.value">
+            <el-form-item v-if="!isAuthenticated">
               <el-input
                 v-model="newComment.guestName"
                 placeholder="Your name"

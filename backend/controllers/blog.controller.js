@@ -295,7 +295,7 @@ exports.addComment = async (req, res, next) => {
       if (userId) {
         comment.userId = userId;
       } else {
-        res.cookie('guestName', name, {
+        res.cookie('guestName', guestname, {
             httpOnly: false,
             sameSite: 'lax',
             maxAge: 1000 * 60 * 60 * 24 * 365
@@ -303,7 +303,7 @@ exports.addComment = async (req, res, next) => {
 
         await Guest.findOneAndUpdate(
             { guestId },
-            { guestId, guestName },
+            { guestId, guestname },
             { upsert: true, new: true }
           );
        
