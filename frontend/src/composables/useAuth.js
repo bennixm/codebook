@@ -110,7 +110,19 @@ export const useAuth = defineStore('auth', () => {
       console.error('Failed to fetch blog by slug:', error);
       throw error;
     }
-    };
+  };
+  const fetchBlogById  = async (id) => {
+    try {
+      const response = await api.get(`/blog/get-blog-by/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch all blogs:', error);
+      throw error;
+    }
+  };
+
+    // Logout function
+   
 
     const fetchComments = async (blogId) => {
       try {
@@ -196,6 +208,7 @@ export const useAuth = defineStore('auth', () => {
     createBlogPost,
     deleteMyBlog,
     fetchMyBlogs,
+    fetchBlogById,
     fetchBlogBySlug,
     fetchComments,
     addComment,

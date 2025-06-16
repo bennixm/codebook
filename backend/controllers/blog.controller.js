@@ -7,6 +7,7 @@ const bucket  = admin.storage().bucket();
 const { generateUniqueSlug } = require('../utils/slug');
 const { sendBlogCreatedEmail } = require('../services/mailService');
 const { extractFirebasePath }   = require('../utils/extract-firebase-path');
+const { createNotification } = require('../services/notificationService');
 
 exports.createBlog = async (req, res, next) => {
   try {
@@ -84,8 +85,25 @@ exports.createBlog = async (req, res, next) => {
 
     //await newPost.save();
     const savedPost = await newPost.save();
-    await savedPost.populate({ path: 'userId', select: 'name email' });
+    await savedPost.populate({ path: 'userId', select: 'name email followers' });
     await sendBlogCreatedEmail(savedPost.userId, savedPost);
+   
+    const author   = savedPost.userId;
+    const followerIds = author.followers || [];
+   
+    
+
+    await Promise.all(followerIds.map(followerId => {
+      return createNotification({
+        app:        req.app,
+        recipient:  followerId,            
+        actor:      author._id,           
+        type:       'new_blog',            
+        targetType: 'Blog',
+        targetId:   savedPost._id
+      });
+    }));
+
 
     res.status(201).json({
       message: 'Blog post created successfully',
@@ -122,6 +140,24 @@ exports.fetchBlogsByUser = async (req, res, next) => {
     next(err);
   }
 };
+exports.fetchBlogById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const blog = await Blog.findById(id)
+      .populate('userId', 'name username avatar')
+      .populate('tags', 'name')
+      .select('-__v');
+
+    if (!blog) return res.status(404).json({ error: 'Blog not found' });
+
+    return res.status(200).json(blog);
+  } catch (err) {
+    console.error('❌ fetchBlogById error:', err);
+    next(err);
+  }
+};
+
+
 exports.deleteBlog = async (req, res, next) => {
     try {
       const blogId = req.params.id;
@@ -292,6 +328,17 @@ exports.addComment = async (req, res, next) => {
       if (!updated) {
         return res.status(404).json({ error: 'Blog post not found.' });
       }
+      const isReply   = Boolean(replyid);
+      const notifType = isReply ? 'reply' : 'comment';
+  
+      await createNotification({
+        app:        req.app,
+        recipient:  blog.userId,
+        actor:      userId || null,
+        type:       notifType,
+        targetType: 'Blog',
+        targetId:   blog._id
+      });
   
       res.status(201).json({ comments: updated.comments });
     } catch (err) {
@@ -343,15 +390,19 @@ exports.addComment = async (req, res, next) => {
   exports.incrementViews = async (req, res, next) => {
     try {
       const blogId = req.params.id;
+      
       const userId = req.user?.id || req.user?._id;
+      
       const { guestId, guestName } = req.guest;
       let viewEntry = { at: new Date() };
   
       if (userId) {
         viewEntry.userId = userId;
+       
       } else {
        
         viewEntry.guestId = guestId;
+        
        
       }
   
@@ -361,11 +412,21 @@ exports.addComment = async (req, res, next) => {
         { new: true }
       );
       if (!updated) return res.status(404).json({ error: 'Blog post not found.' });
+      await createNotification({
+        app: req.app,
+        recipient: blog.userId,    
+        actor:     viewEntry.userId || viewEntry.guestId,    
+        type:      'view',      
+        targetType:'Blog',         
+        targetId:  blog._id
+      });
   
       res.status(200).json({
         totalViews: updated.views.length,
         viewers:    updated.views
       });
+      
+
     } catch (err) {
       next(err);
     }
@@ -384,11 +445,21 @@ exports.addComment = async (req, res, next) => {
         { new: true }
       );
       if (!updated) return res.status(404).json({ error: 'Blog post not found.' });
+
+      await createNotification({
+        app: req.app,
+        recipient: blog.userId,    
+        actor:     req.user.id,    
+        type:      'like',      
+        targetType:'Blog',         
+        targetId:  blog._id
+      });
   
       res.status(200).json({
         likesCount: updated.likes.length,
         likers:     updated.likes
       });
+     
     } catch (err) {
       next(err);
     }

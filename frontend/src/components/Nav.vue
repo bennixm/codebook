@@ -30,35 +30,55 @@
     router
   >
 
-  <el-menu-item index="/panel/notifications" v-if="auth.authReady && auth.isAuthenticated" class="notification-menu-item">
-    <el-dropdown trigger="hover" placement="bottom" @command="handleNotificationCommand">
-      <span class="nav-link no-select">
-        <router-link to="/panel/notifications" class="notification-link">
-          <Inbox aria-hidden="true" />
-          <span class="sr-only">Notifications</span>
-        </router-link>
-      </span>
+<el-menu-item
+  index="/panel/notifications"
+  v-if="auth.authReady && auth.isAuthenticated"
+  class="notification-menu-item"
+>
+  <el-dropdown
+    trigger="click"
+    placement="bottom-start"
+    @command="onNotifCommand"
+  >
+  
+    <span class="nav-link no-select">
+      <Inbox aria-hidden="true" />
+      <el-badge :value="unreadCount" class="badge" />
+    </span>
 
-      <template #dropdown>
-        <el-dropdown-menu class="notification-dropdown">
-          <div v-if="notifications.length === 0" class="empty">No notifications</div>
-          <div v-else>
-            <div
-              v-for="(n, index) in notifications.slice(0, 5)"
-              :key="index"
-              class="notification-item"
-            >
-              {{ n.text }}
+    <template #dropdown>
+      <el-scrollbar style="max-height: 300px; width: 300px;">
+        <div v-if="!state.list.length" class="empty">
+          No notifications
+        </div>
+        <div v-else>
+          <el-dropdown-item
+            v-for="n in state.list.slice(0,5)"
+            :key="n._id"
+            :command="n"                                
+            
+            :class="['notification-item', n.read ? 'read' : 'unread']"
+          >
+            <div class="notif-content">
+              <strong>{{ n.actor.name }}</strong>
+              {{ messageText(n) }}
             </div>
-            <el-dropdown-item divided class="no-padding"></el-dropdown-item>
-            <el-dropdown-item class="see-all" command="view-all">
-              ... See all
-            </el-dropdown-item>
-          </div>
-        </el-dropdown-menu>
-      </template>
-    </el-dropdown>
-  </el-menu-item>
+            <div class="notif-time">
+              {{ new Date(n.createdAt).toLocaleTimeString() }}
+            </div>
+          </el-dropdown-item>
+          <el-divider />
+          <el-dropdown-item command="view-all" class="see-all">
+            ... See all
+          </el-dropdown-item>
+        </div>
+      </el-scrollbar>
+    </template>
+  </el-dropdown>
+</el-menu-item>
+
+
+  
 
   <el-menu-item v-if="auth.authReady && auth.isAuthenticated">
     <el-dropdown >
@@ -145,25 +165,74 @@
 </template>
 
 <script setup>
-import { ref,watch } from 'vue';
+import { ref,watch,computed } from 'vue';
 import { useAuth } from '../composables/useAuth';
 import { ElMessage } from 'element-plus'
 import { User, LogOut, SmilePlus, Inbox, LayoutDashboard } from 'lucide-vue-next';
+import { useNotifications } from '../composables/useNotifications';
+import { useRouter } from 'vue-router';
+
+const {state,markRead,markAll } = useNotifications();
+const unreadCount = computed(
+  () => state.list.filter(n => !n.read).length
+);
+const router = useRouter();
+
 
 const auth = useAuth();
-const {setBio} = useAuth();
+const {setBio,fetchBlogById} = useAuth();
 
 const showBioDialog = ref(false);
 const bioText =  ref('');
-const notifications = ref([
-  { text: 'New comment on your blog' },
-  { text: 'Follower liked your post' },
-  { text: 'New message received' },
-  { text: 'Analytics report ready' },
-  { text: 'Password changed successfully' },
-  { text: 'You have a new follower' }
-])
 
+async function onNotifCommand(payload) {
+  if (payload === 'view-all') {
+    return router.push('/panel/notifications');
+  }
+
+
+  const { _id, targetType, targetId } = payload;
+
+
+  await markRead(_id)
+
+
+  switch (targetType) {
+    case 'Blog':
+    const blog = await fetchBlogById(targetId);
+      if (blog) {
+       return router.push(`/blog/${blog.slug}`);
+     } else {
+       console.log('Blog not found for notification:', targetId);
+     }
+     
+    case 'User':
+    
+    return router.push(`/users/${targetId}`);
+       
+    case 'Comment':
+ 
+      
+    return router.push(`/blog/${targetId}`);
+      
+    default:
+      return;
+  }
+}
+
+
+function messageText(n) {
+  switch (n.type) {
+    case 'comment':   return 'commented on your post';
+    case 'reply':     return 'replied to your comment';
+    case 'like':      return 'liked your post';
+    case 'follow':    return 'started following you';
+    case 'new_blog':  return 'published a new blog';
+    case 'view':   return 'has viewed your blog';
+    default:          return 'did something';
+  }
+}
+const defaultAvatar = 'https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/user.png?alt=media&token=6cdb89f7-73b1-40b0-9307-78ae1a06f29f';
 watch(showBioDialog, async (open) => {
    if (!open) return;
    bioText.value = auth.user?.bio ?? '';
@@ -193,5 +262,31 @@ function handleNotificationCommand(command) {
 </script>
 
 <style scoped>
-
+.badge {
+  margin-left: 4px;
+}
+.notification-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  cursor: pointer;
+}
+.notification-item.unread {
+  background-color: #f0f9eb;
+}
+.notification-item.read {
+  color: #909399;
+}
+.see-all {
+  text-align: center;
+  font-weight: bold;
+}
+.notif-content {
+  flex: 1;
+  margin-right: 8px;
+}
+.notif-time {
+  font-size: 0.75rem;
+  color: #c0c4cc;
+}
 </style>
