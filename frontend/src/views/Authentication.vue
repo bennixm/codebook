@@ -1,6 +1,23 @@
 <template>
   <div class="auth-form">
   <div class="auth-container">
+    <el-form-item>
+      <el-button @click="onGoogleAuth" class="google-btn">
+        <el-icon style="width: 20px;">
+          <img 
+            src="https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/Google__G__logo.svg.png?alt=media&token=9e718bb9-582e-444a-b7fc-0b5d691d8290" 
+            alt="Google logo" 
+            style="width: 100%; margin-right: 8px;"
+          />
+        </el-icon>
+        Continue with Google
+      </el-button>
+    </el-form-item>
+
+    <el-divider>
+      <el-icon>or</el-icon>
+    </el-divider>
+
     <div class="form-switch">
       <el-button
         :type="activeForm === 'login' ? 'primary' : 'default'"
@@ -50,12 +67,6 @@
         <el-button type="primary" native-type="submit">Login</el-button>
         
       </el-form-item>
-      <el-form-item>
-        <el-button icon="GoogleIcon" @click="onGoogleAuth">
-         Continue with Google
-      </el-button>
-      </el-form-item>
-      
     </el-form>
 
     <el-form
@@ -97,12 +108,6 @@
 
     <el-form-item>
       <el-button type="primary" native-type="submit">Register</el-button>
-    </el-form-item>
-    <el-form-item>
-      <el-button type="danger" @click="onGoogleAuth">
-        <el-icon><GoogleIcon /></el-icon>
-        Continue with Google
-      </el-button>
     </el-form-item>
   </el-form>
      <el-alert
