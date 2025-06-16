@@ -1,90 +1,152 @@
 <template>
-  <div class="search-bar p-4 bg-white shadow flex items-center gap-4">
-    <div class="container">
-    <div class="search-input">
+  <div class="search-page p-6">
+    <el-row :gutter="20" class="search-controls">
+      <el-col :xs="24" :sm="12" :md="8">
         <el-autocomplete
-        v-model="searchQuery"
-        :fetch-suggestions="fetchFromBackend"
-        placeholder="Search..."
-        clearable
-        class="w-60"
+          v-model="searchQuery"
+          :fetch-suggestions="fetchFromBackend"
+          value-key="value"
+          @select="onSuggestionSelect"
+          placeholder="Search blogs…"
+          clearable
+          class="w-full"
         />
-    <el-button type="primary" @click="onSearch">
-      <Search /> Search
-    </el-button>
-    </div>
-    <div class="search-filters">
+      </el-col>
 
+      <el-col :xs="24" :sm="12" :md="4">
+        <el-button type="primary" @click="onSearch" class="w-full">
+          <Search /> Search
+        </el-button>
+      </el-col>
+
+      <el-col :xs="24" :sm="24" :md="12">
         <el-select
-        v-model="value1"
-        placeholder="Select languages"
-        multiple
-        clearable
-        filterable
-        allow-create
+          v-model="selectedTags"
+          multiple
+          collapse-tags
+          clearable
+          filterable
+          placeholder="Filter by tags"
+          @change="onSearch"
+          class="w-full"
+          :loading="tagsLoading"
+          empty-text="No tags"
         >
-        <el-option
-            v-for="lang in programmingLanguages"
-            :key="lang"
-            :label="lang"
-            :value="lang"
-        />
+          <el-option
+            v-for="t in allTags"
+            :key="t._id"
+            :label="t.name"
+            :value="t._id"
+          />
         </el-select>
+      </el-col>
+    </el-row>
 
+    <!-- results -->
+    <el-row :gutter="30" class="results-list" style="margin-top:1.5rem;">
+      <el-col
+        v-for="blog in blogs"
+        :key="blog._id"
+        :xs="24" :sm="12" :md="8"
+      >
+        <el-card shadow="hover" class="blog-card">
+          <img
+            v-if="blog.coverImage"
+            :src="blog.coverImage"
+            class="cover-image"
+          />
+          <h3 class="blog-title" @click="goTo(blog.slug)">
+            {{ blog.title }}
+          </h3>
+          <div v-for="block in parseBlocks(blog.content)" :key="block.id">
+            <p v-if="['paragraph','header'].includes(block.type)">
+              {{ block.data.text || block.data.caption }}
+            </p>
+            <img
+              v-else-if="block.type==='image'"
+              :src="block.data.file.url"
+              class="block-image"
+            />
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
 
-    <el-select v-model="filters.category" placeholder="Select category" clearable class="w-40">
-      <el-option label="Technology" value="tech" />
-      <el-option label="Health" value="health" />
-      <el-option label="Finance" value="finance" />
-    </el-select>
-  </div>
-  </div>
+    <!-- pagination -->
+    <el-pagination
+      v-if="totalPages > 1"
+      style="text-align:center; margin-top:2rem;"
+      :current-page="page"
+      :page-size="perPage"
+      :total="total"
+      layout="prev, pager, next"
+      @current-change="onPageChange"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { Search } from 'lucide-vue-next';
+import { ref }         from 'vue';
+import { useRouter }   from 'vue-router';
+import { Search }      from 'lucide-vue-next';
+import { useBlogFilter } from '../composables/useBlogs';
+import { useTags }       from '../composables/useTags';
 
-const filters = ref({
-  status: '',
-  category: '',
-})
+const router = useRouter();
+const {
+  blogs,
+  page,
+  perPage,
+  totalPages,
+  total,
+  filterBlogs
+} = useBlogFilter();
+const { tags: allTags, loading: tagsLoading } = useTags();
 
+const searchQuery   = ref('');
+const selectedTags  = ref([]);
 
-const value1 = ref([])
+// autocomplete
+const fetchFromBackend = async (q, cb) => {
+  if (!q) { cb([]); return; }
+  await filterBlogs({ search: q, tags: selectedTags.value, newPage: 1 });
+  cb(blogs.value.map(b => ({ value: b.title, slug: b.slug })));
+};
 
-const programmingLanguages = [
-  'JavaScript', 'TypeScript', 'Python', 'Java', 'C#', 'C++',
-  'Ruby', 'Go', 'Rust', 'PHP', 'Swift', 'Kotlin',
-  'Scala', 'Dart', 'Elixir', 'Perl', 'Haskell'
-]
+function onSuggestionSelect(item) {
+  router.push(`/blog/${item.slug}`);
+}
 
-const searchQuery = ref('')
+function onSearch() {
+  filterBlogs({ search: searchQuery.value, tags: selectedTags.value, newPage: 1 });
+}
 
-const fetchFromBackend = async (queryString, cb) => {
-  if (!queryString) return cb([])
+function onPageChange(newPage) {
+  filterBlogs({ search: searchQuery.value, tags: selectedTags.value, newPage });
+}
 
+function goTo(slug) {
+  router.push(`/blog/${slug}`);
+}
+
+function parseBlocks(content) {
   try {
-
-    // aici trb sa luam sugestiile pe care sa le afiseze sub input din DB
-    const res = await fetch(`/api/suggestions?q=${encodeURIComponent(queryString)}`)
-    const data = await res.json()
-
-    const results = data.map(item => ({ value: item }))
-    cb(results)
-  } catch (err) {
-    console.error('Failed to fetch suggestions', err)
-    cb([])
+    const obj = typeof content === 'string' ? JSON.parse(content) : content;
+    return Array.isArray(obj.blocks) ? obj.blocks : [];
+  } catch {
+    return [];
   }
 }
 
+// initial
+filterBlogs({ search:'', tags: [], newPage: 1 });
 </script>
 
 <style scoped>
-.search-bar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
+.search-controls { margin-bottom:1rem; }
+.cover-image     { width:100%; height:160px; object-fit:cover; border-radius:6px; margin-bottom:.75rem; }
+.blog-title      { cursor:pointer; font-size:1.125rem; font-weight:600; margin:.5rem 0; }
+.block-image     { max-width:100%; margin:.5rem 0; }
+.blog-card       { padding:1rem; }
+.results-list    { margin-top:1.5rem; }
 </style>
