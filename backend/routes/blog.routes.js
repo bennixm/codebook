@@ -9,7 +9,7 @@ router.post('/create',auth,validateBlogCoverImage(),validateBlogContentImages,cr
 router.get('/my-blogs', auth, fetchBlogsByUser);
 router.get('/get-blog/:slug', authOptional, fetchBlogBySlug);
 router.delete('/delete/:id', auth, deleteBlog);
-router.post('/add-comment',validateAddComment,addComment);
+router.post('/add-comment/:id', authOptional, validateAddComment,addComment);
 router.delete('/delete-comment/:id', auth,deleteComment);
 router.post('/views/:id',incrementViews);
 router.post('/like/:id',   auth, likeBlog);

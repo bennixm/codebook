@@ -251,6 +251,32 @@ exports.fetchBlogBySlug = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getComments = async (req, res, next) => {
+  try {
+    const blogId = req.params.id;
+
+    const blog = await Blog.findById(blogId)
+      .populate('comments.userId', 'name avatar')
+      .lean();
+
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog post not found.' });
+    }
+
+    const comments = blog.comments || [];
+
+    comments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    console.log(comments);
+
+    res.status(200).json({ comments });
+  } catch (err) {
+    console.error('❌ getComments error:', err);
+    next(err);
+  }
+};
+
 exports.addComment = async (req, res, next) => {
     try {
       const blogId = req.params.id;
