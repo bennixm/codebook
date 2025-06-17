@@ -18,7 +18,7 @@
 
      <div class="profile-section-blog-heading text-gray-500 text-sm flex items-center gap-4 justify-between">
       <div class="flex items-center gap-2">
-        <el-avatar :src="blog.userId.avatar || ''" size="small" />
+        <el-avatar :src="blog.userId.avatar || defaultAvatar" size="small" />
         <span>by <strong>{{ blog.userId.name }} on {{ formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
       </div>
       <div class="flex items-center gap-2">
@@ -57,9 +57,23 @@
     <el-divider />
 
     <div class="comments-section mt-6">
-      <h2 class="text-lg font-semibold mb-4">Comments</h2>
-
       <el-form @submit.prevent class="mt-4" :model="newComment">
+          <div class="comment-user-header mt-2 flex items-center gap-3" v-if="isAuthenticated || newComment.guestName">
+            <el-avatar
+            :src="auth.authReady && isAuthenticated && auth.user.avatar ? auth.user.avatar : defaultAvatar"
+              size="small"
+            />
+            <span class="font-semibold text-gray-700">
+              Comment as {{ isAuthenticated ? auth.user.name : newComment.guestName }}
+            </span>
+          </div>
+          <el-form-item v-else>
+            <el-input
+              v-model="newComment.guestName"
+              placeholder="Your name"
+            />
+          </el-form-item>
+
           <el-form-item>
             <el-input
               type="textarea"
@@ -68,19 +82,11 @@
               :rows="3"
             />
           </el-form-item>
-          <div v-if="!isAuthenticated && newComment.guestName" class="mt-2 text-sm text-gray-600">
-            Comment as <strong>{{ newComment.guestName }}</strong>
-          </div>
-          <el-form-item v-if="!isAuthenticated && !newComment.guestName">
-            <el-input
-              v-model="newComment.guestName"
-              placeholder="Your name"
-            />
-          </el-form-item>
+
           <el-form-item>
-            <el-button 
-              type="primary" 
-              :disabled="!newComment.text.trim() || (!isAuthenticated && !newComment.guestName?.trim())" 
+            <el-button
+              type="primary"
+              :disabled="!newComment.text.trim() || (!isAuthenticated && !newComment.guestName?.trim())"
               @click="submitComment"
             >
               Submit
@@ -88,22 +94,40 @@
           </el-form-item>
         </el-form>
 
+      <h2 class="text-lg font-semibold mb-4">Comments</h2>
       <el-empty v-if="!comments.length" description="No comments yet." />
-      <div v-for="comment in flatStructuredComments" :key="comment._id" class="root-comment">
-          <CommentCard :comment="comment" :blog-id="blog._id" :is-authenticated="isAuthenticated" :on-reply-submitted="handleReplySubmitted" />
-
-          <!-- Render all replies flat under this root comment -->
-          <div class="replies ml-6 mt-2">
-            <CommentCard
-              v-for="reply in comment.replies"
-              :key="reply._id"
-              :comment="reply"
-              :blog-id="blog._id"
-              :is-authenticated="isAuthenticated"
-              :on-reply-submitted="handleReplySubmitted"
-            />
-          </div>
+      <div v-for="comment in paginatedRootComments" :key="comment._id" class="root-comment">
+        <CommentCard
+        :comment="comment"
+        :blog-id="blog._id"
+        :is-authenticated="isAuthenticated"
+        :on-reply-submitted="handleReplySubmitted"
+        :show-replies="shownRepliesMap[comment._id] || false"
+        @update:showReplies="val => shownRepliesMap[comment._id] = val"
+      />
+      <div v-if="shownRepliesMap[comment._id] && comment.replies?.length" class="replies ml-6 mt-2">
+          <CommentCard
+            v-for="reply in comment.replies"
+            :key="reply._id"
+            :comment="reply"
+            :blog-id="blog._id"
+            :is-authenticated="isAuthenticated"
+            :on-reply-submitted="handleReplySubmitted"
+          />
         </div>
+      </div>
+      <div class="flex justify-center mt-6">
+        <el-pagination
+          v-if="totalPages > 1"
+          class="mt-6"
+          background
+          layout="prev, pager, next"
+          :current-page="currentPage"
+          :page-size="COMMENTS_PER_PAGE"
+          :total="flatStructuredComments.length"
+          @current-change="val => currentPage = val"
+        />
+    </div>
     </div>
    </div>
   </div>
@@ -130,17 +154,15 @@
   
 
   import { Share2, Twitter, Facebook, ArrowLeft} from 'lucide-vue-next';
-  
 
   const route = useRoute();
   const router = useRouter();
   const auth = useAuth();
-
   const blog = ref(null);
-
   const loading = ref(true);
-
   const blogUrl = window.location.href; 
+
+  const defaultAvatar = auth.defaultAvatar;
 
   const shareOnTwitter = () => {
       const url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(blogUrl)}`;
@@ -161,9 +183,25 @@
       }
   };
 
+  const currentPage = ref(1);
+  const COMMENTS_PER_PAGE = 5;
+
+  const paginatedRootComments = computed(() => {
+    const start = (currentPage.value - 1) * COMMENTS_PER_PAGE;
+    const end = start + COMMENTS_PER_PAGE;
+    return flatStructuredComments.value.slice(start, end);
+  });
+
+  const totalPages = computed(() =>
+    Math.ceil(flatStructuredComments.value.length / COMMENTS_PER_PAGE)
+  );
+
 
   const likes = ref(0);
+
   const comments = ref([]);
+
+  const shownRepliesMap = ref({});
 
   const newComment = ref({ text: '', guestName: '' })
 
@@ -178,24 +216,20 @@
     const commentMap = {};
     const rootComments = [];
     
-    // Map all comments by id
     comments.value.forEach(comment => {
       commentMap[comment._id] = { ...comment, replies: [] };
     });
   
     comments.value.forEach(comment => {
       if (!comment.replyid || !commentMap[comment.replyid]) {
-        // Root comment
         rootComments.push(commentMap[comment._id]);
       } else {
-        // Reply: find the root comment by walking up
         let parent = commentMap[comment.replyid];
         while (parent.replyid && commentMap[parent.replyid]) {
           parent = commentMap[parent.replyid];
         }
-        // Determine if immediate parent is root
         const immediateParent = commentMap[comment.replyid];
-        const showMention = immediateParent._id !== parent._id; // only show if parent is NOT root
+        const showMention = immediateParent._id !== parent._id; 
   
         commentMap[parent._id].replies.push({
           ...comment,
@@ -208,8 +242,6 @@
   
     return rootComments;
   });  
-  
-  
 
     const submitComment = async () => {
       if (!newComment.value.text.trim()) return;
@@ -343,7 +375,6 @@ fetchBlog().then(() => {
   });
 });
 });
-
 
 </script>
 

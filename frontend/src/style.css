@@ -856,9 +856,20 @@ body {
   flex-direction: row;
   justify-content: space-between;
 }
+.blog-page .comment-user-header{
+  padding-top:10px;
+  padding-bottom: 10px;
+}
 .replies{
   padding-top:24px;
   padding-left:64px;
+}
+.blog-page .comment-body .actions{
+  width:max-content;
+}
+.blog-page .comment-body .comment-buttons{
+  display:flex;
+  flex-direction: row;
 }
 @media (max-width: 1025px) {
   .panel-filters{
