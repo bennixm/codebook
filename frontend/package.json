@@ -29,6 +29,7 @@
     "axios": "^1.9.0",
     "cors": "^2.8.5",
     "daisyui": "^5.0.35",
+    "dayjs": "^1.11.13",
     "editorjs-html": "^4.0.5",
     "editorjs-style": "^3.0.3",
     "editorjs-text-color-plugin": "^2.0.4",
@@ -52,15 +53,8 @@
     "@vitejs/plugin-vue": "^5.2.4",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
-<<<<<<< HEAD
-    "sass": "^1.89.2",
-=======
-<<<<<<< Updated upstream
-=======
     "sass": "^1.89.2",
     "sass-embedded": "^1.89.2",
->>>>>>> Stashed changes
->>>>>>> 0181a8f (Start notification + auth refactor)
     "tailwindcss": "^4.1.7",
     "unplugin-auto-import": "^19.3.0",
     "unplugin-vue-components": "^28.7.0",

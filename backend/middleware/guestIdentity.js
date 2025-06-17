@@ -1,5 +1,5 @@
 // middleware/guestIdentity.js
-const crypto = require('crypto');
+const mongoose = require('mongoose');
 const randomGuestName = require('../utils/randomName');
 
 module.exports = (req, res, next) => {
@@ -7,7 +7,7 @@ module.exports = (req, res, next) => {
   let { guestId, guestName } = req.cookies || {};
 
   if (!guestId) {
-    guestId = crypto.randomUUID();
+    guestId = new mongoose.Types.ObjectId();
     res.cookie('guestId', guestId, {
       httpOnly: true,    
       sameSite: 'lax',

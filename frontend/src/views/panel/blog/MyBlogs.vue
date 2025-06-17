@@ -160,7 +160,6 @@ const confirmDelete = (blog) => {
   )
     .then(() => deleteBlog(blog))
     .catch(() => {
-      // Cancelled
     });
 };
 
