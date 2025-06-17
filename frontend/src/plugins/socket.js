@@ -1,18 +1,13 @@
 // src/plugins/socket.js
 import { io } from 'socket.io-client';
 
-export default {
-  install(app, { userId, token }) {
-    const socket = io(process.env.VITE_API_BASE_URL, {
-      auth: { token }
-    });
+const socket = io(import.meta.env.VITE_API_BASE_URL, {
+  auth: { token: localStorage.getItem('token') }
+});
 
-    socket.on("connect", () => {
-      socket.emit("join", { userId });
-    });
+socket.on('connect', () => {
+  console.log('✅ Client Socket connected:', socket.id);
+  // emit join when you know the user ID; your App.vue watcher will do that
+});
 
-    // provide globally
-    app.config.globalProperties.$socket = socket;
-    app.provide("socket", socket);
-  }
-};
+export default socket;

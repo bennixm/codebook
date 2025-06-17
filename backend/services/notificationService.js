@@ -9,10 +9,18 @@ async function createNotification({ app, recipient, actor, type, targetType, tar
     return;
   }
 
-  const notif = await Notification.create({
+  let notif = await Notification.create({
     recipient, actor, type, targetType, targetId
   });
 
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+  // real-time push via Socket.io
+=======
+  notif = await notif.populate('actor', 'name avatar');
+>>>>>>> Stashed changes
+>>>>>>> 0181a8f (Start notification + auth refactor)
   const io = app.locals.io;
   io.to(`user_${recipient}`).emit('notification', notif);
 
