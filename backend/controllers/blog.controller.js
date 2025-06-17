@@ -289,6 +289,7 @@ exports.addComment = async (req, res, next) => {
         createdAt: new Date(),
         replyid
       };
+
   
       if (userId) {
         comment.userId = userId;
@@ -309,6 +310,9 @@ exports.addComment = async (req, res, next) => {
         req.guest.guestName = guestname;
        
       }
+
+      const actorId = userId || guestId;
+
   
       if (replyid) {
         const exists = await Blog.findOne({ _id: blogId, 'comments._id': replyid });
@@ -333,7 +337,7 @@ exports.addComment = async (req, res, next) => {
       await createNotification({
         app:        req.app,
         recipient:  updated.userId,
-        actor:      userId || null,
+        actor:      actorId,
         type:       notifType,
         targetType: 'Blog',
         targetId:   updated._id       

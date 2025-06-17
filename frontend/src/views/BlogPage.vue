@@ -247,7 +247,7 @@
       if (!newComment.value.text.trim()) return;
 
       const payload = { text: newComment.value.text.trim() }
-      if (!isAuthenticated.value) payload.guestName = newComment.value.guestName.trim()
+      if (!isAuthenticated.value) payload.guestname = newComment.value.guestName.trim()
 
       try {
         await auth.addComment(blog.value._id, payload)
