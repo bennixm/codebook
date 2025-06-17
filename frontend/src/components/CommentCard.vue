@@ -4,10 +4,15 @@
     <el-avatar class="avatar-comment" :src="comment.userId?.avatar || ''" size="large" />
     <div class="comment-body">
       <div class="comment-header">
-        <span>{{ comment.userId?.name || comment.guestName || 'Anonymous' }}<span class="name-comment"></span> <el-divider direction="vertical" /> <span class="date-comment"></span></span>
-        <el-button size="small" text @click="toggleReplyForm">Reply</el-button>
+        <span class="comment-subheader">{{ comment.userId?.name || comment.guestName || 'Anonymous' }}<span class="name-comment"></span> <span class="date-comment">{{ formattedDate }}</span> 
+          <span v-if="comment.replyToName" class="text-blue-600 font-medium mr-1">@{{ comment.replyToName }}</span>
+       </span>
+        <el-button size="small" text @click="toggleReplyForm"><MessageCircleReply :size="15" style="margin-right:5px;"/> Reply</el-button>
       </div>
-        <p class="text-gray-700">{{ comment.text }}</p>
+      <p class="paragraph-comment text-gray-700">
+        {{ comment.text }}
+      </p>
+
     </div>
     </div>
 
@@ -38,7 +43,7 @@
       </el-button>
     </div>
 
-            <div class="ml-4 mt-2 border-l-2 pl-4" v-if="comment.children?.length">
+            <div class="comment-card-sub ml-4 mt-2 pl-4" v-if="comment.children?.length">
             <CommentCard
                 v-for="child in comment.children"
                 :key="child._id"
@@ -55,6 +60,18 @@
 import { ref , computed } from 'vue'
 import { useAuth } from '../composables/useAuth'
 import { getCookie } from '../composables/getCookie';
+
+import { MessageCircleReply} from 'lucide-vue-next';
+
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+
+dayjs.extend(relativeTime)
+
+const formattedDate = computed(() => {
+  return dayjs(props.comment.createdAt).fromNow()
+})
+
 
 
 const auth = useAuth();
@@ -96,7 +113,12 @@ const submitReply = async () => {
       props.onReplySubmitted();
     }
   } catch (err) {
-    console.error('Error submitting reply:', err);
+    const message =
+    err?.response?.data?.errors?.[0]?.msg ||
+    err?.response?.data?.message ||         
+    err?.message ||                          
+    'Failed to post comment.'                
+      ElMessage.error(message)
   }
 };
 

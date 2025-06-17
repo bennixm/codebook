@@ -78,6 +78,9 @@
                 :rows="3"
               />
             </el-form-item>
+            <div v-if="!isAuthenticated && newComment.guestName" class="mt-2 text-sm text-gray-600">
+              Comment as <strong>{{ newComment.guestName }}</strong>
+            </div>
             <el-form-item v-if="!isAuthenticated && !newComment.guestName">
               <el-input
                 v-model="newComment.guestName"
@@ -87,7 +90,7 @@
             <el-form-item>
               <el-button 
                 type="primary" 
-                :disabled="!newComment.text.trim() || (!isAuthenticated.value && !newComment.guestName?.trim())" 
+                :disabled="!newComment.text.trim() || (!isAuthenticated && !newComment.guestName?.trim())" 
                 @click="submitComment"
               >
                 Submit
@@ -120,6 +123,7 @@
     
 
     import { Share2, Twitter, Facebook, ArrowLeft} from 'lucide-vue-next';
+    
 
     const route = useRoute();
     const router = useRouter();
@@ -179,7 +183,6 @@
             roots.push(comment);
           }
         });
-        console.log(roots);
 
         return roots;
       });
@@ -197,7 +200,14 @@
           newComment.value.text = ''
           newComment.value.guestName = ''
         } catch (err) {
-          ElMessage.error('Failed to post comment.')
+
+          const message =
+          err?.response?.data?.errors?.[0]?.msg ||
+          err?.response?.data?.message ||         
+          err?.message ||                          
+          'Failed to post comment.'                
+            ElMessage.error(message)
+
         }
       };
 
