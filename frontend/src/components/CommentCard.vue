@@ -4,7 +4,7 @@
     <el-avatar class="avatar-comment" :src="comment.userId?.avatar || defaultAvatar" size="large" />
     <div class="comment-body">
       <div class="comment-header">
-        <span class="comment-subheader">{{ comment.userId?.name || comment.guestName || 'Anonymous' }}<span class="name-comment"></span> <span class="date-comment">{{ formattedDate }}</span> 
+        <span class="comment-subheader">{{ comment.userId?.name || guestName }}<span class="name-comment"></span> <span class="date-comment">{{ formattedDate }}</span> 
           <span v-if="comment.replyToName" class="text-green-600 font-medium mr-1"> reply for @{{ comment.replyToName }}</span>
        </span>
        <div class="comment-buttons">
@@ -28,13 +28,13 @@
     </div>
 
     <div v-if="showReplyForm" class="mt-2 ml-4">
-      <div class="comment-user-header mt-2 flex items-center gap-3" v-if="isAuthenticated || guestName">
+      <div class="comment-user-header mt-2 flex items-center gap-3" v-if="isAuthenticated">
             <el-avatar
             :src="auth.authReady && isAuthenticated && auth.user.avatar ? auth.user.avatar : defaultAvatar"
               size="small"
             />
             <span class="font-semibold text-gray-700">
-              Reply as {{ isAuthenticated ? auth.user.name : guestName }}
+              Reply as {{ auth.user.name }}
             </span>
           </div>
           <el-form-item v-else>
@@ -142,7 +142,9 @@ const defaultAvatar = auth.defaultAvatar;
 const isAuthenticated = computed(() => auth.authReady && auth.isAuthenticated)
 
 const replyText = ref('')
+
 const guestName = ref(!isAuthenticated.value ? getCookie('guestName') || '' : '')
+
 const showReplyForm = ref(false)
 
 const toggleReplyForm = () => {
