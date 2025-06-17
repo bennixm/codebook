@@ -58,13 +58,13 @@
 
     <div class="comments-section mt-6">
       <el-form @submit.prevent class="mt-4" :model="newComment">
-          <div class="comment-user-header mt-2 flex items-center gap-3" v-if="isAuthenticated || newComment.guestName">
+          <div class="comment-user-header mt-2 flex items-center gap-3" v-if="isAuthenticated">
             <el-avatar
             :src="auth.authReady && isAuthenticated && auth.user.avatar ? auth.user.avatar : defaultAvatar"
               size="small"
             />
             <span class="font-semibold text-gray-700">
-              Comment as {{ isAuthenticated ? auth.user.name : newComment.guestName }}
+              Comment as {{ auth.user.name }}
             </span>
           </div>
           <el-form-item v-else>
@@ -254,7 +254,6 @@
         const refreshedComments = await auth.fetchComments(blog.value._id)
         comments.value = refreshedComments
         newComment.value.text = ''
-        newComment.value.guestName = ''
       } catch (err) {
 
         const message =
