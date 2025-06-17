@@ -5,7 +5,7 @@
     <div class="comment-body">
       <div class="comment-header">
         <span class="comment-subheader">{{ comment.userId?.name || comment.guestName || 'Anonymous' }}<span class="name-comment"></span> <span class="date-comment">{{ formattedDate }}</span> 
-          <span v-if="comment.replyToName" class="text-blue-600 font-medium mr-1">@{{ comment.replyToName }}</span>
+          <span v-if="comment.replyToName" class="text-blue-600 font-medium mr-1"> reply for @{{ comment.replyToName }}</span>
        </span>
         <el-button size="small" text @click="toggleReplyForm"><MessageCircleReply :size="15" style="margin-right:5px;"/> Reply</el-button>
       </div>
@@ -42,17 +42,6 @@
         Submit Reply
       </el-button>
     </div>
-
-            <div class="comment-card-sub ml-4 mt-2 pl-4" v-if="comment.children?.length">
-            <CommentCard
-                v-for="child in comment.children"
-                :key="child._id"
-                :comment="child"
-                :blog-id="blogId"
-                :on-reply-submitted="onReplySubmitted"
-                :is-authenticated="isAuthenticated"
-            />
-            </div>
   </el-card>
 </template>
 
@@ -60,6 +49,7 @@
 import { ref , computed } from 'vue'
 import { useAuth } from '../composables/useAuth'
 import { getCookie } from '../composables/getCookie';
+import { ElMessage } from 'element-plus';
 
 import { MessageCircleReply} from 'lucide-vue-next';
 

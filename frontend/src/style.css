@@ -856,7 +856,7 @@ body {
   flex-direction: row;
   justify-content: space-between;
 }
-.comment-card-sub{
+.replies{
   padding-top:24px;
   padding-left:64px;
 }
