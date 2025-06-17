@@ -392,48 +392,67 @@ exports.addComment = async (req, res, next) => {
   };
   exports.incrementViews = async (req, res, next) => {
     try {
-      const blogId = req.params.id;
-      
-      const userId = req.user?.id || req.user?._id;
-      
-      const { guestId, guestName } = req.guest;
-      let viewEntry = { at: new Date() };
+      const blogId   = req.params.id;
+      const userId   = req.user?.id || req.user?._id;
+      const guestId  = req.guest?.guestId;
   
-      if (userId) {
-        viewEntry.userId = userId;
-       
-      } else {
-       
-        viewEntry.guestId = guestId;
-        
-       
+     
+      const viewerId = userId ?? guestId;
+      if (!viewerId) {
+      
+        return res.status(400).json({ error: 'Unable to identify viewer.' });
       }
   
-      const updated = await Blog.findByIdAndUpdate(
-        blogId,
-        { $addToSet: { views: viewEntry } },
-        { new: true }
-      );
-      if (!updated) return res.status(404).json({ error: 'Blog post not found.' });
-      await createNotification({
-        app: req.app,
-        recipient: blog.userId,    
-        actor:     viewEntry.userId || viewEntry.guestId,    
-        type:      'view',      
-        targetType:'Blog',         
-        targetId:  blog._id
+      
+      const blog = await Blog.findById(blogId);
+      if (!blog) {
+        return res.status(404).json({ error: 'Blog post not found.' });
+      }
+  
+     
+      const hasViewed = blog.views.some(v => {
+        return userId
+          ? v.userId?.toString() === viewerId.toString()
+          : v.guestId === viewerId;
       });
   
-      res.status(200).json({
-        totalViews: updated.views.length,
-        viewers:    updated.views
-      });
       
-
+      if (hasViewed) {
+        return res.status(200).json({
+          totalViews: blog.views.length,
+          viewers:    blog.views
+        });
+      }
+  
+      
+      const viewEntry = {
+        at: new Date(),
+        ...(userId  ? { userId:  viewerId } 
+                   : { guestId: viewerId })
+      };
+      blog.views.push(viewEntry);
+      await blog.save();
+  
+     
+      await createNotification({
+        app:        req.app,
+        recipient:  blog.userId,
+        actor:      viewerId,
+        type:       'view',
+        targetType: 'Blog',
+        targetId:   blog._id
+      });
+  
+    
+      return res.status(200).json({
+        totalViews: blog.views.length,
+        viewers:    blog.views
+      });
     } catch (err) {
       next(err);
     }
   };
+  
   
 
   exports.likeBlog = async (req, res, next) => {
