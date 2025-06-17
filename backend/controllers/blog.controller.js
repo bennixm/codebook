@@ -280,8 +280,6 @@ exports.addComment = async (req, res, next) => {
       const blogId = req.params.id;
       const { text, guestname, replyid } = req.body;
 
-      console.log(req.body);
-
       const userId = req.user?.id || req.user?._id;
       const { guestId } = req.guest;
   
@@ -350,7 +348,7 @@ exports.addComment = async (req, res, next) => {
   
   exports.deleteComment = async (req, res, next) => {
     try {
-      const blogId = req.params.id;
+      const blogId = req.params.blogId;
       const commentId = req.params.commentId;
       const userId = req.user?.id || req.user?._id;
   

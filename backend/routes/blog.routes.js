@@ -10,7 +10,7 @@ router.get('/my-blogs', auth, fetchBlogsByUser);
 router.get('/get-blog/:slug', authOptional, fetchBlogBySlug);
 router.delete('/delete/:id', auth, deleteBlog);
 router.post('/add-comment/:id', authOptional, validateAddComment,addComment);
-router.delete('/delete-comment/:id', auth,deleteComment);
+router.delete('/delete-comment/:commentId/blog/:blogId', auth,deleteComment);
 router.get('/comments/:id', getComments);
 router.post('/views/:id',incrementViews);
 router.post('/like/:id',   auth, likeBlog);

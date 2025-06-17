@@ -10,6 +10,9 @@ export const useAuth = defineStore('auth', () => {
   const isAuthenticated = ref(false);
   const authReady = ref(false);
 
+  const defaultAvatar = 'https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/user.png?alt=media&token=6cdb89f7-73b1-40b0-9307-78ae1a06f29f';
+
+
   const fetchProfile = async () => {
 
     if (authReady.value) return;
@@ -145,9 +148,9 @@ export const useAuth = defineStore('auth', () => {
       }
     };
 
-    const deleteComment = async (commentId) => {
+    const deleteComment = async (commentId, blogId) => {
       try {
-        const res = await secureApi.delete(`/blog/delete-comment/${commentId}`);
+        const res = await secureApi.delete(`/blog/delete-comment/${commentId}/blog/${blogId}`);
         return res.data;
       } catch (err) {
         console.error('Failed to delete comment:', err.response?.data || err.message);
@@ -201,6 +204,7 @@ export const useAuth = defineStore('auth', () => {
 
   return {
     user,
+    defaultAvatar,
     isAuthenticated,
     authReady,
     fetchProfile,
