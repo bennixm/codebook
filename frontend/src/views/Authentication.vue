@@ -164,14 +164,15 @@ const handleLogin = async () => {
     if (!valid) return;
 
     try {
-      const response = await api.post('/auth/login', loginForm.value);
+      await api.post('/auth/login', loginForm.value);
 
-      await fetchProfile();
+      localStorage.setItem('isLoggedIn', 'true');
 
       showErrorAlert.value = false;
       showResendActivation.value = false;
 
       router.push('/panel/dashboard');
+
     } catch (err) {
       const errCode = err.response?.data?.error
       errorMessage.value = errCode === 'ACCOUNT_NOT_ACTIVATED'
