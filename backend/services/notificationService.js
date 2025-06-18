@@ -37,8 +37,9 @@ async function createNotification({
   ]);
 
   app.locals.io
-    .to(`user_${recipient}`)
-    .emit('notification', notif);
+  .to(recipient.toString())
+  .emit('notification', notif)
+
 
   return notif;
 }
