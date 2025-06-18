@@ -16,6 +16,12 @@ export const useAuth = defineStore('auth', () => {
   const fetchProfile = async () => {
 
     if (authReady.value) return;
+
+      if (!localStorage.getItem('isLoggedIn')) {
+        authReady.value = true;
+        logout(false);
+        return;
+      }
     
     authReady.value = false;
     try {
@@ -192,7 +198,7 @@ export const useAuth = defineStore('auth', () => {
         } catch (err) {
           console.error('Logout error:', err);
         }
-
+        localStorage.removeItem('isLoggedIn');
         user.value = null;
         isAuthenticated.value = false;
         authReady.value = false;
