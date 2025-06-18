@@ -4,7 +4,7 @@
     <el-avatar class="avatar-comment" :src="comment.userId?.avatar || defaultAvatar" size="large" />
     <div class="comment-body">
       <div class="comment-header">
-        <span class="comment-subheader">{{ comment.userId?.name || guestName }}<span class="name-comment"></span> <span class="date-comment">{{ formattedDate }}</span> 
+        <span class="comment-subheader">{{ comment.userId?.name || userName }}<span class="name-comment"></span> <span class="date-comment">{{ formattedDate }}</span> 
           <span v-if="comment.replyToName" class="text-green-600 font-medium mr-1"> reply for @{{ comment.replyToName }}</span>
        </span>
        <div class="comment-buttons">
@@ -39,7 +39,7 @@
           </div>
           <el-form-item v-else>
             <el-input
-              v-model="newComment.guestName"
+              v-model="newCommentName"
               placeholder="Your name"
             />
           </el-form-item>
@@ -55,7 +55,7 @@
         type="primary"
         class="mt-2"
         @click="submitReply"
-        :disabled="!replyText.trim() || (!isAuthenticated && !guestName.trim())"
+        :disabled="!replyText.trim() || (!isAuthenticated && !newCommentName.trim())"
       >
         Submit Reply
       </el-button>
@@ -81,6 +81,7 @@ const props = defineProps({
   isAuthenticated: Boolean,
   onReplySubmitted: Function,
   canDelete: Boolean,
+  userName: String,
   showReplies: {
     type: Boolean,
     default: false,
@@ -93,6 +94,8 @@ const canDelete = computed(() => {
   }
   return auth.user._id === props.comment.userId._id || auth.user.role === 'admin';
 });
+
+const newCommentName = ref(props.userName || '');
 
 
 const emitDelete = async () => {
@@ -143,8 +146,6 @@ const isAuthenticated = computed(() => auth.authReady && auth.isAuthenticated)
 
 const replyText = ref('')
 
-const guestName = ref(!isAuthenticated.value ? getCookie('guestName') || '' : '')
-
 const showReplyForm = ref(false)
 
 const toggleReplyForm = () => {
@@ -156,14 +157,13 @@ const submitReply = async () => {
     const payload = {
       text: replyText.value,
       replyid: props.comment._id,
-      guestName: !props.isAuthenticated ? guestName.value : undefined
+      guestName: !props.isAuthenticated ? newCommentName.value : undefined
     };
     console.log('🕵️‍♂️ submitReply payload:', payload);
 
     await auth.addComment(props.blogId, payload);
 
     replyText.value = '';
-    guestName.value = '';
     showReplyForm.value = false;
 
     if (props.onReplySubmitted) {
