@@ -1,15 +1,13 @@
-
-import { reactive, inject, watch, onMounted } from 'vue'
-import secureApi from '../secureApi'
-import { useAuth } from './useAuth'
+import { reactive, onMounted, onUnmounted, watch } from 'vue'
+import secureApi      from '../secureApi'
+import socket         from '../plugins/socket'
+import { useAuth }    from './useAuth'
 
 export function useNotifications() {
-  const socket = inject('socket')
-  if (!socket) console.warn('useNotifications: socket not provided')
-
-  const auth = useAuth()
+  const auth  = useAuth()
   const state = reactive({ list: [] })
 
+ 
   async function fetchAll() {
     try {
       const res = await secureApi.get('/notifications')
@@ -38,31 +36,33 @@ export function useNotifications() {
     }
   }
 
+ 
   watch(
-    () => auth.authReady,
-    ready => {
-      if (!ready) return
-
-      if (auth.isAuthenticated) {
-      
+    () => auth.authReady && auth.isAuthenticated,
+    readyAndAuthed => {
+      if (readyAndAuthed) {
         fetchAll()
-
-    
-        const userId = auth.user.id || auth.user._id
-        socket.emit('join', { userId })
-
-      
-        socket.on('notification', notif => {
-          state.list.unshift(notif)
-        })
       } else {
-       
         state.list = []
-        socket.off('notification')
       }
     },
     { immediate: true }
   )
 
-  return { state, markRead, markAll }
+  
+  function handleNotif(notif) {
+    if (auth.isAuthenticated) {
+      state.list.unshift(notif)
+    }
+  }
+
+  onMounted(() => {
+    socket.on('notification', handleNotif)
+  })
+
+  onUnmounted(() => {
+    socket.off('notification', handleNotif)
+  })
+
+  return { state, fetchAll, markRead, markAll }
 }

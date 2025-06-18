@@ -278,82 +278,105 @@ exports.getComments = async (req, res, next) => {
 };
 
 exports.addComment = async (req, res, next) => {
-    try {
-      const blogId = req.params.id;
-      const { text,guestName,replyid } = req.body;
+  try {
+    const blogId = req.params.id;
+    const { text,guestName,replyid } = req.body;
 
-      const userId = req.user?.id || req.user?._id;
-      const { guestId } = req.guest;
-      const isUser = Boolean(userId);
+    const userId = req.user?.id || req.user?._id;
+    const { guestId } = req.guest;
+    const isUser = Boolean(userId);
 
-      const comment = {
-        text: text.trim(),
-        createdAt: new Date(),
-        replyid
-      };
-
-  
-      if (isUser) {
-        comment.userId = userId;
-      } else {
-        res.cookie('guestName', guestName, {
-            httpOnly: false,
-            sameSite: 'lax',
-            maxAge: 1000 * 60 * 60 * 24 * 365
-          });
-
-          await Guest.findOneAndUpdate(
-            { _id: guestId },               
-            { guestName },                  
-            { upsert: true, new: true }     
-          );
-       
-        comment.guestId   = guestId;
-        req.guest.guestName = guestName;
-       
-      }
+    const comment = {
+      text: text.trim(),
+      createdAt: new Date(),
+      replyid
+    };
 
 
+    if (isUser) {
+      comment.userId = userId;
+    } else {
+      res.cookie('guestName', guestName, {
+          httpOnly: false,
+          sameSite: 'lax',
+          maxAge: 1000 * 60 * 60 * 24 * 365
+        });
 
-  
-      if (replyid) {
-        const exists = await Blog.findOne({ _id: blogId, 'comments._id': replyid });
-        if (!exists) {
-          return res.status(400).json({ error: 'Parent comment not found.' });
-        }
-        comment.replyid = replyid;
-      }
-  
-      const updated = await Blog.findByIdAndUpdate(
-        blogId,
-        { $push: { comments: comment } },
-        { new: true, runValidators: true }
-      ).populate('comments.userId', 'name avatar')
-      .populate('comments.guestId', 'guestName');
-  
-      if (!updated) {
-        return res.status(404).json({ error: 'Blog post not found.' });
-      }
-      const isReply   = Boolean(replyid);
-      const notifType = isReply ? 'reply' : 'comment';
-  
-      
-      await createNotification({
-        app:        req.app,
-        recipient:  updated.userId,
-        actorUser:  isUser ? userId : undefined,
-        actorGuest: isUser ? undefined : req.guest.guestId,
-        type:       notifType,
-        targetType: 'Blog',
-        targetId:   updated._id       
-      });
-  
-      res.status(201).json({ comments: updated.comments });
-    } catch (err) {
-      console.error('❌ addComment error:', err);
-      next(err);
+        await Guest.findOneAndUpdate(
+          { _id: guestId },               
+          { guestName },                  
+          { upsert: true, new: true }     
+        );
+     
+      comment.guestId   = guestId;
+      req.guest.guestName = guestName;
+     
     }
-  };
+
+
+
+
+    if (replyid) {
+      const exists = await Blog.findOne({ _id: blogId, 'comments._id': replyid });
+      if (!exists) {
+        return res.status(400).json({ error: 'Parent comment not found.' });
+      }
+      comment.replyid = replyid;
+    }
+
+    const updated = await Blog.findByIdAndUpdate(
+      blogId,
+      { $push: { comments: comment } },
+      { new: true, runValidators: true }
+    ).populate('comments.userId', 'name avatar')
+    .populate('comments.guestId', 'guestName');
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Blog post not found.' });
+    }
+    const isReply   = Boolean(replyid);
+    const notifType = isReply ? 'reply' : 'comment';
+
+    
+    
+    let recipient;
+
+    if (isReply) {
+      
+      const parent = updated.comments.find(c => c._id.toString() === replyid);
+      if (!parent) {
+        return res.status(400).json({ error: 'Parent comment not found.' });
+      }
+      if (parent.userId) {
+        recipient = parent.userId._id;
+      } else {
+        
+        recipient = parent.guestId._id || parent.guestId;
+      }
+     
+      
+    } else {
+    
+      recipient = updated.userId;
+    }
+
+    await createNotification({
+      app:        req.app,
+      recipient,                    
+      actorUser:  isUser ? userId : undefined,
+      actorGuest: isUser ? undefined : req.guest.guestId,
+      type:       isReply ? 'reply' : 'comment',
+      targetType: 'Blog',
+      targetId:   updated._id       
+    });
+
+    res.status(201).json({ comments: updated.comments });
+  } catch (err) {
+    console.error('❌ addComment error:', err);
+    next(err);
+  }
+};
+
   
   exports.deleteComment = async (req, res, next) => {
     try {
