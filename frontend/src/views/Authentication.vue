@@ -1,8 +1,8 @@
 <template>
   <div class="auth-form">
   <div class="auth-container">
-    <el-form-item>
-      <el-button @click="onGoogleAuth" class="google-btn">
+    <el-form-item >
+      <el-button  @click="onGoogleAuth" class="google-btn">
         <el-icon style="width: 20px;">
           <img 
             src="https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/Google__G__logo.svg.png?alt=media&token=9e718bb9-582e-444a-b7fc-0b5d691d8290" 
@@ -142,6 +142,7 @@ import { useAuth } from '../composables/useAuth';
 const { fetchProfile } = useAuth();
 const router = useRouter();
 const activeForm = ref('login')
+
 const loginFormRef = ref()
 
 const loginForm = ref({
@@ -254,8 +255,11 @@ const handleRegister = () => {
 };
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 const GOOGLE_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+
+
 function onGoogleAuth() {
-  console.log('API_BASE is', API_BASE); 
+  localStorage.setItem('isLoggedIn', 'true')
   const params = new URLSearchParams({
     client_id:     GOOGLE_ID,
     redirect_uri:  `${API_BASE}/auth/google/callback`,
