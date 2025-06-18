@@ -6,10 +6,14 @@ const notificationSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  actor: {
+ 
+  actorUser: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: 'User'
+  },
+  actorGuest: {
+    type: mongoose.Schema.Types.ObjectId,  
+    ref: 'Guest'
   },
   type: {
     type: String,
@@ -18,7 +22,7 @@ const notificationSchema = new mongoose.Schema({
   },
   targetType: {
     type: String,
-    enum: ['Blog', 'Comment', 'User'],
+    enum: ['Blog', 'Comment', 'User', 'Guest'],
     required: true
   },
   targetId: {

@@ -60,7 +60,9 @@
             :class="['notification-item', n.read ? 'read' : 'unread']"
           >
             <div class="notif-content">
-              <strong>{{ n.actor.name }}</strong>
+              <strong>{{ n.actorUser?.name || n.actorGuest?.guestName }}</strong>
+
+
               {{ messageText(n) }}
             </div>
             <div class="notif-time">
@@ -214,6 +216,11 @@ async function onNotifCommand(payload) {
  
       
     return router.push(`/blog/${targetId}`);
+
+    case 'Guest':
+      // Handle guest notifications if needed
+      return router.push(`/guests/${targetId}`);
+     
       
     default:
       return;

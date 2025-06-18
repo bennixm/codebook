@@ -223,5 +223,6 @@ export const useAuth = defineStore('auth', () => {
     unlikeBlog,
     setBio,
     logout,
+    
   };
 });

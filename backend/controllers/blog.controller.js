@@ -278,12 +278,12 @@ exports.getComments = async (req, res, next) => {
 exports.addComment = async (req, res, next) => {
     try {
       const blogId = req.params.id;
-      const { text, guestname, replyid } = req.body;
+      const { text,guestName,replyid } = req.body;
 
       const userId = req.user?.id || req.user?._id;
       const { guestId } = req.guest;
-  
-     
+      const isUser = Boolean(userId);
+      console.log(guestName, 'guestName');
       const comment = {
         text: text.trim(),
         createdAt: new Date(),
@@ -291,27 +291,27 @@ exports.addComment = async (req, res, next) => {
       };
 
   
-      if (userId) {
+      if (isUser) {
         comment.userId = userId;
       } else {
-        res.cookie('guestName', guestname, {
+        res.cookie('guestName', guestName, {
             httpOnly: false,
             sameSite: 'lax',
             maxAge: 1000 * 60 * 60 * 24 * 365
           });
 
-        await Guest.findOneAndUpdate(
-            { guestId },
-            { guestId, guestname },
-            { upsert: true, new: true }
+          await Guest.findOneAndUpdate(
+            { _id: guestId },               
+            { guestName },                  
+            { upsert: true, new: true }     
           );
        
         comment.guestId   = guestId;
-        req.guest.guestName = guestname;
+        req.guest.guestName = guestName;
        
       }
 
-      const actorId = userId || guestId;
+
 
   
       if (replyid) {
@@ -326,7 +326,8 @@ exports.addComment = async (req, res, next) => {
         blogId,
         { $push: { comments: comment } },
         { new: true, runValidators: true }
-      ).populate('comments.userId', 'name avatar');
+      ).populate('comments.userId', 'name avatar')
+      .populate('comments.guestId', 'guestName');
   
       if (!updated) {
         return res.status(404).json({ error: 'Blog post not found.' });
@@ -334,10 +335,12 @@ exports.addComment = async (req, res, next) => {
       const isReply   = Boolean(replyid);
       const notifType = isReply ? 'reply' : 'comment';
   
+      
       await createNotification({
         app:        req.app,
         recipient:  updated.userId,
-        actor:      actorId,
+        actorUser:  isUser ? userId : undefined,
+        actorGuest: isUser ? undefined : req.guest.guestId,
         type:       notifType,
         targetType: 'Blog',
         targetId:   updated._id       

@@ -1,21 +1,44 @@
 const Notification = require('../models/Notification');
+const mongoose     = require('mongoose');
 
-async function createNotification({ app, recipient, actor, type, targetType, targetId }) {
- 
-  if (actor && recipient && actor.toString() === recipient.toString()) return;
+async function createNotification({
+  app,
+  recipient,
+  actorUser,
+  actorGuest,
+  type,
+  targetType,
+  targetId
+}) {
+
+  if (
+    actorUser &&
+    recipient.toString() === actorUser.toString()
+  ) return;
 
   if (!recipient || !targetId) {
-    console.warn('Missing recipient or targetId in createNotification');
+    console.warn('Missing recipient or targetId');
     return;
   }
 
-  let notif = await Notification.create({
-    recipient, actor, type, targetType, targetId
+  const notif = await Notification.create({
+    recipient,
+    actorUser,
+    actorGuest,
+    type,
+    targetType,
+    targetId
   });
 
-notif = await notif.populate('actor', 'name avatar');
-const io = app.locals.io;
-io.to(`user_${recipient}`).emit('notification', notif);
+  // populate whichever actor field you used
+  await notif.populate([
+    { path: 'actorUser',  select: 'name avatar'   },
+    { path: 'actorGuest', select: 'guestName'     }
+  ]);
+
+  app.locals.io
+    .to(`user_${recipient}`)
+    .emit('notification', notif);
 
   return notif;
 }

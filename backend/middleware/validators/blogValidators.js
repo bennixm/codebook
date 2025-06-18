@@ -73,10 +73,21 @@ const validateAddComment = [
       .notEmpty().withMessage('Comment text is required.')
       .isLength({ max: 500 }).withMessage('Comment text must be at most 500 characters.'),
   
-    body('guestname')
-      .if((value, { req }) => !req.user)
-      .trim()
-      .notEmpty().withMessage('Guest name is required for anonymous comments.'),
+      (req, res, next) => {
+        if (!req.user) {
+          const guestName = req.guest?.guestName;
+          if (!guestName || typeof guestName !== 'string' || !guestName.trim()) {
+            return res.status(400).json({
+              errors: [{
+                msg: 'Guest name is required for anonymous comments.',
+                param: 'guestName',
+                location: 'cookie'
+              }]
+            });
+          }
+        }
+        next();
+      },
   
     
   
