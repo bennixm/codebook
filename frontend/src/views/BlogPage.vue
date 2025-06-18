@@ -101,6 +101,7 @@
         :comment="comment"
         :blog-id="blog._id"
         :is-authenticated="isAuthenticated"
+        :user-name="comment.userName"
         :on-reply-submitted="handleReplySubmitted"
         :show-replies="shownRepliesMap[comment._id] || false"
         @update:showReplies="val => shownRepliesMap[comment._id] = val"
@@ -111,6 +112,7 @@
             :key="reply._id"
             :comment="reply"
             :blog-id="blog._id"
+            :user-name="comment.userName"
             :is-authenticated="isAuthenticated"
             :on-reply-submitted="handleReplySubmitted"
           />
@@ -125,6 +127,7 @@
           :current-page="currentPage"
           :page-size="COMMENTS_PER_PAGE"
           :total="flatStructuredComments.length"
+          :savedGuestName="savedGuestName"
           @current-change="val => currentPage = val"
         />
     </div>
@@ -142,7 +145,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, nextTick, computed } from 'vue';
+  import { ref, onMounted, nextTick, computed, watch } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { ElMessage } from 'element-plus';
   import { useAuth } from '../composables/useAuth';
@@ -205,6 +208,8 @@
 
   const newComment = ref({ text: '', guestName: '' })
 
+  const savedGuestName = ref(getCookie('guestName') || '');
+
   const isAuthenticated = computed(() => auth.authReady && auth.isAuthenticated)
 
   const handleReplySubmitted = async () => {
@@ -215,12 +220,19 @@
   const flatStructuredComments = computed(() => {
     const commentMap = {};
     const rootComments = [];
-    
+  
     comments.value.forEach(comment => {
-      commentMap[comment._id] = { ...comment, replies: [] };
+      const userName = comment.userId?.name || comment.guestId?.guestName || 'Anonymous';
+      commentMap[comment._id] = {
+        ...comment,
+        userName,
+        replies: []
+      };
     });
   
     comments.value.forEach(comment => {
+      const userName = commentMap[comment._id].userName;
+      
       if (!comment.replyid || !commentMap[comment.replyid]) {
         rootComments.push(commentMap[comment._id]);
       } else {
@@ -228,21 +240,23 @@
         while (parent.replyid && commentMap[parent.replyid]) {
           parent = commentMap[parent.replyid];
         }
+  
         const immediateParent = commentMap[comment.replyid];
-        const showMention = immediateParent._id !== parent._id; 
+        const showMention = immediateParent._id !== parent._id;
   
         commentMap[parent._id].replies.push({
           ...comment,
+          userName,
           replyToName: showMention
-            ? immediateParent.userId?.name || immediateParent.guestName || 'Anonymous'
+            ? immediateParent.userName
             : null
         });
       }
-      console.log(comment);
     });
   
     return rootComments;
-  });  
+  });
+  
 
     const submitComment = async () => {
       if (!newComment.value.text.trim()) return;
@@ -253,7 +267,7 @@
       try {
         await auth.addComment(blog.value._id, payload)
         const refreshedComments = await auth.fetchComments(blog.value._id)
-        comments.value = refreshedComments
+        comments.value = [...refreshedComments];
         newComment.value.text = ''
       } catch (err) {
 

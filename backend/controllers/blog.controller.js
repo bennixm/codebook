@@ -258,8 +258,7 @@ exports.getComments = async (req, res, next) => {
 
     const blog = await Blog.findById(blogId)
       .populate('comments.userId', 'name avatar')
-      .populate('comments.guestId', 'guestName')
-      .lean();
+      .populate('comments.guestId', 'guestName');
 
     if (!blog) {
       return res.status(404).json({ error: 'Blog post not found.' });
@@ -284,7 +283,7 @@ exports.addComment = async (req, res, next) => {
       const userId = req.user?.id || req.user?._id;
       const { guestId } = req.guest;
       const isUser = Boolean(userId);
-      console.log(guestName, 'guestName');
+
       const comment = {
         text: text.trim(),
         createdAt: new Date(),
