@@ -133,6 +133,15 @@ export const useAuth = defineStore('auth', () => {
       throw error;
     }
   };
+    const fetchBlogsByUser  = async (foreignUser) => {
+    try {
+      const response = await api.get(`/blog/user-blogs/${foreignUser}`);
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch all blogs:', error);
+      throw error;
+    }
+  };
 
   const fetchComments = async (blogId) => {
       try {
@@ -162,6 +171,10 @@ export const useAuth = defineStore('auth', () => {
         console.error('Failed to delete comment:', err.response?.data || err.message);
         throw err;
       }
+    };
+
+    const recordView = async (blogId) => {
+      await secureApi.post(`/blog/view/${blogId}`);
     };
 
     const incrementViews = async (blogId) => {
@@ -219,6 +232,7 @@ export const useAuth = defineStore('auth', () => {
     createBlogPost,
     deleteMyBlog,
     fetchMyBlogs,
+    fetchBlogsByUser,
     fetchBlogById,
     fetchBlogBySlug,
     fetchComments,

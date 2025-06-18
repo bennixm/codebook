@@ -18,7 +18,7 @@
 
      <div class="profile-section-blog-heading text-gray-500 text-sm flex items-center gap-4 justify-between">
       <div class="flex items-center gap-2">
-        <el-avatar :src="blog.userId.avatar || defaultAvatar" size="small" />
+        <el-avatar :src="blog.userId.avatar || auth.defaultAvatar" size="small" />
         <span>by <strong>{{ blog.userId.name }} on {{ formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
       </div>
       <div class="flex items-center gap-2">
@@ -56,11 +56,39 @@
 
     <el-divider />
 
+    <div class="interaction-section flex justify-between">
+      <div class="stats">
+        <span class="views" @click="toggleViewPopup">{{ blog.views.length }} <Eye :size="20" /></span>
+        <span class="likes" @click="toggleLikesPopup">{{ blog.likes.length }} <ThumbsUp :size="20"/> </span>
+      </div>
+        <el-button v-if="!userLiked" @click="likePost">
+          <ThumbsUp :size="15" />
+           Like
+        </el-button>
+        <el-button v-else @click="dislikePost">
+          <ThumbsDown :size="15" />
+           Dislike
+        </el-button>
+    </div>
+
+      <el-dialog v-model="showLikesPopup" title="Users who liked this post">
+        <ul>
+          <li v-for="user in blog.likes" :key="user._id">{{ user.name }}</li>
+        </ul>
+      </el-dialog>
+
+      <el-dialog v-model="showViewsPopup" title="Users who viewed this post">
+        <ul>
+          <li v-for="user in blog.views" :key="user._id">{{ user.name }}</li>
+        </ul>
+      </el-dialog>
+
+
     <div class="comments-section mt-6">
       <el-form @submit.prevent class="mt-4" :model="newComment">
           <div class="comment-user-header mt-2 flex items-center gap-3" v-if="isAuthenticated">
             <el-avatar
-            :src="auth.authReady && isAuthenticated && auth.user.avatar ? auth.user.avatar : defaultAvatar"
+            :src="auth.authReady && isAuthenticated && auth.user.avatar ? auth.user.avatar : auth.defaultAvatar"
               size="small"
             />
             <span class="font-semibold text-gray-700">
@@ -94,7 +122,7 @@
           </el-form-item>
         </el-form>
 
-      <h2 class="text-lg font-semibold mb-4">Comments</h2>
+      <h2 class="text-lg font-semibold mb-4">Comments ({{ flatStructuredComments.length }})</h2>
       <el-empty v-if="!comments.length" description="No comments yet." />
       <div v-for="comment in paginatedRootComments" :key="comment._id" class="root-comment">
         <CommentCard
@@ -102,6 +130,7 @@
         :blog-id="blog._id"
         :is-authenticated="isAuthenticated"
         :user-name="comment.userName"
+        :authorId="authorId"
         :on-reply-submitted="handleReplySubmitted"
         :show-replies="shownRepliesMap[comment._id] || false"
         @update:showReplies="val => shownRepliesMap[comment._id] = val"
@@ -112,6 +141,7 @@
             :key="reply._id"
             :comment="reply"
             :blog-id="blog._id"
+            :authorId="authorId"
             :user-name="comment.userName"
             :is-authenticated="isAuthenticated"
             :on-reply-submitted="handleReplySubmitted"
@@ -135,7 +165,15 @@
    </div>
   </div>
   <div class="blog-secondary">
-
+    <div class="sticky top-6">
+    <MiniProfileCard
+     :userData="blog.userId"
+    />
+    <UserBlogsSlider 
+     :userId="blog?.userId?._id" 
+      :currentBlogId="blog?._id"
+     />
+   </div>
   </div>
 
   </div>
@@ -152,11 +190,13 @@
   import EditorJSHTML from 'editorjs-html';
   import Prism from 'prismjs';
   import CommentCard from '../components/CommentCard.vue';
+  import MiniProfileCard from '../components/MiniProfileCard.vue'
+  import UserBlogsSlider from '../components/UserBlogsSlider.vue'
 
   import { getCookie } from '../composables/getCookie';
   
 
-  import { Share2, Twitter, Facebook, ArrowLeft} from 'lucide-vue-next';
+  import { Share2, Twitter, Facebook, ArrowLeft, ThumbsDown, ThumbsUp, Eye} from 'lucide-vue-next';
 
   const route = useRoute();
   const router = useRouter();
@@ -165,7 +205,55 @@
   const loading = ref(true);
   const blogUrl = window.location.href; 
 
-  const defaultAvatar = auth.defaultAvatar;
+
+  const showLikesPopup = ref(false);
+  const showViewsPopup = ref(false);
+
+  const userLiked = computed(() => {
+    if (!auth.isAuthenticated || !blog.value) return false;
+    return blog.value.likes.some(likeUser => likeUser._id === auth.user._id);
+  });
+
+  console.log(userLiked);
+
+  const toggleLikesPopup = () => {
+    showLikesPopup.value = true;
+  };
+  
+  const toggleViewPopup = () => {
+    showViewsPopup.value = true;
+  };
+
+    const likePost = async () => {
+      try {
+        await auth.likeBlog(blog.value._id);
+        const updated = await auth.fetchBlogBySlug(blog.value.slug);
+    
+        blog.value = {
+          ...blog.value,
+          likes: updated.likes
+        };
+      } catch (err) {
+        ElMessage.error('Failed to like the post.');
+      }
+    };
+  
+  
+    const dislikePost = async () => {
+      try {
+        await auth.unlikeBlog(blog.value._id);
+        const updated = await auth.fetchBlogBySlug(blog.value.slug);
+    
+        blog.value = {
+          ...blog.value,
+          likes: updated.likes
+        };
+      } catch (err) {
+        ElMessage.error('Failed to dislike the post.');
+      }
+    };
+    
+
 
   const shareOnTwitter = () => {
       const url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(blogUrl)}`;
@@ -211,6 +299,8 @@
   const savedGuestName = ref(getCookie('guestName') || '');
 
   const isAuthenticated = computed(() => auth.authReady && auth.isAuthenticated)
+
+  const authorId = ref('');
 
   const handleReplySubmitted = async () => {
     const refreshed = await auth.fetchComments(blog.value._id)
@@ -320,7 +410,7 @@
         const slug = route.params.slug;
         const data = await auth.fetchBlogBySlug(slug);
 
-        const isCreator = auth.authReady && auth.isAuthenticated && data.userId._id === auth.user._id;      
+        const isCreator = auth.authReady && auth.isAuthenticated && data.userId._id === auth.user._id;     
 
         if (!data.isPublished && !isCreator) {
           blog.value = null;
@@ -333,7 +423,20 @@
           data.content = parseEditorContent(raw);
         }
 
+        authorId.value = data.userId._id;
+
         blog.value = data;
+
+        if (auth.isAuthenticated) {
+          try {
+            await auth.recordView(blog.value._id);
+            const updated = await auth.fetchBlogBySlug(blog.value.slug);
+            blog.value.views = updated.views;
+          } catch (err) {
+            console.error('View track failed:', err);
+          }
+        }
+
         const commentData = await auth.fetchComments(blog.value._id);
         comments.value = commentData;
 

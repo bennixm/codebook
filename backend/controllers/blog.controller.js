@@ -123,7 +123,9 @@ exports.createBlog = async (req, res, next) => {
 
 exports.fetchBlogsByUser = async (req, res, next) => {
   try {
-    const userId = req.user._id || req.user.id;
+
+    const { foreignUser } = req.params;
+    const userId = foreignUser || req.user._id || req.user.id;
 
     if (!userId) {
       return res.status(401).json({ error: 'Unauthorized: missing user ID' });
@@ -473,13 +475,13 @@ exports.addComment = async (req, res, next) => {
 
       await createNotification({
         app: req.app,
-        recipient: blog.userId,    
+        recipient: updated.userId,    
         actor:     req.user.id,    
         type:      'like',      
         targetType:'Blog',         
-        targetId:  blog._id
+        targetId:  updated._id
       });
-  
+
       res.status(200).json({
         likesCount: updated.likes.length,
         likers:     updated.likes
