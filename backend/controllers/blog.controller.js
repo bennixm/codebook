@@ -258,6 +258,7 @@ exports.getComments = async (req, res, next) => {
 
     const blog = await Blog.findById(blogId)
       .populate('comments.userId', 'name avatar')
+      .populate('comments.guestId', 'guestName')
       .lean();
 
     if (!blog) {
