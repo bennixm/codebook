@@ -13,10 +13,10 @@ router.post('/add-comment/:id', authOptional, validateAddComment,addComment);
 router.delete('/delete-comment/:commentId/blog/:blogId', auth,deleteComment);
 router.get('/comments/:id', getComments);
 router.post('/views/:id',incrementViews);
-router.post('/like/:id',   auth, likeBlog);
+router.post('/like/:id', auth, likeBlog);
 router.post('/unlike/:id', auth, unlikeBlog);
 router.get('/get-blog-by/:id', authOptional, fetchBlogById);
 router.get('/filter-blogs',authOptional,filterBlogs);
-
+router.get('/user-blogs/:foreignUser', authOptional, fetchBlogsByUser);
 
 module.exports = router

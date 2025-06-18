@@ -8,7 +8,7 @@
           <span v-if="comment.replyToName" class="text-green-600 font-medium mr-1"> reply for @{{ comment.replyToName }}</span>
        </span>
        <div class="comment-buttons">
-        <div v-if="isAuthenticated && canDelete" class="actions">
+        <div v-if="isAuthenticated && canDeleteComment" class="actions">
           <el-button size="small" type="danger" @click="emitDelete">
             <Trash2 :size="15"/>
           </el-button>
@@ -27,7 +27,7 @@
     </div>
     </div>
 
-    <div v-if="showReplyForm" class="mt-2 ml-4">
+    <div v-if="showReplyForm" class="replies mt-2 ml-4">
       <div class="comment-user-header mt-2 flex items-center gap-3" v-if="isAuthenticated">
             <el-avatar
             :src="auth.authReady && isAuthenticated && auth.user.avatar ? auth.user.avatar : defaultAvatar"
@@ -66,7 +66,6 @@
 <script setup>
 import { ref , computed } from 'vue'
 import { useAuth } from '../composables/useAuth'
-import { getCookie } from '../composables/getCookie';
 import { ElMessage } from 'element-plus';
 import { MessageCircleReply, Trash2 } from 'lucide-vue-next';
 import dayjs from 'dayjs';
@@ -80,20 +79,28 @@ const props = defineProps({
   blogId: String,
   isAuthenticated: Boolean,
   onReplySubmitted: Function,
-  canDelete: Boolean,
   userName: String,
+  authorId: String,
   showReplies: {
     type: Boolean,
     default: false,
   },
 });
 
-const canDelete = computed(() => {
-  if (!auth.authReady || !auth.isAuthenticated || !props.comment?.userId?._id) {
-    return false;
-  }
-  return auth.user._id === props.comment.userId._id || auth.user.role === 'admin';
+const canDeleteComment = computed(() => {
+  if (!auth.authReady || !auth.isAuthenticated) return false;
+
+  const currentUserId = auth.user._id?.toString();
+
+  const commentAuthorId =
+    props.comment?.guestId?._id?.toString() ||
+    props.comment?.userId?._id?.toString();
+
+  const blogAuthorId = props.authorId?.toString();
+
+  return currentUserId === commentAuthorId || currentUserId === blogAuthorId;
 });
+
 
 const newCommentName = ref(props.userName || '');
 
