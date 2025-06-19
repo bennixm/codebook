@@ -10,6 +10,11 @@ export const useAuth = defineStore('auth', () => {
   const isAuthenticated = ref(false);
   const authReady = ref(false);
 
+  const seeProfile = (username) => {
+    if (!username) return
+    router.push(`/user/profile/${username}`)
+  }
+
   const formatDate = (date) => {
     if (!date) return '—';
     return new Date(date).toLocaleDateString(undefined, {
@@ -263,6 +268,7 @@ const setPassword = async ({ newPassword, confirmPassword }) => {
 
   return {
     user,
+    seeProfile,
     follow,
     unfollow,
     formatDate,

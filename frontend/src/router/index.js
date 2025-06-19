@@ -26,6 +26,7 @@ import SecuritySettings from '../views/panel/settings/SecuritySettings.vue';
 import Performance from '../views/panel/settings/Performance.vue';
 import ActivateAccount from '../views/ActivationPage.vue'; 
 import ResendActivationPage from '../views/ResendActivationPage.vue';
+import UserProfile from '../views/UserProfile.vue';
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -34,10 +35,9 @@ const routes = [
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
   { path: '/blogs', name: 'Blogs', component: Blogs },
   { path: '/blog/:slug', name: 'BlogPage', component: BlogPage,rops: true},
-  {  path: '/activate/:userId/:token', name: 'ActivateAccount', component: ActivateAccount },
+  { path: '/activate/:userId/:token', name: 'ActivateAccount', component: ActivateAccount },
   { path: '/resend-activation', name: 'ResendActivation', component: ResendActivationPage },
-
-
+  { path: '/user/profile/:username', name: 'UserProfile', component: UserProfile },
   {
     path: '/panel',
     component: Panel,
