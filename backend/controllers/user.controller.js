@@ -28,6 +28,9 @@ exports.changePassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+    if(user.provider != 'local') {
+      return res.status(400).json({ error: 'You can only change the password for local accounts.' });
+    }
 
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) {
@@ -153,7 +156,9 @@ exports.setPassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });
     }
-  
+    if(user.provider == 'local') {
+      return res.status(400).json({ error: 'You can only set a password for google accounts.' });
+    }
     user.password = newPassword;
     user.provider = 'local';
     await user.save();

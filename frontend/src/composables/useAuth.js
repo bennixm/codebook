@@ -70,7 +70,12 @@ export const useAuth = defineStore('auth', () => {
         try {
           await secureApi.post('/user/change-password', passwordData);
          
-            await logout(true);
+            //await logout(true);
+            setTimeout(() => {
+              logout(true)
+            }, 1200)
+            
+            
          
       
         } catch (err) {
@@ -80,6 +85,21 @@ export const useAuth = defineStore('auth', () => {
       || 'Failed to change password'
         throw new Error(serverMsg)
         }
+    };
+
+    const setPassword = async ({ newPassword, confirmPassword }) => {
+      try {
+        await secureApi.post('/user/set-password', { newPassword, confirmPassword });
+        setTimeout(() => {
+          logout(true)
+        }, 1200)
+      } catch (err) {
+        const serverMsg =
+          err.response?.data?.error ||
+          err.response?.data?.message ||
+          'Failed to set password';
+        throw new Error(serverMsg);
+      }
     };
 
     const createBlogPost = async (postData) => {
@@ -241,6 +261,7 @@ export const useAuth = defineStore('auth', () => {
     incrementViews,
     likeBlog,
     unlikeBlog,
+    setPassword,
     setBio,
     logout,
     

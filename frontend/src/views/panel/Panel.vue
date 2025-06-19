@@ -33,8 +33,9 @@
             <span>Profile</span>
           </template>
           <el-menu-item index="/panel/profile/settings">Settings</el-menu-item>
-          <el-menu-item index="/panel/profile/change-password">Change Password</el-menu-item>
-          <el-menu-item index="/panel/profile/security">Security</el-menu-item>
+          <el-menu-item  v-if="auth.authReady && auth.user.provider === 'local'" index="/panel/profile/change-password">Change Password</el-menu-item>
+          <el-menu-item  v-if="auth.authReady && auth.user.provider === 'google'" index="/panel/profile/set-password">Set Local Password</el-menu-item>
+          <el-menu-item  index="/panel/profile/security">Security</el-menu-item>
           <el-menu-item index="/panel/profile/performance">Performance</el-menu-item>
         </el-sub-menu>
       </el-menu>
@@ -50,6 +51,8 @@
 </template>
 
 <script setup>
+import { useAuth } from '../../composables/useAuth'
+const auth = useAuth()
 import 'element-plus/es/components/menu/style/css'
 import 'element-plus/es/components/container/style/css'
 import 'element-plus/es/components/header/style/css'
