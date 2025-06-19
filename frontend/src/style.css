@@ -934,6 +934,32 @@ body {
   background-color: #00a76f17;
 }
 @media (max-width: 1025px) {
+  .comment .el-avatar--large{
+    --el-avatar-size:30px !important;
+  }
+  .blog-page .comment-header{
+    padding-left:1rem;
+  }
+  .blog-page .paragraph-comment{
+    padding-left:1rem;
+  }
+  .replies{
+    padding-left:2rem;
+  }
+  .blog-page .comment-body .comment-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+  .blog-page{
+    flex-direction: column;
+    width:90%;
+  }
+  .blog-primary{
+    width:100%;
+  }
+  .blog-secondary{
+    width:100%;
+  }
   .panel-filters{
     width:100%;
     flex-direction: column;
