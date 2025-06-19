@@ -1,12 +1,12 @@
-const Blog    = require('../models/Blog');
-const Tag     = require('../models/Tag');
+const Blog = require('../models/Blog');
+const Tag = require('../models/Tag');
 const Guest = require('../models/Guest');
 const slugify = require('slugify');
-const admin   = require('../firebase');
-const bucket  = admin.storage().bucket();
+const admin = require('../firebase');
+const bucket = admin.storage().bucket();
 const { generateUniqueSlug } = require('../utils/slug');
 const { sendBlogCreatedEmail } = require('../services/mailService');
-const { extractFirebasePath }   = require('../utils/extract-firebase-path');
+const { extractFirebasePath } = require('../utils/extract-firebase-path');
 const { createNotification } = require('../services/notificationService');
 
 exports.createBlog = async (req, res, next) => {
@@ -26,27 +26,27 @@ exports.createBlog = async (req, res, next) => {
       return res.status(401).json({ error: 'Unauthorized: missing user ID' });
     }
 
-    const parsedTags    = JSON.parse(tags);
+    const parsedTags = JSON.parse(tags);
     const parsedContent = typeof content === 'string' ? JSON.parse(content) : content;
-    const draft         = isDraft === 'true';
+    const draft = isDraft === 'true';
     const commentsAllowed = allowComments === 'true';
 
     const existingTags = await Tag.find({ _id: { $in: parsedTags } }).select('_id');
     if (existingTags.length !== parsedTags.length) {
-      const foundIds   = existingTags.map(t => t._id.toString());
+      const foundIds = existingTags.map(t => t._id.toString());
       const invalidIds = parsedTags.filter(id => !foundIds.includes(id));
       return res.status(400).json({ error: `Invalid tag IDs: ${invalidIds.join(', ')}` });
     }
 
     const uniqueSlug = await generateUniqueSlug(title);
     const newPost = new Blog({
-      title:        title.trim(),
-      slug:         uniqueSlug,
-      description:  description.trim(),
-      tags:         parsedTags,
+      title: title.trim(),
+      slug: uniqueSlug,
+      description: description.trim(),
+      tags: parsedTags,
       allowComments: commentsAllowed,
-      isPublished:  !draft,
-      publishedAt:  draft ? undefined : new Date(),
+      isPublished: !draft,
+      publishedAt: draft ? undefined : new Date(),
       userId        // ES6 shorthand
     });
     const blogId = newPost._id.toString();
@@ -71,9 +71,9 @@ exports.createBlog = async (req, res, next) => {
               const match = blk.data.file.url.match(/^data:(.+);base64,(.+)$/);
               const mime = match[1];
               const data = Buffer.from(match[2], 'base64');
-              const ext  = mime.split('/')[1];
+              const ext = mime.split('/')[1];
               const filePath = `blogs/${blogId}/content/${blk.id}_${Date.now()}.${ext}`;
-              const file     = bucket.file(filePath);
+              const file = bucket.file(filePath);
               await file.save(data, { metadata: { contentType: mime }, public: true });
               blk.data.file.url = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
             }
@@ -87,27 +87,27 @@ exports.createBlog = async (req, res, next) => {
     const savedPost = await newPost.save();
     await savedPost.populate({ path: 'userId', select: 'name email followers' });
     await sendBlogCreatedEmail(savedPost.userId, savedPost);
-   
-    const author   = savedPost.userId;
+
+    const author = savedPost.userId;
     const followerIds = author.followers || [];
-   
-    
+
+
 
     await Promise.all(followerIds.map(followerId => {
       return createNotification({
-        app:        req.app,
-        recipient:  followerId,            
-        actor:      author._id,           
-        type:       'new_blog',            
+        app: req.app,
+        recipient: followerId,
+        actor: author._id,
+        type: 'new_blog',
         targetType: 'Blog',
-        targetId:   savedPost._id
+        targetId: savedPost._id
       });
     }));
 
 
     res.status(201).json({
       message: 'Blog post created successfully',
-      post:    savedPost
+      post: savedPost
     });
   } catch (err) {
     console.error('❌ createBlog error:', err);
@@ -133,7 +133,7 @@ exports.fetchBlogsByUser = async (req, res, next) => {
 
     const blogs = await Blog.find({ userId })
       .populate('tags', 'name')
-      .sort({ createdAt: -1 }) 
+      .sort({ createdAt: -1 })
       .select('title slug description coverImage tags isPublished publishedAt createdAt');
 
     res.status(200).json(blogs);
@@ -161,63 +161,63 @@ exports.fetchBlogById = async (req, res, next) => {
 
 
 exports.deleteBlog = async (req, res, next) => {
-    try {
-      const blogId = req.params.id;
-      const userId = req.user._id || req.user.id;
-  
-      if (!userId) {
-        return res.status(401).json({ error: 'Unauthorized: missing user ID' });
-      }
-  
-      
-      const blog = await Blog.findOne({ _id: blogId, userId });
-      if (!blog) {
-        return res.status(404).json({ error: 'Blog post not found or no permission to delete.' });
-      }
-  
-      
-      if (blog.coverImage) {
-        const coverPath = extractFirebasePath(blog.coverImage);
-        if (coverPath) {
-          try {
-            await bucket.file(coverPath).delete();
-          } catch (err) {
-            console.warn('⚠️ Failed to delete cover image:', err.message);
-          }
+  try {
+    const blogId = req.params.id;
+    const userId = req.user._id || req.user.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: missing user ID' });
+    }
+
+
+    const blog = await Blog.findOne({ _id: blogId, userId });
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog post not found or no permission to delete.' });
+    }
+
+
+    if (blog.coverImage) {
+      const coverPath = extractFirebasePath(blog.coverImage);
+      if (coverPath) {
+        try {
+          await bucket.file(coverPath).delete();
+        } catch (err) {
+          console.warn('⚠️ Failed to delete cover image:', err.message);
         }
       }
-  
-     
-      if (blog.content) {
-        const contentObj =
-          typeof blog.content === 'string'
-            ? JSON.parse(blog.content)
-            : blog.content;
-  
-        if (Array.isArray(contentObj.blocks)) {
-          for (const blk of contentObj.blocks) {
-            if (blk.type === 'image' && blk.data?.file?.url) {
-              const imgPath = extractFirebasePath(blk.data.file.url);
-              if (imgPath) {
-                try {
-                  await bucket.file(imgPath).delete();
-                } catch (err) {
-                  console.warn('⚠️ Failed to delete block image:', err.message);
-                }
+    }
+
+
+    if (blog.content) {
+      const contentObj =
+        typeof blog.content === 'string'
+          ? JSON.parse(blog.content)
+          : blog.content;
+
+      if (Array.isArray(contentObj.blocks)) {
+        for (const blk of contentObj.blocks) {
+          if (blk.type === 'image' && blk.data?.file?.url) {
+            const imgPath = extractFirebasePath(blk.data.file.url);
+            if (imgPath) {
+              try {
+                await bucket.file(imgPath).delete();
+              } catch (err) {
+                console.warn('⚠️ Failed to delete block image:', err.message);
               }
             }
           }
         }
       }
- 
-      await blog.deleteOne();
-  
-      res.status(200).json({ message: 'Blog post deleted successfully' });
-    } catch (err) {
-      console.error('❌ deleteBlog error:', err);
-      next(err);
     }
-  };
+
+    await blog.deleteOne();
+
+    res.status(200).json({ message: 'Blog post deleted successfully' });
+  } catch (err) {
+    console.error('❌ deleteBlog error:', err);
+    next(err);
+  }
+};
 
 exports.fetchBlogBySlug = async (req, res, next) => {
   try {
@@ -232,8 +232,8 @@ exports.fetchBlogBySlug = async (req, res, next) => {
     const isPublished = blog.isPublished;
 
     let isOwner = false;
-  
-    if(userId){
+
+    if (userId) {
       isOwner = blog.userId._id.toString() === userId.toString();
     }
 
@@ -280,7 +280,7 @@ exports.getComments = async (req, res, next) => {
 exports.addComment = async (req, res, next) => {
   try {
     const blogId = req.params.id;
-    const { text,guestName,replyid } = req.body;
+    const { text, guestName, replyid } = req.body;
 
     const userId = req.user?.id || req.user?._id;
     const { guestId } = req.guest;
@@ -297,20 +297,20 @@ exports.addComment = async (req, res, next) => {
       comment.userId = userId;
     } else {
       res.cookie('guestName', guestName, {
-          httpOnly: false,
-          sameSite: 'lax',
-          maxAge: 1000 * 60 * 60 * 24 * 365
-        });
+        httpOnly: false,
+        sameSite: 'lax',
+        maxAge: 1000 * 60 * 60 * 24 * 365
+      });
 
-        await Guest.findOneAndUpdate(
-          { _id: guestId },               
-          { guestName },                  
-          { upsert: true, new: true }     
-        );
-     
-      comment.guestId   = guestId;
+      await Guest.findOneAndUpdate(
+        { _id: guestId },
+        { guestName },
+        { upsert: true, new: true }
+      );
+
+      comment.guestId = guestId;
       req.guest.guestName = guestName;
-     
+
     }
 
 
@@ -329,20 +329,20 @@ exports.addComment = async (req, res, next) => {
       { $push: { comments: comment } },
       { new: true, runValidators: true }
     ).populate('comments.userId', 'name avatar')
-    .populate('comments.guestId', 'guestName');
+      .populate('comments.guestId', 'guestName');
 
     if (!updated) {
       return res.status(404).json({ error: 'Blog post not found.' });
     }
-    const isReply   = Boolean(replyid);
+    const isReply = Boolean(replyid);
     const notifType = isReply ? 'reply' : 'comment';
 
-    
-    
+
+
     let recipient;
 
     if (isReply) {
-      
+
       const parent = updated.comments.find(c => c._id.toString() === replyid);
       if (!parent) {
         return res.status(400).json({ error: 'Parent comment not found.' });
@@ -350,24 +350,24 @@ exports.addComment = async (req, res, next) => {
       if (parent.userId) {
         recipient = parent.userId._id;
       } else {
-        
+
         recipient = parent.guestId._id || parent.guestId;
       }
-     
-      
+
+
     } else {
-    
+
       recipient = updated.userId;
     }
 
     await createNotification({
-      app:        req.app,
-      recipient,                    
-      actorUser:  isUser ? userId : undefined,
+      app: req.app,
+      recipient,
+      actorUser: isUser ? userId : undefined,
       actorGuest: isUser ? undefined : req.guest.guestId,
-      type:       isReply ? 'reply' : 'comment',
+      type: isReply ? 'reply' : 'comment',
       targetType: 'Blog',
-      targetId:   updated._id       
+      targetId: updated._id
     });
 
     res.status(201).json({ comments: updated.comments });
@@ -377,197 +377,187 @@ exports.addComment = async (req, res, next) => {
   }
 };
 
-  
-  exports.deleteComment = async (req, res, next) => {
-    try {
-      const blogId = req.params.blogId;
-      const commentId = req.params.commentId;
-      const userId = req.user?.id || req.user?._id;
-  
-      if (!userId) {
-        return res.status(403).json({ error: 'Not authorized to delete comments.' });
-      }
-  
-      const blog = await Blog.findById(blogId);
-      if (!blog) {
-        return res.status(404).json({ error: 'Blog post not found.' });
-      }
-  
-      const comment = blog.comments.id(commentId);
-      if (!comment) {
-        return res.status(404).json({ error: 'Comment not found.' });
-      }
-  
-      const isAuthor = comment.userId?.toString() === userId.toString();
-      const isOwner  = blog.userId.toString() === userId.toString();
-      if (!isAuthor && !isOwner) {
-        return res.status(403).json({ error: 'Not authorized to delete this comment.' });
-      }
-  
-      // Remove the targeted comment and its direct replies
-      blog.comments = blog.comments.filter(c => {
-        const isTarget = c._id.toString() === commentId;
-        const isChild  = c.replyid?.toString() === commentId;
-        return !(isTarget || isChild);
-      });
-  
-      await blog.save();
-      res.status(200).json({ comments: blog.comments });
-    } catch (err) {
-      console.error('❌ deleteComment error:', err);
-      next(err);
+
+exports.deleteComment = async (req, res, next) => {
+  try {
+    const blogId = req.params.blogId;
+    const commentId = req.params.commentId;
+    const userId = req.user?.id || req.user?._id;
+
+    if (!userId) {
+      return res.status(403).json({ error: 'Not authorized to delete comments.' });
     }
-  };
-  exports.incrementViews = async (req, res, next) => {
-    try {
-      const blogId   = req.params.id;
-      const userId   = req.user?.id || req.user?._id;
-      const guestId  = req.guest?.guestId;
-  
-     
-      const viewerId = userId ?? guestId;
-      if (!viewerId) {
-      
-        return res.status(400).json({ error: 'Unable to identify viewer.' });
-      }
-  
-      
-      const blog = await Blog.findById(blogId);
-      if (!blog) {
-        return res.status(404).json({ error: 'Blog post not found.' });
-      }
-  
-     
-      const hasViewed = blog.views.some(v => {
-        return userId
-          ? v.userId?.toString() === viewerId.toString()
-          : v.guestId === viewerId;
-      });
-  
-      
-      if (hasViewed) {
-        return res.status(200).json({
-          totalViews: blog.views.length,
-          viewers:    blog.views
-        });
-      }
-  
-      
-      const viewEntry = {
-        at: new Date(),
-        ...(userId  ? { userId:  viewerId } 
-                   : { guestId: viewerId })
-      };
-      blog.views.push(viewEntry);
-      await blog.save();
-  
-     
-      await createNotification({
-        app:        req.app,
-        recipient:  blog.userId,
-        actor:      viewerId,
-        type:       'view',
-        targetType: 'Blog',
-        targetId:   blog._id
-      });
-  
-    
+
+    const blog = await Blog.findById(blogId);
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog post not found.' });
+    }
+
+    const comment = blog.comments.id(commentId);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found.' });
+    }
+
+    const isAuthor = comment.userId?.toString() === userId.toString();
+    const isOwner = blog.userId.toString() === userId.toString();
+    if (!isAuthor && !isOwner) {
+      return res.status(403).json({ error: 'Not authorized to delete this comment.' });
+    }
+
+    // Remove the targeted comment and its direct replies
+    blog.comments = blog.comments.filter(c => {
+      const isTarget = c._id.toString() === commentId;
+      const isChild = c.replyid?.toString() === commentId;
+      return !(isTarget || isChild);
+    });
+
+    await blog.save();
+    res.status(200).json({ comments: blog.comments });
+  } catch (err) {
+    console.error('❌ deleteComment error:', err);
+    next(err);
+  }
+};
+
+exports.incrementViews = async (req, res, next) => {
+  try {
+    const blogId = req.params.id;
+    const userId = req.user?.id || req.user?._id;
+    const guestId = req.guest?.guestId;
+
+    const viewerId = userId ?? guestId;
+
+    if (!viewerId) {
+      return res.status(400).json({ error: 'Unable to identify viewer.' });
+    }
+
+    const blog = await Blog.findById(blogId);
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog post not found.' });
+    }
+
+    const hasViewed = blog.views.some(v => {
+      return userId
+        ? v.userId?.toString() === viewerId.toString()
+        : v.guestId?.toString() === viewerId.toString();
+    });
+
+    if (hasViewed) {
       return res.status(200).json({
         totalViews: blog.views.length,
-        viewers:    blog.views
+        viewers: blog.views
       });
-    } catch (err) {
-      next(err);
     }
-  };
-  
-  
 
-  exports.likeBlog = async (req, res, next) => {
-    try {
-      const blogId = req.params.id;
-      const userId = req.user?.id || req.user?._id;
-      if (!userId) return res.status(401).json({ error: 'Authentication required to like.' });
-  
-      const updated = await Blog.findByIdAndUpdate(
-        blogId,
-        { $addToSet: { likes: userId } },
-        { new: true }
-      );
-      if (!updated) return res.status(404).json({ error: 'Blog post not found.' });
+    const viewEntry = {
+      at: new Date(),
+      ...(userId
+        ? { userId: viewerId }
+        : { guestId: viewerId })
+    };
 
-      await createNotification({
-        app: req.app,
-        recipient: updated.userId,    
-        actor:     req.user.id,    
-        type:      'like',      
-        targetType:'Blog',         
-        targetId:  updated._id
-      });
+    blog.views.push(viewEntry);
+    await blog.save();
 
-      res.status(200).json({
-        likesCount: updated.likes.length,
-        likers:     updated.likes
-      });
-     
-    } catch (err) {
-      next(err);
-    }
-  };
-  
+    return res.status(200).json({
+      totalViews: blog.views.length,
+      viewers: blog.views
+    });
 
-  exports.unlikeBlog = async (req, res, next) => {
-    try {
-      const blogId = req.params.id;
-      const userId = req.user?.id || req.user?._id;
-      if (!userId) return res.status(401).json({ error: 'Authentication required to unlike.' });
-  
-      const updated = await Blog.findByIdAndUpdate(
-        blogId,
-        { $pull: { likes: userId } },
-        { new: true }
-      );
-      if (!updated) return res.status(404).json({ error: 'Blog post not found.' });
-  
-      res.status(200).json({
-        likesCount: updated.likes.length,
-        likers:     updated.likes
-      });
-    } catch (err) {
-      next(err);
-    }
-  };
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+
+
+exports.likeBlog = async (req, res, next) => {
+  try {
+    const blogId = req.params.id;
+    const userId = req.user?.id || req.user?._id;
+    if (!userId) return res.status(401).json({ error: 'Authentication required to like.' });
+
+    const updated = await Blog.findByIdAndUpdate(
+      blogId,
+      { $addToSet: { likes: userId } },
+      { new: true }
+    );
+
+    if (!updated) return res.status(404).json({ error: 'Blog post not found.' });
+
+    await createNotification({
+      app: req.app,
+      recipient: updated.userId,
+      actor: req.user.id,
+      type: 'like',
+      targetType: 'Blog',
+      targetId: updated._id
+    });
+
+    res.status(200).json({
+      likesCount: updated.likes.length,
+      likers: updated.likes
+    });
+
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+exports.unlikeBlog = async (req, res, next) => {
+  try {
+    const blogId = req.params.id;
+    const userId = req.user?.id || req.user?._id;
+    if (!userId) return res.status(401).json({ error: 'Authentication required to unlike.' });
+
+    const updated = await Blog.findByIdAndUpdate(
+      blogId,
+      { $pull: { likes: userId } },
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ error: 'Blog post not found.' });
+
+    res.status(200).json({
+      likesCount: updated.likes.length,
+      likers: updated.likes
+    });
+  } catch (err) {
+    next(err);
+  }
+};
 
 
 exports.filterBlogs = async (req, res, next) => {
   try {
     const { tags, search, page = 1, limit = 10 } = req.query;
     const filter = { isPublished: true };
-    if (tags)   filter.tags = { $all: tags.split(',') };
+    if (tags) filter.tags = { $all: tags.split(',') };
     if (search) filter.$or = [
-      { title:       new RegExp(search, 'i') },
+      { title: new RegExp(search, 'i') },
       { description: new RegExp(search, 'i') }
     ];
 
-    const pageNum  = Math.max(parseInt(page, 10), 1);
-    const perPage  = Math.max(parseInt(limit, 10), 1);
-    const skip     = (pageNum - 1) * perPage;
+    const pageNum = Math.max(parseInt(page, 10), 1);
+    const perPage = Math.max(parseInt(limit, 10), 1);
+    const skip = (pageNum - 1) * perPage;
 
-    
+
     const total = await Blog.countDocuments(filter);
 
-   
+
     const blogs = await Blog.find(filter)
-      .populate('userId','name username avatar')
-      .populate('tags','name')
+      .populate('userId', 'name username avatar')
+      .populate('tags', 'name')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(perPage)
       .select('title slug description content coverImage tags publishedAt');
 
     res.json({
-      data:       blogs,
-      page:       pageNum,
+      data: blogs,
+      page: pageNum,
       perPage,
       totalPages: Math.ceil(total / perPage),
       total

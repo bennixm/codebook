@@ -17,12 +17,12 @@ export const useAuth = defineStore('auth', () => {
 
     if (authReady.value) return;
 
-      if (!localStorage.getItem('isLoggedIn')) {
-        authReady.value = true;
-        logout(false);
-        return;
-      }
-    
+    if (!localStorage.getItem('isLoggedIn')) {
+      authReady.value = true;
+      logout(false);
+      return;
+    }
+
     authReady.value = false;
     try {
       const res = await secureApi.get('/user/profile');
@@ -33,7 +33,7 @@ export const useAuth = defineStore('auth', () => {
       };
       isAuthenticated.value = true;
     } catch (err) {
-        logout(false);
+      logout(false);
 
     } finally {
       authReady.value = true;
@@ -45,77 +45,77 @@ export const useAuth = defineStore('auth', () => {
       const res = await secureApi.post('/user/update-profile', profileData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-  
+
       await fetchProfile();
       return { success: true };
     } catch (err) {
       console.error('Update profile error:', err);
-      throw err; 
+      throw err;
     }
   };
 
   const setBio = async (bioData) => {
-        try {
-          const res = await secureApi.post('/user/set-bio', bioData);
-          user.value.bio = res.data.user.bio;
-          
-          return { success: true };
-        } catch (err) {
-          console.error('Set bio error:', err);
-          throw err; 
-        }
-   };
+    try {
+      const res = await secureApi.post('/user/set-bio', bioData);
+      user.value.bio = res.data.user.bio;
+
+      return { success: true };
+    } catch (err) {
+      console.error('Set bio error:', err);
+      throw err;
+    }
+  };
 
   const changePassword = async (passwordData) => {
-        try {
-          await secureApi.post('/user/change-password', passwordData);
-         
-            await logout(true);
-         
-      
-        } catch (err) {
-         
-      const serverMsg = err.response?.data?.error 
-      || err.response?.data?.message 
-      || 'Failed to change password'
-        throw new Error(serverMsg)
-        }
-    };
+    try {
+      await secureApi.post('/user/change-password', passwordData);
 
-    const createBlogPost = async (postData) => {
-        try {
-          const res = await secureApi.post('/blog/create', postData, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          });
-          return res.data;
-        } catch (err) {
-          console.error('Create blog post server response:', err.response?.data || err.message);
-          throw err; 
-        }
-    };
+      await logout(true);
 
-    
-    const deleteMyBlog = async (blogId) => {
-      try {
-        const res = await secureApi.delete(`/blog/delete/${blogId}`);
-        return res.data;
-      } catch (error) {
-        console.error('Error deleting blog:', error);
-        throw error;
-      }
-    };
 
-    const fetchMyBlogs = async () => {
-      try {
-        const res = await secureApi.get('/blog/my-blogs');
-        return res.data;
-      } catch (err) {
-        console.error('Failed to fetch user blogs:', err.response?.data || err.message);
-        throw err;
-      }
-    };
+    } catch (err) {
 
-    const fetchBlogBySlug = async (slug) => {
+      const serverMsg = err.response?.data?.error
+        || err.response?.data?.message
+        || 'Failed to change password'
+      throw new Error(serverMsg)
+    }
+  };
+
+  const createBlogPost = async (postData) => {
+    try {
+      const res = await secureApi.post('/blog/create', postData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return res.data;
+    } catch (err) {
+      console.error('Create blog post server response:', err.response?.data || err.message);
+      throw err;
+    }
+  };
+
+
+  const deleteMyBlog = async (blogId) => {
+    try {
+      const res = await secureApi.delete(`/blog/delete/${blogId}`);
+      return res.data;
+    } catch (error) {
+      console.error('Error deleting blog:', error);
+      throw error;
+    }
+  };
+
+  const fetchMyBlogs = async () => {
+    try {
+      const res = await secureApi.get('/blog/my-blogs');
+      return res.data;
+    } catch (err) {
+      console.error('Failed to fetch user blogs:', err.response?.data || err.message);
+      throw err;
+    }
+  };
+
+  const fetchBlogBySlug = async (slug) => {
     try {
       const response = await api.get(`/blog/get-blog/${slug}`);
       return response.data;
@@ -124,7 +124,7 @@ export const useAuth = defineStore('auth', () => {
       throw error;
     }
   };
-  const fetchBlogById  = async (id) => {
+  const fetchBlogById = async (id) => {
     try {
       const response = await api.get(`/blog/get-blog-by/${id}`);
       return response.data;
@@ -133,7 +133,7 @@ export const useAuth = defineStore('auth', () => {
       throw error;
     }
   };
-    const fetchBlogsByUser  = async (foreignUser) => {
+  const fetchBlogsByUser = async (foreignUser) => {
     try {
       const response = await api.get(`/blog/user-blogs/${foreignUser}`);
       return response.data;
@@ -144,82 +144,79 @@ export const useAuth = defineStore('auth', () => {
   };
 
   const fetchComments = async (blogId) => {
-      try {
-        const res = await api.get(`/blog/comments/${blogId}`);
-        return res.data.comments;
-      } catch (err) {
-        console.error('Failed to fetch comments:', err.response?.data || err.message);
-        throw err;
-      }
-    };
+    try {
+      const res = await api.get(`/blog/comments/${blogId}`);
+      return res.data.comments;
+    } catch (err) {
+      console.error('Failed to fetch comments:', err.response?.data || err.message);
+      throw err;
+    }
+  };
 
-    const addComment = async (blogId, payload) => {
-      try {
-        const res = await secureApi.post(`/blog/add-comment/${blogId}`, payload);
-        return res.data;
-      } catch (err) {
-        console.error('Failed to add comment:', err.response?.data || err.message);
-        throw err;
-      }
-    };
+  const addComment = async (blogId, payload) => {
+    try {
+      const res = await secureApi.post(`/blog/add-comment/${blogId}`, payload);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to add comment:', err.response?.data || err.message);
+      throw err;
+    }
+  };
 
-    const deleteComment = async (commentId, blogId) => {
-      try {
-        const res = await secureApi.delete(`/blog/delete-comment/${commentId}/blog/${blogId}`);
-        return res.data;
-      } catch (err) {
-        console.error('Failed to delete comment:', err.response?.data || err.message);
-        throw err;
-      }
-    };
+  const deleteComment = async (commentId, blogId) => {
+    try {
+      const res = await secureApi.delete(`/blog/delete-comment/${commentId}/blog/${blogId}`);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to delete comment:', err.response?.data || err.message);
+      throw err;
+    }
+  };
 
-    const recordView = async (blogId) => {
-      await secureApi.post(`/blog/view/${blogId}`);
-    };
+  const incrementViews = async (blogId) => {
+    try {
+      const res = await api.post(`/blog/views/${blogId}`);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to increment views:', err.response?.data || err.message);
+    }
+  };
 
-    const incrementViews = async (blogId) => {
-      try {
-        await api.post(`/blog/views/${blogId}`);
-      } catch (err) {
-        console.error('Failed to increment views:', err.response?.data || err.message);
-      }
-    };
+  const likeBlog = async (blogId) => {
+    try {
+      const res = await secureApi.post(`/blog/like/${blogId}`);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to like blog:', err.response?.data || err.message);
+      throw err;
+    }
+  };
 
-    const likeBlog = async (blogId) => {
-      try {
-        const res = await secureApi.post(`/blog/like/${blogId}`);
-        return res.data;
-      } catch (err) {
-        console.error('Failed to like blog:', err.response?.data || err.message);
-        throw err;
-      }
-    };
-
-    const unlikeBlog = async (blogId) => {
-      try {
-        const res = await secureApi.post(`/blog/unlike/${blogId}`);
-        return res.data;
-      } catch (err) {
-        console.error('Failed to unlike blog:', err.response?.data || err.message);
-        throw err;
-      }
-    };
+  const unlikeBlog = async (blogId) => {
+    try {
+      const res = await secureApi.post(`/blog/unlike/${blogId}`);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to unlike blog:', err.response?.data || err.message);
+      throw err;
+    }
+  };
 
   const logout = async (shouldRedirect = true) => {
-        try {
-          await secureApi.post('/auth/logout');
-        } catch (err) {
-          console.error('Logout error:', err);
-        }
-        localStorage.removeItem('isLoggedIn');
-        user.value = null;
-        isAuthenticated.value = false;
-        authReady.value = false;
+    try {
+      await secureApi.post('/auth/logout');
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+    localStorage.removeItem('isLoggedIn');
+    user.value = null;
+    isAuthenticated.value = false;
+    authReady.value = false;
 
-        if (shouldRedirect) {
-          router.push('/auth');
-        }
-    };
+    if (shouldRedirect) {
+      router.push('/auth');
+    }
+  };
 
   return {
     user,
@@ -243,6 +240,6 @@ export const useAuth = defineStore('auth', () => {
     unlikeBlog,
     setBio,
     logout,
-    
+
   };
 });
