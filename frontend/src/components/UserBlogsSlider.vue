@@ -1,6 +1,6 @@
 <template>
   <div v-if="userBlogs.length" class="user-blogs-slider mt-4">
-    <h2 class="text-lg font-semibold mb-4" style="margin-bottom: 1rem;">Other posts {{ userData.name }}</h2>
+    <h2 class="text-lg font-semibold mb-4" style="margin-bottom: 1rem;">Other posts of {{ userData.name }}</h2>
     <el-carousel
       height="300px"
       :interval="4000"

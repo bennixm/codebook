@@ -53,10 +53,10 @@
 
         <div class="interaction-section flex justify-between">
           <div class="stats">
-            <span class="views" @click="toggleVixewPopup">{{ blog.totalViews || blog.views.length }}
+            <span class="views">{{ blog.totalViews || blog.views.length }}
               <Eye :size="20" style="margin-left: 10px;"/>
             </span>
-            <span class="likes" @click="toggleLikesPopup">
+            <span class="likes">
               {{  blog.likesCount }}
               <ThumbsUp :size="20" style="margin-left: 10px;"/>
             </span>
@@ -70,19 +70,7 @@
             Unlike
           </el-button>
         </div>
-
-        <el-dialog v-model="showLikesPopup" title="Users who liked this post">
-          <ul>
-            <li v-for="user in blog.likes" :key="user._id">{{ user.name }}</li>
-          </ul>
-        </el-dialog>
-
-        <el-dialog v-model="showViewsPopup" title="Users who viewed this post">
-          <ul>
-            <li v-for="user in blog.views" :key="user._id">{{ user.name }}</li>
-          </ul>
-        </el-dialog>
-
+        
         <div class="comments-section mt-6">
           <el-form @submit.prevent class="mt-4" :model="newComment">
             <div class="comment-user-header mt-2 flex items-center gap-3" v-if="isAuthenticated">
@@ -178,14 +166,6 @@ watchEffect(() => {
     userLiked.value = blog.value.likes?.includes(auth.user._id);
   }
 });
-
-const toggleLikesPopup = () => {
-  showLikesPopup.value = true;
-};
-
-const toggleViewPopup = () => {
-  showViewsPopup.value = true;
-};
 
 const likePost = async () => {
   try {
