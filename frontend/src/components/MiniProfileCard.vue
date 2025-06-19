@@ -6,16 +6,17 @@
       <div class="mini-card-header flex items-center space-x-4">
         <el-avatar :size="94" :src="userData.avatar || auth.defaultAvatar" />
         <div class="flex flex-col items-center" style="margin-bottom: 1rem; margin-top:1rem;">
-          <h2 class="text-lg font-semibold">{{ userData.name }}</h2>
-          <p class="text-sm text-gray-500">@{{ userData.username }}</p>
+          <h2 class="text-lg font-semibold" @click="auth.seeProfile(userData.username)">{{ userData.name }}</h2>
+          <p class="text-sm text-gray-500" @click="auth.seeProfile(userData.username)">@{{ userData.username }}</p>
         </div>
-        <el-button v-if="auth.user && authorId !== auth.user._id && !userFollowed" type="default" size="small" @click="handleFollow">
+        <div v-if="auth.user && authorId !== auth.user._id">
+        <el-button v-if="!userFollowed" type="default" size="small" @click="handleFollow">
           <UserRoundPlus :size="20" style="margin-right: 3px;" /> Follow
         </el-button>
         <el-button v-else type="default" size="small" @click="handleunFollow">
           <UserRoundMinus :size="20" style="margin-right: 3px;" /> Unfollow
         </el-button>
-
+      </div>
       </div>
 
       <div class="mt-4">
@@ -75,7 +76,7 @@ const props = defineProps({
 })
 
 const userFollowed = ref(false)
-const followersCount = ref(0)
+const followersCount = ref(props.userData.followers.length);
 
 watchEffect(() => {
   if (auth.isAuthenticated && props.userData) {

@@ -834,12 +834,6 @@ body {
   display:flex;
   flex-direction: column;
 }
-.blog-page .comment-header .comment-subheader .name-comment{
-  font-weight: 600;
-  font-size: 0.875rem;
-  line-height: 1.57;
-  color:var(--title-color);
-}
 .blog-page .comment-header .comment-subheader .date-comment{
   font-weight: 600;
   font-size: 0.875rem;

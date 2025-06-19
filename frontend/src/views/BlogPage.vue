@@ -20,7 +20,7 @@
         <div class="profile-section-blog-heading text-gray-500 text-sm flex items-center gap-4 justify-between">
           <div class="flex items-center gap-2">
             <el-avatar :src="blog.userId.avatar || auth.defaultAvatar" size="small" />
-            <span>by <strong>{{ blog.userId.name }} on {{ auth.formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
+            <span @click="auth.seeProfile(blog.userId.username)">by <strong>{{ blog.userId.name }} on {{ auth.formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
           </div>
           <div class="flex items-center gap-2">
             <el-button circle @click="shareOnTwitter">
@@ -70,7 +70,7 @@
             Unlike
           </el-button>
         </div>
-        
+
         <div class="comments-section mt-6">
           <el-form @submit.prevent class="mt-4" :model="newComment">
             <div class="comment-user-header mt-2 flex items-center gap-3" v-if="isAuthenticated">

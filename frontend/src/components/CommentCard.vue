@@ -4,7 +4,7 @@
     <el-avatar class="avatar-comment" :src="comment.userId?.avatar || defaultAvatar" size="large" />
     <div class="comment-body">
       <div class="comment-header">
-        <span class="comment-subheader">{{ comment.userId?.name || userName }}<span class="name-comment"></span> <span class="date-comment">{{ formattedDate }}</span> 
+        <span class="comment-subheader"><span class="name-comment" @click="auth.seeProfile(comment.userId?.username)">{{ comment.userId?.name || userName }}</span> <span class="date-comment">{{ formattedDate }}</span> 
           <span v-if="comment.replyToName" class="text-green-600 font-medium mr-1"> reply for @{{ comment.replyToName }}</span>
        </span>
        <div class="comment-buttons">
