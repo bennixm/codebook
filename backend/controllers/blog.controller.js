@@ -48,7 +48,7 @@ exports.createBlog = async (req, res, next) => {
       allowComments: commentsAllowed,
       isPublished: !draft,
       publishedAt: draft ? undefined : new Date(),
-      userId        // ES6 shorthand
+      userId        
     });
     const blogId = newPost._id.toString();
 
@@ -84,7 +84,7 @@ exports.createBlog = async (req, res, next) => {
       });
     }
 
-    //await newPost.save();
+    
     const savedPost = await newPost.save();
     await savedPost.populate({ path: 'userId', select: 'name email followers' });
     await sendBlogCreatedEmail(savedPost.userId, savedPost);
@@ -121,6 +121,104 @@ exports.createBlog = async (req, res, next) => {
     next(err);
   }
 };
+exports.editBlog = async (req, res, next) => {
+  try {
+    const blogId = req.params.id;
+    const {
+      title,
+      description,
+      tags,
+      content,
+      allowComments,
+      isDraft
+    } = req.body;
+
+    const userId = req.user._id || req.user.id;
+
+    const blog = await Blog.findById(blogId);
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+
+   
+    if (blog.userId.toString() !== userId.toString()) {
+      return res.status(403).json({ error: 'Unauthorized: not your blog post' });
+    }
+
+    const parsedTags = JSON.parse(tags);
+    const parsedContent = typeof content === 'string' ? JSON.parse(content) : content;
+    const draft = isDraft === 'true';
+    const commentsAllowed = allowComments === 'true';
+
+    const existingTags = await Tag.find({ _id: { $in: parsedTags } }).select('_id');
+    if (existingTags.length !== parsedTags.length) {
+      const foundIds = existingTags.map(t => t._id.toString());
+      const invalidIds = parsedTags.filter(id => !foundIds.includes(id));
+      return res.status(400).json({ error: `Invalid tag IDs: ${invalidIds.join(', ')}` });
+    }
+
+    if (title.trim() !== blog.title) {
+      blog.slug = await generateUniqueSlug(title);
+    }
+
+    blog.title = title.trim();
+    blog.description = description.trim();
+    blog.tags = parsedTags;
+    blog.allowComments = commentsAllowed;
+    blog.isPublished = !draft;
+    blog.publishedAt = draft ? undefined : new Date();
+
+  
+    if (req.fileBuffer && req.fileMeta) {
+      const { mime, ext } = req.fileMeta;
+      const filePath = `blogs/${blogId}/cover/cover_${Date.now()}.${ext}`;
+      const file = bucket.file(filePath);
+      await file.save(req.fileBuffer, {
+        metadata: { contentType: mime },
+        public: true,
+      });
+      blog.coverImage = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+    }
+
+  
+    if (parsedContent.blocks) {
+      blog.content = JSON.stringify({
+        ...parsedContent,
+        blocks: await Promise.all(
+          parsedContent.blocks.map(async blk => {
+            if (blk.type === 'image' && blk.data?.file?.url?.startsWith('data:')) {
+              const match = blk.data.file.url.match(/^data:(.+);base64,(.+)$/);
+              const mime = match[1];
+              const data = Buffer.from(match[2], 'base64');
+              const ext = mime.split('/')[1];
+              const filePath = `blogs/${blogId}/content/${blk.id}_${Date.now()}.${ext}`;
+              const file = bucket.file(filePath);
+              await file.save(data, { metadata: { contentType: mime }, public: true });
+              blk.data.file.url = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+            }
+            return blk;
+          })
+        )
+      });
+    }
+
+    const updatedPost = await blog.save();
+    await updatedPost.populate({ path: 'userId', select: 'name email followers' });
+
+    res.status(200).json({
+      message: 'Blog post updated successfully',
+      post: updatedPost
+    });
+
+  } catch (err) {
+    console.error('❌ editBlog error:', err);
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ errors: err.errors });
+    }
+    next(err);
+  }
+};
+
 
 exports.fetchBlogsByUser = async (req, res, next) => {
   try {
