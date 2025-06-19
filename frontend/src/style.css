@@ -875,8 +875,12 @@ body {
 .blog-secondary .mini-card-profile{
   margin-top: 1rem;
   border-radius:1rem;
+  width:100%;
   box-shadow:none !important;
   border:1px solid #dcdfe6 !important;
+}
+.blog-secondary .user-blogs-slider{
+  margin-top:2rem;
 }
 .blog-secondary .mini-card-profile .mini-card-header .el-avatar--circle{
   border:5px solid white;
@@ -885,7 +889,7 @@ body {
   display:flex;
   align-items: center;
   flex-direction: column;
-  padding-bottom: 1rem;
+  padding-bottom: 2rem;
 }
 .interaction-section{
   padding-top: 1rem;
@@ -895,12 +899,39 @@ body {
   display:flex;
   flex-direction: row;
 }
+.profile-stats .stat-text{
+  font-size: 13px !important;
+}
 .interaction-section .stats span{
   display:flex;
   flex-direction: row;
-  align-items: center;
   margin-right:10px;
   padding:10px;
+}
+.blog-slide {
+  height: 280px;
+  display: flex;
+  padding:1rem;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #f9f9f9;
+}
+.mini-card-profile .profile-stats{
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.mini-card-profile .info-bio{
+  padding:10px;
+  border: 1px solid #e4e7ed;
+  border-radius:5px;
+  color:var(--main-color);
+  background-color: #00a76f17;
 }
 @media (max-width: 1025px) {
   .panel-filters{

@@ -81,6 +81,7 @@ const props = defineProps({
   onReplySubmitted: Function,
   userName: String,
   authorId: String,
+  newComment : Object,
   showReplies: {
     type: Boolean,
     default: false,
@@ -102,7 +103,7 @@ const canDeleteComment = computed(() => {
 });
 
 
-const newCommentName = ref(props.userName || '');
+const newCommentName = ref(props.newComment.guestName);
 
 
 const emitDelete = async () => {
@@ -166,7 +167,6 @@ const submitReply = async () => {
       replyid: props.comment._id,
       guestName: !props.isAuthenticated ? newCommentName.value : undefined
     };
-    console.log('🕵️‍♂️ submitReply payload:', payload);
 
     await auth.addComment(props.blogId, payload);
 
