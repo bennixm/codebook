@@ -21,6 +21,7 @@ import Notifications from '../views/panel/Notifications.vue';
 import Profile from '../views/panel/Profile.vue';
 import ProfileSettings from '../views/panel/settings/ProfileSettings.vue';
 import ChangePassword from '../views/panel/settings/ChangePassword.vue';
+import SetPassword from '../views/panel/settings/SetPassword.vue';
 import SecuritySettings from '../views/panel/settings/SecuritySettings.vue';
 import Performance from '../views/panel/settings/Performance.vue';
 import ActivateAccount from '../views/ActivationPage.vue'; 
@@ -80,7 +81,15 @@ const routes = [
             path: 'change-password',
             name: 'ChangePassword',
             component: ChangePassword,
+            meta: { requiresLocal: true }
           },
+          {
+            path: 'set-password',
+            name: 'SetPassword',
+            component: SetPassword,
+            meta: { requiresGoogle: true }
+          },
+
           {
             path: 'security',
             name: 'SecuritySettings',
@@ -105,19 +114,34 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  const auth = useAuth();
+  const auth = useAuth()
 
   if (!auth.authReady) {
-    await auth.fetchProfile();
+    await auth.fetchProfile()
   }
 
+  
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    next('/auth');
-  } else if (to.path === '/auth' && auth.isAuthenticated) {
-    next('/');
-  } else {
-    next();
+    return next('/auth')
   }
-});
+
+  
+  if (to.meta.requiresLocal && auth.user?.provider !== 'local') {
+    return next('/panel/dashboard')
+  }
+
+  
+  if (to.meta.requiresGoogle && auth.user?.provider !== 'google') {
+    return next('/panel/dashboard')
+  }
+
+  
+  if (to.path === '/auth' && auth.isAuthenticated) {
+    return next('/')
+  }
+
+  
+  next()
+})
 
 export default router;

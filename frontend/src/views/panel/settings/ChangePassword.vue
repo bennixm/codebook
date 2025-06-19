@@ -114,7 +114,8 @@ const submitForm = () => {
       )
 
       await changePassword(form.value)
-      ElMessage.success('Password changed successfully!')
+      ElMessage.success('Password changed successfully! Please log in again.')
+      
       
       form.value.oldPassword = ''
       form.value.newPassword = ''
