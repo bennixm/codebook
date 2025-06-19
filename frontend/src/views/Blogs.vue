@@ -42,37 +42,56 @@
       </el-col>
     </el-row>
 
-    <!-- results -->
-    <el-row :gutter="30" class="results-list" style="margin-top:1.5rem;">
-      <el-col
-        v-for="blog in blogs"
-        :key="blog._id"
-        :xs="24" :sm="12" :md="8"
-      >
-        <el-card shadow="hover" class="blog-card">
-          <img
-            v-if="blog.coverImage"
-            :src="blog.coverImage"
-            class="cover-image"
-          />
-          <h3 class="blog-title" @click="goTo(blog.slug)">
-            {{ blog.title }}
-          </h3>
-          <div v-for="block in parseBlocks(blog.content)" :key="block.id">
-            <p v-if="['paragraph','header'].includes(block.type)">
-              {{ block.data.text || block.data.caption }}
-            </p>
-            <img
-              v-else-if="block.type==='image'"
-              :src="block.data.file.url"
-              class="block-image"
-            />
-          </div>
-        </el-card>
-      </el-col>
-    </el-row>
+  
+<el-row :gutter="30" class="results-list" style="margin-top:1.5rem;">
+  <el-col
+    v-for="blog in blogs"
+    :key="blog._id"
+    :xs="24" :sm="12" :md="8"
+  >
+    <el-card shadow="hover" class="blog-card">
+      
+      <img
+        v-if="blog.coverImage"
+        :src="blog.coverImage"
+        class="cover-image"
+      />
 
-    <!-- pagination -->
+      
+      <h3 class="blog-title" @click="goTo(blog.slug)">
+        {{ blog.title }}
+      </h3>
+
+    
+      <p class="blog-description">
+        {{ blog.description }}
+      </p>
+     
+  <div class="tags" style="margin-top: 0.5rem;">
+    <el-tag
+      v-for="tag in blog.tags"
+      :key="tag._id"
+      type="info"
+      effect="dark"
+      size="small"
+      style="margin-right: 5px;"
+    >
+      {{ tag.name }}
+    </el-tag>
+  </div>
+   
+     
+
+      
+      <div class="author-info" style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+        <span><strong>Author:</strong> {{ blog.userId?.name }} ({{ blog.userId?.username }})</span>
+      </div>
+    </el-card>
+  </el-col>
+</el-row>
+
+
+
     <el-pagination
       v-if="totalPages > 1"
       style="text-align:center; margin-top:2rem;"
@@ -106,7 +125,7 @@ const { tags: allTags, loading: tagsLoading } = useTags();
 const searchQuery   = ref('');
 const selectedTags  = ref([]);
 
-// autocomplete
+
 const fetchFromBackend = async (q, cb) => {
   if (!q) { cb([]); return; }
   await filterBlogs({ search: q, tags: selectedTags.value, newPage: 1 });

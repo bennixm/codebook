@@ -1,6 +1,7 @@
 const Blog = require('../models/Blog');
 const Tag = require('../models/Tag');
 const Guest = require('../models/Guest');
+const User = require('../models/User');
 const slugify = require('slugify');
 const admin = require('../firebase');
 const bucket = admin.storage().bucket();
@@ -580,19 +581,36 @@ exports.filterBlogs = async (req, res, next) => {
   try {
     const { tags, search, page = 1, limit = 10 } = req.query;
     const filter = { isPublished: true };
-    if (tags) filter.tags = { $all: tags.split(',') };
-    if (search) filter.$or = [
-      { title: new RegExp(search, 'i') },
-      { description: new RegExp(search, 'i') }
-    ];
+
+  
+    let userIds = [];
+    if (search) {
+ 
+      const users = await User.find({
+        $or: [
+          { name: new RegExp(search, 'i') },
+          { username: new RegExp(search, 'i') }
+        ]
+      }).select('_id');
+      userIds = users.map(u => u._id);
+
+      filter.$or = [
+        { title: new RegExp(search, 'i') },
+        { description: new RegExp(search, 'i') },
+        { userId: { $in: userIds } }
+      ];
+    }
+
+    
+    if (tags) {
+      filter.tags = { $all: tags.split(',') };
+    }
 
     const pageNum = Math.max(parseInt(page, 10), 1);
     const perPage = Math.max(parseInt(limit, 10), 1);
     const skip = (pageNum - 1) * perPage;
 
-
     const total = await Blog.countDocuments(filter);
-
 
     const blogs = await Blog.find(filter)
       .populate('userId', 'name username avatar')
@@ -613,5 +631,6 @@ exports.filterBlogs = async (req, res, next) => {
     next(err);
   }
 };
+
 
 
