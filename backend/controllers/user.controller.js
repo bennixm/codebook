@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const { sendPasswordChangedEmail,sendPasswordSetConfirmationEmail } = require('../services/mailService');
 const { extractFirebasePath }   = require('../utils/extract-firebase-path');
+const { createNotification } = require('../services/notificationService');
 
 const bucket = admin.storage().bucket();
 

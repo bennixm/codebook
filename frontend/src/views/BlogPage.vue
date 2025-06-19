@@ -20,8 +20,7 @@
         <div class="profile-section-blog-heading text-gray-500 text-sm flex items-center gap-4 justify-between">
           <div class="flex items-center gap-2">
             <el-avatar :src="blog.userId.avatar || auth.defaultAvatar" size="small" />
-            <span>by <strong>{{ blog.userId.name }} on {{ formatDate(blog.publishedAt || blog.createdAt)
-            }}</strong></span>
+            <span>by <strong>{{ blog.userId.name }} on {{ auth.formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
           </div>
           <div class="flex items-center gap-2">
             <el-button circle @click="shareOnTwitter">
@@ -54,21 +53,21 @@
 
         <div class="interaction-section flex justify-between">
           <div class="stats">
-            <span class="views" @click="toggleViewPopup">{{ blog.totalViews || blog.views.length }}
-              <Eye :size="20" />
+            <span class="views" @click="toggleVixewPopup">{{ blog.totalViews || blog.views.length }}
+              <Eye :size="20" style="margin-left: 10px;"/>
             </span>
             <span class="likes" @click="toggleLikesPopup">
               {{  blog.likesCount }}
-              <ThumbsUp :size="20" />
+              <ThumbsUp :size="20" style="margin-left: 10px;"/>
             </span>
           </div>
           <el-button v-if="!userLiked && isAuthenticated" @click="likePost">
-            <ThumbsUp :size="15" />
+            <ThumbsUp :size="15" style="margin-right: 3px;"/>
             Like
           </el-button>
           <el-button v-if="userLiked && isAuthenticated" @click="dislikePost" type="primary" plain>
-            <ThumbsDown :size="15" />
-            Dislike
+            <ThumbsDown :size="15" style="margin-right: 3px;"/>
+            Unlike
           </el-button>
         </div>
 
@@ -134,8 +133,8 @@
     </div>
     <div class="blog-secondary">
       <div class="sticky top-6">
-        <MiniProfileCard :userData="blog.userId" />
-        <UserBlogsSlider :userId="blog?.userId?._id" :currentBlogId="blog?._id" />
+        <MiniProfileCard :userData="blog?.userId" :authorId="authorId"/>
+        <UserBlogsSlider :userData="blog?.userId" :currentBlogId="blog?._id" />
       </div>
     </div>
 
@@ -386,8 +385,6 @@ const fetchBlog = async () => {
     blog.value.totalViews = viewsdata.totalViews;
     blog.value.likesCount = blog.value.likes.length;
 
-    console.log(blog.likesCount);
-
     nextTick(() => Prism.highlightAll());
 
   } catch (err) {
@@ -396,15 +393,6 @@ const fetchBlog = async () => {
   } finally {
     loading.value = false;
   }
-};
-
-const formatDate = (date) => {
-  if (!date) return '—';
-  return new Date(date).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
 };
 
 onMounted(() => {

@@ -167,7 +167,6 @@ const submitReply = async () => {
       replyid: props.comment._id,
       guestName: !props.isAuthenticated ? newCommentName.value : undefined
     };
-    console.log('🕵️‍♂️ submitReply payload:', payload);
 
     await auth.addComment(props.blogId, payload);
 

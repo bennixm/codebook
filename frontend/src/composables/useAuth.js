@@ -10,6 +10,15 @@ export const useAuth = defineStore('auth', () => {
   const isAuthenticated = ref(false);
   const authReady = ref(false);
 
+  const formatDate = (date) => {
+    if (!date) return '—';
+    return new Date(date).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
   const defaultAvatar = 'https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/user.png?alt=media&token=6cdb89f7-73b1-40b0-9307-78ae1a06f29f';
 
 
@@ -215,6 +224,27 @@ const setPassword = async ({ newPassword, confirmPassword }) => {
     }
   };
 
+  const follow = async (userId) => {
+    try {
+      const res = await secureApi.post(`/user/follow/${userId}`);
+      return res.data;
+    } catch (err) {
+      console.error('❌ Follow error:', err)
+      throw err;
+    }
+  };
+
+  const unfollow = async (userId) => {
+    try {
+      const res = await secureApi.post(`/user/unfollow/${userId}`);
+      return res.data;
+    } catch (err) {
+      console.error('❌ Follow error:', err)
+      throw err;
+    }
+  };
+
+
   const logout = async (shouldRedirect = true) => {
     try {
       await secureApi.post('/auth/logout');
@@ -233,6 +263,9 @@ const setPassword = async ({ newPassword, confirmPassword }) => {
 
   return {
     user,
+    follow,
+    unfollow,
+    formatDate,
     defaultAvatar,
     isAuthenticated,
     authReady,

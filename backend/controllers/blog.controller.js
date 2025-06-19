@@ -227,7 +227,10 @@ exports.fetchBlogBySlug = async (req, res, next) => {
 
     const blog = await Blog.findOne({ slug })
       .populate('tags', 'name')
-      .populate('userId', 'name username avatar');
+      .populate({
+      path: 'userId',
+      select: 'name username email avatar bio location postsCount followers following createdAt'
+    });
 
     const isPublished = blog.isPublished;
 
