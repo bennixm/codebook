@@ -377,6 +377,53 @@ exports.addComment = async (req, res, next) => {
   }
 };
 
+exports.editComment = async (req, res, next) => {
+  try {
+    const blogId    = req.params.id;
+    const commentId = req.params.commentId;
+    const { text }  = req.body;
+
+    const userId  = req.user?.id || req.user?._id;
+    const guestId = req.guest?.guestId;
+    const isUser  = Boolean(userId);
+
+    
+    const blog = await Blog.findById(blogId);
+    if (!blog) {
+      return res.status(404).json({ error: 'Blog post not found.' });
+    }
+
+    const comment = blog.comments.id(commentId);
+    if (!comment) {
+      return res.status(404).json({ error: 'Comment not found.' });
+    }
+
+    
+    if (
+      (isUser      && comment.userId?.toString()  !== userId.toString()) ||
+      (!isUser     && comment.guestId?.toString() !== guestId.toString())
+    ) {
+      return res.status(403).json({ error: 'Not your comment.' });
+    }
+
+   
+    comment.text     = text.trim();
+    comment.editedAt = new Date();
+
+    await blog.save();
+
+    
+    const updated = await Blog.findById(blogId)
+      .populate('comments.userId', 'name avatar')
+      .populate('comments.guestId', 'guestName');
+
+    res.json({ comments: updated.comments });
+  } catch (err) {
+    console.error('❌ editComment error:', err);
+    next(err);
+  }
+};
+
 
 exports.deleteComment = async (req, res, next) => {
   try {

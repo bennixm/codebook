@@ -16,17 +16,17 @@ function validateProfileImage() {
     let fileCount = 0;
 
     busboy.on('file', (fieldname, file, info) => {
-      // info = { filename, encoding, mimeType }
+      
       const { filename, encoding, mimeType } = info;
       const mimetype = mimeType;
 
-      // ignore other fields
+      
       if (fieldname !== 'avatar') {
         file.resume();
         return;
       }
 
-      // early mime‐type guard
+      
       if (!allowedMimePrefixes.some(prefix => mimetype.startsWith(prefix))) {
         file.resume();
         return res.status(400).json({ error: 'Only image files are allowed.' });
