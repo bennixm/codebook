@@ -81,6 +81,7 @@ const props = defineProps({
   onReplySubmitted: Function,
   userName: String,
   authorId: String,
+  newComment : Object,
   showReplies: {
     type: Boolean,
     default: false,
@@ -102,7 +103,7 @@ const canDeleteComment = computed(() => {
 });
 
 
-const newCommentName = ref(props.userName || '');
+const newCommentName = ref(props.newComment.guestName);
 
 
 const emitDelete = async () => {

@@ -117,11 +117,11 @@
             <CommentCard :comment="comment" :blog-id="blog._id" :is-authenticated="isAuthenticated"
               :user-name="comment.userName" :authorId="authorId" :on-reply-submitted="handleReplySubmitted"
               :show-replies="shownRepliesMap[comment._id] || false"
-              @update:showReplies="val => shownRepliesMap[comment._id] = val" />
+              @update:showReplies="val => shownRepliesMap[comment._id] = val" :newComment = "newComment"/>
             <div v-if="shownRepliesMap[comment._id] && comment.replies?.length" class="replies ml-6 mt-2">
               <CommentCard v-for="reply in comment.replies" :key="reply._id" :comment="reply" :blog-id="blog._id"
-                :authorId="authorId" :user-name="comment.userName" :is-authenticated="isAuthenticated"
-                :on-reply-submitted="handleReplySubmitted" />
+                :authorId="authorId" :user-name="reply.userName" :is-authenticated="isAuthenticated"
+                :on-reply-submitted="handleReplySubmitted" :newComment = "newComment" />
             </div>
           </div>
           <div class="flex justify-center mt-6">
