@@ -66,21 +66,34 @@ export const useAuth = defineStore('auth', () => {
     }
   };
 
-  const changePassword = async (passwordData) => {
-        try {
-          await secureApi.post('/user/change-password', passwordData);
-         
-            await logout(true);
-         
-      
-        } catch (err) {
-         
-      const serverMsg = err.response?.data?.error 
-      || err.response?.data?.message 
-      || 'Failed to change password'
-        throw new Error(serverMsg)
-        }
-    };
+const changePassword = async (passwordData) => {
+  try {
+    await secureApi.post('/user/change-password', passwordData);
+    setTimeout(() => {
+      logout(true);
+    }, 1200);
+  } catch (err) {
+    const serverMsg = err.response?.data?.error
+      || err.response?.data?.message
+      || 'Failed to change password';
+    throw new Error(serverMsg);
+  }
+};
+
+const setPassword = async ({ newPassword, confirmPassword }) => {
+  try {
+    await secureApi.post('/user/set-password', { newPassword, confirmPassword });
+    setTimeout(() => {
+      logout(true);
+    }, 1200);
+  } catch (err) {
+    const serverMsg =
+      err.response?.data?.error ||
+      err.response?.data?.message ||
+      'Failed to set password';
+    throw new Error(serverMsg);
+  }
+};
 
   const createBlogPost = async (postData) => {
     try {
