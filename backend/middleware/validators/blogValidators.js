@@ -28,6 +28,24 @@ const createBlogRules = [
       return true;
     }),
 
+    body('category')
+    .notEmpty().withMessage('Category is required')
+    .custom((value) => {
+    let parsed;
+    try {
+      parsed = JSON.parse(value);
+    } catch {
+      throw new Error('Category must be a valid JSON array');
+    }
+
+    if (!Array.isArray(parsed) || parsed.length < 1) {
+      throw new Error('Select at least one category');
+    }
+
+    return true;
+  }),
+
+
 
   body('content')
     .notEmpty().withMessage('Content is required')

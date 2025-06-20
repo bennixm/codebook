@@ -2,6 +2,7 @@ const Blog = require('../models/Blog');
 const Tag = require('../models/Tag');
 const Guest = require('../models/Guest');
 const User = require('../models/User');
+const Category = require('../models/Category');
 const slugify = require('slugify');
 const admin = require('../firebase');
 const bucket = admin.storage().bucket();
@@ -17,6 +18,7 @@ exports.createBlog = async (req, res, next) => {
       title,
       description,
       tags,
+      categories,
       content,
       allowComments,
       isDraft
@@ -39,12 +41,21 @@ exports.createBlog = async (req, res, next) => {
       return res.status(400).json({ error: `Invalid tag IDs: ${invalidIds.join(', ')}` });
     }
 
+    const parsedCategories = JSON.parse(categories);
+    const existingCategories = await Category.find({ _id: { $in: parsedCategories } }).select('_id');
+      if (existingCategories.length !== parsedCategories.length) {
+        const foundCategoryIds = existingCategories.map(c => c._id.toString());
+        const invalidCategoryIds = parsedCategories.filter(id => !foundCategoryIds.includes(id));
+        return res.status(400).json({ error: `Invalid category IDs: ${invalidCategoryIds.join(', ')}` });
+      }
+
     const uniqueSlug = await generateUniqueSlug(title);
     const newPost = new Blog({
       title: title.trim(),
       slug: uniqueSlug,
       description: description.trim(),
       tags: parsedTags,
+      categories: parsedCategories,
       allowComments: commentsAllowed,
       isPublished: !draft,
       publishedAt: draft ? undefined : new Date(),
@@ -130,6 +141,7 @@ exports.editBlog = async (req, res, next) => {
       title,
       description,
       tags,
+      categories,
       content,
       allowComments,
       isDraft
@@ -156,11 +168,19 @@ exports.editBlog = async (req, res, next) => {
       const invalidIds = parsedTags.filter(id => !foundIds.includes(id));
       return res.status(400).json({ error: `Invalid tag IDs: ${invalidIds.join(', ')}` });
     }
+    const parsedCategories = JSON.parse(categories);
+    const existingCategories = await Category.find({ _id: { $in: parsedCategories } }).select('_id');
+      if (existingCategories.length !== parsedCategories.length) {
+        const foundCategoryIds = existingCategories.map(c => c._id.toString());
+        const invalidCategoryIds = parsedCategories.filter(id => !foundCategoryIds.includes(id));
+        return res.status(400).json({ error: `Invalid category IDs: ${invalidCategoryIds.join(', ')}` });
+      }
 
     const updateFields = {
       title: title.trim(),
       description: description.trim(),
       tags: parsedTags,
+      categories: parsedCategories,
       allowComments: commentsAllowed,
       isPublished: !draft,
       updatedAt: new Date(),

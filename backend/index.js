@@ -27,6 +27,7 @@ const userRoutes = require('./routes/user.routes');
 const blogRoutes = require('./routes/blog.routes');
 const tagRoutes = require('./routes/tag.routes');
 const notifRoutes     = require('./routes/notification.routes');
+const categoryRoutes = require('./routes/category.routes');
 // Connect to MongoDB
 connectDB();
 
@@ -48,6 +49,7 @@ app.use('/auth', authRoutes);
 app.use('/blog', blogRoutes);
 app.use('/tags', tagRoutes);
 app.use('/notifications', notifRoutes);
+app.use('/categories', categoryRoutes);
 
 
 io.use((socket, next) => {

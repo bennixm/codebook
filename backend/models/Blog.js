@@ -44,6 +44,14 @@ const blogSchema = new mongoose.Schema({
        }
      ],
 
+     categories: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+       ref: 'Category',
+        default: []
+      }
+    ],
+
      comments: [
       {
         userId:    { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

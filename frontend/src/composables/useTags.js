@@ -9,7 +9,6 @@ export function useTags() {
     loading.value = true;
     try {
       const { data } = await api.get('/tags/tags');
-      // support [ … ], { tags: […] }, or { data: […] }
       if (Array.isArray(data)) {
         tags.value = data;
       } else if (Array.isArray(data.tags)) {
