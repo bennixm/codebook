@@ -13,6 +13,19 @@ export const createBlogPost = async (postData) => {
   }
 };
 
+ export const editBlogPost = async (postData) => {
+    try {
+
+      const res = await secureApi.post('/blog/edit-blog', postData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return res.data;
+    } catch (err) {
+      console.error('Edit blog post server response:', err.response?.data || err.message);
+      throw err;
+    }
+  };
+
 export const deleteMyBlog = async (blogId) => {
   try {
     const res = await secureApi.delete(`/blog/delete/${blogId}`);
