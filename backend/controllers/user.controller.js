@@ -277,7 +277,7 @@ exports.getFollowers = async (req, res, next) => {
   try {
     const userId = req.params.id;
     const user = await User.findById(userId)
-      .populate('followers', 'name avatar')
+      .populate('followers', 'name avatar username')
       .select('followers');
     if (!user) {
       return res.status(404).json({ error: 'User not found.' });

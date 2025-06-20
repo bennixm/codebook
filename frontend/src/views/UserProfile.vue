@@ -3,7 +3,8 @@
         <div class="user-profile-header">
             <div class="user-profile-header-top">
                 <div class="user-identity">
-                    <div class="avatar-container"><el-avatar :size="110" :src="profile.avatar || auth.defaultAvatar" />
+                    <div class="avatar-container">
+                        <el-avatar :size="110" :src="profile.avatar || auth.defaultAvatar" />
                     </div>
                     <div class="info-container">
                         <span class="name">{{ profile.name }}</span>
@@ -24,7 +25,7 @@
             </div>
         </div>
         <div class="user-profile-body mt-6">
-            <component :is="currentComponent" />
+            <component :is="currentComponent" :userId="profile._id"/>
         </div>
     </div>
     <div v-else>
