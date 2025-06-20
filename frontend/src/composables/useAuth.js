@@ -12,7 +12,6 @@ import * as utils from './utils.js';
 
 export const useAuth = defineStore('auth', () => {
   const router = useRouter();
-
   return {
     router,
     ...state,

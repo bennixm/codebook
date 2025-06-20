@@ -1,4 +1,4 @@
-const User = require('../models/user');
+const User = require('../models/User');
 const admin = require('../firebase');
 const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');

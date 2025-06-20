@@ -68,16 +68,25 @@
         </div>
 
         <div class="blog-buttons mb-3 flex items-center justify-between text-sm">
-          <el-button type="primary" :icon="Edit" circle />
+          <el-button type="primary" @click="editBlog(blog._id)" :icon="Edit" circle />
           <el-button type="primary" size="small" @click="viewBlog(blog.slug)" class="w-full">View</el-button>
           <el-button type="danger" :icon="Delete" circle @click="confirmDelete(blog)" />
         </div>
 
-        <div class="status-date mb-3 flex items-center justify-between text-sm">
+        <div class="status-date mb-4 flex items-center justify-between text-sm">
           <el-tag :type="blog.isPublished ? 'success' : 'warning'" size="small">
             {{ blog.isPublished ? 'Published' : 'Draft' }}
           </el-tag>
-          <span class="text-gray-500">{{ formatDate(blog.publishedAt || blog.createdAt) }}</span>
+          <span class="text-gray-500">
+           {{ formatDate(blog.isPublished ? blog.publishedAt : blog.createdAt) }}
+         </span>
+        </div>
+        
+         <div v-if="blog.updatedAt"  class="status-date  mb-3 flex items-center justify-between text-sm">
+          <el-tag type="primary" size="small">
+            Updated
+          </el-tag>
+          <span class="text-gray-500">{{ formatDate(blog.updatedAt) }}</span>
         </div>
       </el-card>
     </div>
@@ -146,6 +155,9 @@ const formatDate = (date) => {
 const viewBlog = (slug) => {
   router.push(`/blog/${slug}`);
 };
+const editBlog = (id) => {
+  router.push(`/panel/edit-blog/${id}`);
+};
 
 const confirmDelete = (blog) => {
   ElMessageBox.confirm(
@@ -196,10 +208,10 @@ const filteredBlogs = computed(() => {
       return true;
     })
     .sort((a, b) => {
-      const dateA = new Date(a.publishedAt || a.createdAt);
-      const dateB = new Date(b.publishedAt || b.createdAt);
-      return filters.value.sort === 'asc' ? dateA - dateB : dateB - dateA;
-    });
+  const dateA = new Date(a.updatedAt || a.publishedAt || a.createdAt);
+  const dateB = new Date(b.updatedAt || b.publishedAt || b.createdAt);
+  return filters.value.sort === 'asc' ? dateA - dateB : dateB - dateA;
+});
 });
 
 const paginatedBlogs = computed(() => {

@@ -76,10 +76,10 @@ const blogSchema = new mongoose.Schema({
   },
   publishedAt: {
     type: Date
-  }
-}, {
-  timestamps: true
-});
+  },
+  updatedAt: { type: Date, default: null },
+
+}, { timestamps: { createdAt: true, updatedAt: false } });
 
 blogSchema.pre('save', function(next) {
   if (this.isModified('content')) {
