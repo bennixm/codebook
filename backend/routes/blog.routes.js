@@ -6,7 +6,7 @@ const { createBlog, fetchBlogsByUser, fetchBlogBySlug, deleteBlog, addComment,ed
 const { createBlogRules, validateAddComment, validateBlog } = require('../middleware/validators/blogValidators');
 const { validateBlogCoverImage, validateBlogContentImages } = require('../middleware/imageUpload')
 router.post('/create', auth, validateBlogCoverImage(), validateBlogContentImages, createBlogRules, validateBlog, createBlog);
-router.post('/edit-blog/:id', auth, validateBlogCoverImage(), validateBlogContentImages,createBlogRules, validateBlog, editBlog);
+router.post('/edit-blog', auth, validateBlogCoverImage(), validateBlogContentImages,createBlogRules, validateBlog, editBlog);
 router.get('/my-blogs', auth, fetchBlogsByUser);
 router.get('/get-blog/:slug', authOptional, fetchBlogBySlug);
 router.delete('/delete/:id', auth, deleteBlog);
