@@ -233,7 +233,7 @@
         formData.title = blog.title;
         formData.description = blog.description;
         formData.selectedTags = blog.tags.map(tag => tag._id);
-        formData.selectedCategory = blog.categories[0] ? blog.categories[0]._id : '';
+        formData.selectedCategory = blog.categories[0];
         formData.allowComments = blog.allowComments;
        
 
