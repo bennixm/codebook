@@ -78,7 +78,7 @@
             {{ blog.isPublished ? 'Published' : 'Draft' }}
           </el-tag>
           <span class="text-gray-500">
-           {{ formatDate(blog.isPublished ? blog.publishedAt : blog.createdAt) }}
+           {{ formatDate(blog.isPublished ? blog.publishedAt : blog.draftedAt) }}
          </span>
         </div>
         
@@ -208,8 +208,8 @@ const filteredBlogs = computed(() => {
       return true;
     })
     .sort((a, b) => {
-  const dateA = new Date(a.updatedAt || a.publishedAt || a.createdAt);
-  const dateB = new Date(b.updatedAt || b.publishedAt || b.createdAt);
+  const dateA = new Date(a.updatedAt || a.publishedAt || a.draftedAt);
+  const dateB = new Date(b.updatedAt || b.publishedAt || b.draftedAt);
   return filters.value.sort === 'asc' ? dateA - dateB : dateB - dateA;
 });
 });

@@ -77,15 +77,16 @@ const blogSchema = new mongoose.Schema({
   publishedAt: {
     type: Date
   },
-  updatedAt: { type: Date, default: null },
+  draftedAt: { type: Date },
+  updatedAt: { type: Date },
 
-}, { timestamps: { createdAt: true, updatedAt: false } });
+});
 
 blogSchema.pre('save', function(next) {
   if (this.isModified('content')) {
     let blocks = []
 
-    // 1) get the blocks array, whether content is stored as a string or object
+    
     if (typeof this.content === 'string') {
       try {
         blocks = JSON.parse(this.content).blocks || []
@@ -96,14 +97,14 @@ blogSchema.pre('save', function(next) {
       blocks = this.content.blocks
     }
 
-    // 2) extract *only* the text from each block
+    
     const textSegments = blocks
       .filter(b => {
-        // include any block types that carry human‐readable text
+       
         return b.type === 'text' || b.type === 'header' || b.type === 'paragraph'
       })
       .map(b => {
-        // for each block, pull out whichever field holds the text
+
         if (typeof b.data.text === 'string')         return b.data.text
         if (typeof b.data.caption === 'string')      return b.data.caption
         if (typeof b.data.description === 'string')  return b.data.description
@@ -112,7 +113,7 @@ blogSchema.pre('save', function(next) {
 
     const fullText = textSegments.join(' ').trim()
 
-    // 3) generate the excerpt (first 200 chars) and readingTime
+   
     this.excerpt = fullText.length > 200
       ? fullText.slice(0, 200) + '…'
       : fullText
