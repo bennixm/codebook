@@ -41,7 +41,7 @@ exports.createBlog = async (req, res, next) => {
       return res.status(400).json({ error: `Invalid tag IDs: ${invalidIds.join(', ')}` });
     }
 
-    const parsedCategories = JSON.parse(categories);
+    const parsedCategories = [categories];
     const existingCategories = await Category.find({ _id: { $in: parsedCategories } }).select('_id');
       if (existingCategories.length !== parsedCategories.length) {
         const foundCategoryIds = existingCategories.map(c => c._id.toString());
@@ -168,7 +168,8 @@ exports.editBlog = async (req, res, next) => {
       const invalidIds = parsedTags.filter(id => !foundIds.includes(id));
       return res.status(400).json({ error: `Invalid tag IDs: ${invalidIds.join(', ')}` });
     }
-    const parsedCategories = JSON.parse(categories);
+
+    const parsedCategories = [categories];
     const existingCategories = await Category.find({ _id: { $in: parsedCategories } }).select('_id');
       if (existingCategories.length !== parsedCategories.length) {
         const foundCategoryIds = existingCategories.map(c => c._id.toString());
@@ -300,8 +301,9 @@ exports.fetchBlogsByUser = async (req, res, next) => {
 
     const blogs = await Blog.find({ userId })
       .populate('tags', 'name')
+      .populate('categories', 'name')
       .sort({ createdAt: -1 })
-      .select('title slug description coverImage tags isPublished publishedAt draftedAt updatedAt');
+      .select('title slug description coverImage tags categories isPublished publishedAt draftedAt updatedAt');
 
     res.status(200).json(blogs);
   } catch (err) {
