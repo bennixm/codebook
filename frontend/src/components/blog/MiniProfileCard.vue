@@ -66,7 +66,7 @@
 import { ref, watchEffect } from 'vue'
 import { ElMessage } from 'element-plus'
 import { UserRoundPlus, UserRoundMinus } from 'lucide-vue-next'
-import { useAuth } from '../composables/useAuth'
+import { useAuth } from '../../composables/useAuth'
 
 const auth = useAuth()
 

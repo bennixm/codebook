@@ -927,6 +927,79 @@ body {
   color:var(--main-color);
   background-color: #00a76f17;
 }
+.user-profile-header{
+    width:100%;
+    transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    border-radius: 16px;
+    margin-top: 1rem;
+    box-shadow: 0 0 2px 0 rgba(145 158 171 / 0.2), 0 12px 24px -4px rgba(145 158 171 / 0.12);
+}
+.user-profile-header-top{
+    background-image: linear-gradient(0deg, rgba(0 75 80 / 0.8), rgba(0 75 80 / 0.8)), url(https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/programming-background-with-person-working-with-codes-computer.jpg?alt=media&token=7ecacdd4-7a75-4c46-a182-17f0a4ee4a94);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    height: 250px;
+    width:100%;
+    position:relative; 
+}
+.user-profile-header-top .user-identity{
+  width:30%;
+  position:absolute;
+  bottom:-1rem;
+  left:1rem;
+  display:flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.user-profile-header-top .user-identity .info-container{
+  display:flex;
+  flex-direction: column;
+  margin-left: 1rem;
+}
+.user-profile-header-top .user-identity .info-container .name{
+  font-size:22px;
+  color:white;
+  font-weight: bold;
+}
+.user-profile-header-top .user-identity .info-container .usernametag{
+  font-size:16px;
+  color:#c5c5c5;
+  font-weight: bold;
+}
+.user-profile-header-bottom{
+  width:100%;
+  display:flex;
+  flex-direction: row;
+  justify-content: end;
+}
+.custom-segmented {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.segment-item {
+  cursor: pointer;
+  padding: 8px 16px;
+  text-align: center;
+  color: var(--text-color);
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.segment-item.active {
+  border-bottom: 2px solid var(--title-color);
+  color: var(--title-color);
+}
+
+.segment-item:hover {
+  color: var(--title-color);
+}
 @media (max-width: 1025px) {
   .comment .el-avatar--large{
     --el-avatar-size:30px !important;
