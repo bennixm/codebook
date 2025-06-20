@@ -1000,6 +1000,15 @@ body {
 .segment-item:hover {
   color: var(--title-color);
 }
+.profile-subcomponent{
+  width: 100%;
+  margin-top: 1rem;
+}
+.profile-subcomponent .title-subcomp{
+    font-size:25px;
+    color:var(--title-color);
+    margin-bottom: 1rem;
+}
 @media (max-width: 1025px) {
   .comment .el-avatar--large{
     --el-avatar-size:30px !important;
