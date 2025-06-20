@@ -20,7 +20,7 @@
         <div class="profile-section-blog-heading text-gray-500 text-sm flex items-center gap-4 justify-between">
           <div class="flex items-center gap-2">
             <el-avatar :src="blog.userId.avatar || auth.defaultAvatar" size="small" />
-            <span @click="auth.seeProfile(blog.userId.username)">by <strong>{{ blog.userId.name }} on {{
+            <span class="cursor-pointer" @click="auth.seeProfile(blog.userId.username)">by <strong>{{ blog.userId.name }} on {{
               auth.formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
           </div>
           <div class="flex items-center gap-2">
@@ -103,7 +103,7 @@
           <el-empty v-if="!comments.length" description="No comments yet." />
           <div v-for="comment in paginatedRootComments" :key="comment._id" class="root-comment">
             <CommentCard :comment="comment" :blog-id="blog._id" :is-authenticated="isAuthenticated"
-              :user-name="comment.userName" :authorId="authorId" :on-reply-submitted="handleReplySubmitted"
+              :user-name="comment.userName" :username="comment.username" :authorId="authorId" :on-reply-submitted="handleReplySubmitted"
               :show-replies="shownRepliesMap[comment._id] || false"
               @update:showReplies="val => shownRepliesMap[comment._id] = val" :newComment="newComment" />
             <div v-if="shownRepliesMap[comment._id] && comment.replies?.length" class="replies ml-6 mt-2">
@@ -243,15 +243,18 @@ const flatStructuredComments = computed(() => {
 
   comments.value.forEach(comment => {
     const userName = comment.userId?.name || comment.guestId?.guestName || 'Anonymous';
+    const username = comment.userId?.username || null;
+
     commentMap[comment._id] = {
       ...comment,
       userName,
+      username,
       replies: []
     };
   });
 
   comments.value.forEach(comment => {
-    const userName = commentMap[comment._id].userName;
+    const { userName, username } = commentMap[comment._id];
 
     if (!comment.replyid || !commentMap[comment.replyid]) {
       rootComments.push(commentMap[comment._id]);
@@ -267,9 +270,9 @@ const flatStructuredComments = computed(() => {
       commentMap[parent._id].replies.push({
         ...comment,
         userName,
-        replyToName: showMention
-          ? immediateParent.userName
-          : null
+        username,
+        replyToName: showMention ? immediateParent.userName : null,
+        replyToUsername: showMention ? immediateParent.username : null,
       });
     }
   });

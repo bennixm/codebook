@@ -2,12 +2,12 @@
   <div v-if="loaded" class="profile-subcomponent">
     <span class="title-subcomp">Followers</span>
     <div v-if="hasFollowers" class="profile-subcomp-body followers">
-      <div v-for="(follower, index) in followers.followers" :key="follower._id" class="follower-card">
+      <div v-for="(follower, index) in paginatedFollowers" :key="follower._id" class="follower-card">
         <div class="flex flex-row">
           <el-avatar :size="64" :src="follower.avatar || auth.defaultAvatar" />
           <div class="flex flex-col">
-            <span class="name-follower">{{ follower.name }}</span>
-            <span class="username-follower">@{{ follower.username }}</span>
+            <span class="name-follower cursor-pointer">{{ follower.name }}</span>
+            <span class="username-follower cursor-pointer">@{{ follower.username }}</span>
           </div>
         </div>
 
@@ -22,6 +22,10 @@
           </el-button>
         </div>
       </div>
+      <el-pagination
+        v-if="followers.value && Array.isArray(followers.value.followers) && followers.value.followers.length > pageSize"
+        class="mt-4" background layout="prev, pager, next" :total="followers.value.followers.length"
+        :page-size="pageSize" :current-page="currentPage" @current-change="handlePageChange" />
     </div>
     <div v-else>
       <el-empty description="No followers." />
@@ -30,11 +34,26 @@
 </template>
 
 
+
 <script setup>
 import { ref, onMounted, computed, watchEffect } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useAuth } from '../../composables/useAuth'
 import { UserRoundPlus, UserRoundMinus } from 'lucide-vue-next'
+
+const currentPage = ref(1)
+const pageSize = 15
+
+const paginatedFollowers = computed(() => {
+  const start = (currentPage.value - 1) * pageSize
+  const end = start + pageSize
+  return followers.value?.followers?.slice(start, end) || []
+})
+
+const handlePageChange = (page) => {
+  currentPage.value = page
+}
+
 const auth = useAuth()
 const followers = ref(null);
 const loaded = ref(false);

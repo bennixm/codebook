@@ -35,8 +35,6 @@
           <el-menu-item index="/panel/profile/settings">Settings</el-menu-item>
           <el-menu-item  v-if="auth.authReady && auth.user.provider === 'local'" index="/panel/profile/change-password">Change Password</el-menu-item>
           <el-menu-item  v-if="auth.authReady && auth.user.provider === 'google'" index="/panel/profile/set-password">Set Local Password</el-menu-item>
-          <el-menu-item  index="/panel/profile/security">Security</el-menu-item>
-          <el-menu-item index="/panel/profile/performance">Performance</el-menu-item>
         </el-sub-menu>
       </el-menu>
     </el-aside>
