@@ -8,7 +8,10 @@
                     </div>
                     <div class="info-container">
                         <span class="name">{{ profile.name }}</span>
-                        <span class="usernametag">@{{ profile.username }}</span>
+                        <span class="usernametag">@{{ profile.username }} 
+                            <el-button v-if="!userFollowed" :size="15" :icon="UserRoundPlus" @click="handleFollow(profile._id)" circle/>
+                            <el-button v-else :size="15" :icon="UserRoundMinus" @click="handleunFollow(profile._id)" circle/>
+                        </span>
                     </div>
                 </div>
             </div>
@@ -25,7 +28,12 @@
             </div>
         </div>
         <div class="user-profile-body mt-6">
-            <component :is="currentComponent" :key="profile._id + value" :userId="profile._id" :userData="profile"/>
+            <div class="user-profile-body-left">
+                <ProfilePage :key="profile._id + value" :userId="profile._id" :userData="profile"/>
+            </div>
+            <div class="user-profile-body-right">
+                <component :is="currentComponent" :key="profile._id + value" :userId="profile._id" :userData="profile"/>
+            </div>
         </div>
     </div>
     <div v-else>
@@ -35,8 +43,8 @@
 
 <script setup>
 import { useRoute } from 'vue-router';
-import { ref, computed, onMounted, watch } from 'vue'
-import { Heart, BookUser, NotebookText } from 'lucide-vue-next'
+import { ref, computed, onMounted, watch, watchEffect } from 'vue'
+import { Heart, BookUser, NotebookText,  UserRoundPlus, UserRoundMinus } from 'lucide-vue-next'
 import { ElMessage } from 'element-plus';
 import FollowersPage from '../components/profile/FollowersComponent.vue';
 import ProfilePage from '../components/profile/ProfileComponent.vue';
@@ -48,16 +56,14 @@ const route = useRoute();
 const username = computed(() => route.params.username);
 
 const profile = ref(null);
-const value = ref('Profile')
+const value = ref('Blogs')
 
 const options = [
-    { label: 'Profile', value: 'Profile', icon: BookUser },
     { label: 'Blogs', value: 'Blogs', icon: NotebookText },
     { label: 'Followers', value: 'Followers', icon: Heart },
 ]
 
 const componentMap = {
-    Profile: ProfilePage,
     Blogs: BlogsPage,
     Followers: FollowersPage,
 }
@@ -82,6 +88,35 @@ const loadUserProfile = async () => {
         ElMessage.error('Error fetching profile.');
     }
 };
+
+
+const handleFollow = async (selectedUser) => {
+  try {
+    const res = await auth.follow(selectedUser)
+    userFollowed.value = true
+    ElMessage.success(res.message)
+  } catch (err) {
+    ElMessage.error(err?.response?.data?.message || 'Failed to follow user.')
+  }
+}
+
+const handleunFollow = async (selectedUser) => {
+  try {
+    const res = await auth.unfollow(selectedUser)
+    userFollowed.value = false
+    ElMessage.success(res.message)
+  } catch (err) {
+    ElMessage.error(err?.response?.data?.message || 'Failed to unfollow user.')
+  }
+}
+
+const userFollowed = ref(false)
+
+watchEffect(() => {
+  if (auth.isAuthenticated && profile.value) {
+    userFollowed.value = profile.value.followers?.includes(auth.user._id)
+  }
+})
 
 onMounted(() => {
     loadUserProfile();
