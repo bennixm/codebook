@@ -1,5 +1,5 @@
 <template>
-  <div class="profile-left-component">
+  <div class="profile-component">
     <div class="stats-card">
       <div class="stats-component">
         <span>{{ userData.followers.length }}</span>
@@ -29,9 +29,6 @@
         </el-descriptions>
       </div>
     </div>
-  </div>
-  <div class="profile-right-component">
-
   </div>
 </template>
 

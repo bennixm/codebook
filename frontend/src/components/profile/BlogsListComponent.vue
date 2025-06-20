@@ -8,13 +8,18 @@
         <router-link v-for="blog in paginatedBlogs" :key="blog._id" :to="`/blog/${blog.slug}`"
           class="blog-profile-card">
           <el-card :body-style="{ padding: '0' }" shadow="hover">
-            <div class="blog-small-stats">
-              <span>{{ blog.views?.length || 0 }}
-                <Eye :size="14" style="margin-left:5px;" />
-              </span>
-              <span>{{ blog.likes?.length || 0 }}
-                <ThumbsUp :size="14" style="margin-left:5px;" />
-              </span>
+            <div class="blog-profile-header-card">
+              <div class="category-header-profile-card" v-if="blog.categories[0]">
+                <el-tag type="primary">{{ blog.categories[0].name }}</el-tag>
+              </div>
+              <div class="blog-small-stats">
+                <span>{{ blog.views?.length || 0 }}
+                  <Eye :size="14" style="margin-left:5px;" />
+                </span>
+                <span>{{ blog.likes?.length || 0 }}
+                  <ThumbsUp :size="14" style="margin-left:5px;" />
+                </span>
+              </div>
             </div>
             <div class="blog-cover-profile-card">
               <img v-if="blog.coverImage" :src="blog.coverImage" class="cover-img" />
@@ -27,8 +32,8 @@
               </div>
               <h3 class="blog-title">{{ blog.title }}</h3>
               <div class="blog-meta">
-                <span>{{ formatDate(blog.publishedAt) }}</span>
-                <span v-if="blog.updatedAt">Edited: {{ formatDate(blog.updatedAt) }}</span>
+                <span>{{ auth.formatDate(blog.publishedAt) }}</span>
+                <span v-if="blog.updatedAt">Edited: {{ auth.formatDate(blog.updatedAt) }}</span>
               </div>
             </div>
           </el-card>
@@ -53,7 +58,7 @@ import { useAuth } from '../../composables/useAuth'
 import { ElMessage } from 'element-plus'
 import { ThumbsUp, Eye } from 'lucide-vue-next'
 
-const pageSize = 9
+const pageSize = 8
 const currentPage = ref(1)
 const searchQuery = ref('') 
 
@@ -97,6 +102,8 @@ const fetchBlogsByUser = async () => {
   try {
     blogs.value = await auth.fetchBlogsByUser(props.userId)
     loaded.value = true
+
+    console.log(blogs.value);
   } catch (err) {
     const message =
       err?.response?.data?.errors?.[0]?.msg ||
