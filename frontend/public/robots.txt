@@ -6,4 +6,5 @@ Disallow: /notifications
 
 Allow: /
 
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: http://localhost:5173/sitemap.xml
+
