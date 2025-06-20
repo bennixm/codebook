@@ -25,7 +25,7 @@
             </div>
         </div>
         <div class="user-profile-body mt-6">
-            <component :is="currentComponent" :key="profile._id + value" :userId="profile._id" />
+            <component :is="currentComponent" :key="profile._id + value" :userId="profile._id" :userData="profile"/>
         </div>
     </div>
     <div v-else>
