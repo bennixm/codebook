@@ -25,7 +25,7 @@
             </div>
         </div>
         <div class="user-profile-body mt-6">
-            <component :is="currentComponent" :userId="profile._id"/>
+            <component :is="currentComponent" :key="profile._id + value" :userId="profile._id" />
         </div>
     </div>
     <div v-else>
@@ -35,7 +35,7 @@
 
 <script setup>
 import { useRoute } from 'vue-router';
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { Heart, BookUser, NotebookText } from 'lucide-vue-next'
 import { ElMessage } from 'element-plus';
 import FollowersPage from '../components/profile/FollowersComponent.vue';
@@ -45,7 +45,7 @@ import { useAuth } from '../composables/useAuth'
 
 const auth = useAuth()
 const route = useRoute();
-const username = route.params.username;
+const username = computed(() => route.params.username);
 
 const profile = ref(null);
 const value = ref('Profile')
@@ -69,12 +69,12 @@ const hasProfile = computed(() => {
 });
 
 const loadUserProfile = async () => {
-    if (!username || typeof username !== 'string' || username.trim() === '') {
+    if (!username.value || typeof username.value !== 'string' || username.value.trim() === '') {
         ElMessage.error('Username is missing or invalid');
         return;
     }
     try {
-        profile.value = await auth.getProfileByUsername(username);
+        profile.value = await auth.getProfileByUsername(username.value);
         if (!profile.value) {
             ElMessage.error('Profile not found.');
         }
@@ -86,6 +86,15 @@ const loadUserProfile = async () => {
 onMounted(() => {
     loadUserProfile();
 });
+
+watch(
+  () => route.params.username,
+  async (newUsername, oldUsername) => {
+    if (newUsername !== oldUsername) {
+      await loadUserProfile();
+    }
+  }
+);
 </script>
 
 
