@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:sitemap": "node generate-sitemap.js"
   },
   "dependencies": {
     "@editorjs/code": "^2.9.3",
@@ -30,6 +31,7 @@
     "cors": "^2.8.5",
     "daisyui": "^5.0.35",
     "dayjs": "^1.11.13",
+    "dotenv": "^16.5.0",
     "editorjs-html": "^4.0.5",
     "editorjs-style": "^3.0.3",
     "editorjs-text-color-plugin": "^2.0.4",
@@ -55,6 +57,7 @@
     "postcss": "^8.5.3",
     "sass": "^1.89.2",
     "sass-embedded": "^1.89.2",
+    "sitemap": "^8.0.0",
     "tailwindcss": "^4.1.7",
     "unplugin-auto-import": "^19.3.0",
     "unplugin-vue-components": "^28.7.0",
