@@ -1,6 +1,6 @@
 const axios = require('axios');
 const crypto = require('crypto');
-const User = require('../models/user');
+const User = require('../models/User');
 const qs       = require('querystring');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');

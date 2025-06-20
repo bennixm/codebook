@@ -13,6 +13,7 @@ import NotFound from '../views/404.vue';
 import Panel from '../views/panel/Panel.vue';
 import Dashboard from '../views/panel/Dashboard.vue';
 import CreateBlog from '../views/panel/blog/CreateBlog.vue';
+import EditBlog from '../views/panel/blog/EditBlog.vue';
 import MyBlogs from '../views/panel/blog/MyBlogs.vue';
 import BlogPage from '../views/BlogPage.vue';
 import Notifications from '../views/panel/Notifications.vue';
@@ -56,6 +57,11 @@ const routes = [
         path: 'create-blog',
         name: 'CreateBlog',
         component: CreateBlog,
+      },
+      {
+        path: 'edit-blog/:id',
+        name: 'EditBlog',
+        component: EditBlog,
       },
       {
         path: 'my-blogs',

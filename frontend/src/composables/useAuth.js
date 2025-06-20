@@ -121,6 +121,20 @@ const setPassword = async ({ newPassword, confirmPassword }) => {
     }
   };
 
+  const editBlogPost = async (postData) => {
+    try {
+
+      const res = await secureApi.post('/blog/edit-blog', postData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return res.data;
+    } catch (err) {
+      console.error('Edit blog post server response:', err.response?.data || err.message);
+      throw err;
+    }
+  };
+  
+
 
   const deleteMyBlog = async (blogId) => {
     try {
@@ -147,6 +161,7 @@ const setPassword = async ({ newPassword, confirmPassword }) => {
       const response = await api.get(`/blog/get-blog/${slug}`);
       return response.data;
     } catch (error) {
+      
       console.error('Failed to fetch blog by slug:', error);
       throw error;
     }
@@ -156,6 +171,8 @@ const setPassword = async ({ newPassword, confirmPassword }) => {
       const response = await api.get(`/blog/get-blog-by/${id}`);
       return response.data;
     } catch (error) {
+     
+
       console.error('Failed to fetch all blogs:', error);
       throw error;
     }
@@ -279,6 +296,7 @@ const setPassword = async ({ newPassword, confirmPassword }) => {
     updateProfile,
     changePassword,
     createBlogPost,
+    editBlogPost,
     deleteMyBlog,
     fetchMyBlogs,
     fetchBlogsByUser,
