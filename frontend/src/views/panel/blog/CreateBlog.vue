@@ -84,7 +84,7 @@
                   class="mt-2 remove-cover-btn"
                   @click="handleCoverRemove"
                 >
-                  <Trash2 />
+                  <Trash />
                 </el-button>
               </div>
             </el-form-item>
@@ -126,7 +126,7 @@ import Marker from '@editorjs/marker';
 import TextColorPlugin from 'editorjs-text-color-plugin';
 import Paragraph from '@editorjs/paragraph';
 import { ElMessage } from 'element-plus';
-import { Trash2 } from 'lucide-vue-next';
+import { Trash } from 'lucide-vue-next';
 
 import { useRouter } from 'vue-router';
 
