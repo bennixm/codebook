@@ -48,6 +48,7 @@ exports.createBlog = async (req, res, next) => {
       allowComments: commentsAllowed,
       isPublished: !draft,
       publishedAt: draft ? undefined : new Date(),
+      draftedAt: draft ? new Date():undefined ,
       userId        
     });
     const blogId = newPost._id.toString();
@@ -162,7 +163,10 @@ exports.editBlog = async (req, res, next) => {
       tags: parsedTags,
       allowComments: commentsAllowed,
       isPublished: !draft,
-      updatedAt: draft ? undefined : new Date(),
+      updatedAt: new Date(),
+      publishedAt: blog.publishedAt || new Date(),
+      draftedAt: blog.draftedAt || new Date()
+      
     };
 
     if (title.trim() !== blog.title) {
@@ -277,7 +281,7 @@ exports.fetchBlogsByUser = async (req, res, next) => {
     const blogs = await Blog.find({ userId })
       .populate('tags', 'name')
       .sort({ createdAt: -1 })
-      .select('title slug description coverImage tags isPublished publishedAt createdAt updatedAt');
+      .select('title slug description coverImage tags isPublished publishedAt draftedAt updatedAt');
 
     res.status(200).json(blogs);
   } catch (err) {
