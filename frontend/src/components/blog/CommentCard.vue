@@ -65,7 +65,7 @@
 
 <script setup>
 import { ref , computed } from 'vue'
-import { useAuth } from '../composables/useAuth'
+import { useAuth } from '../../composables/useAuth'
 import { ElMessage } from 'element-plus';
 import { MessageCircleReply, Trash2 } from 'lucide-vue-next';
 import dayjs from 'dayjs';

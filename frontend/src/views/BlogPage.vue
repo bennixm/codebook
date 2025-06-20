@@ -20,7 +20,8 @@
         <div class="profile-section-blog-heading text-gray-500 text-sm flex items-center gap-4 justify-between">
           <div class="flex items-center gap-2">
             <el-avatar :src="blog.userId.avatar || auth.defaultAvatar" size="small" />
-            <span @click="auth.seeProfile(blog.userId.username)">by <strong>{{ blog.userId.name }} on {{ auth.formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
+            <span @click="auth.seeProfile(blog.userId.username)">by <strong>{{ blog.userId.name }} on {{
+              auth.formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
           </div>
           <div class="flex items-center gap-2">
             <el-button circle @click="shareOnTwitter">
@@ -54,19 +55,19 @@
         <div class="interaction-section flex justify-between">
           <div class="stats">
             <span class="views">{{ blog.totalViews || blog.views.length }}
-              <Eye :size="20" style="margin-left: 10px;"/>
+              <Eye :size="20" style="margin-left: 10px;" />
             </span>
             <span class="likes">
-              {{  blog.likesCount }}
-              <ThumbsUp :size="20" style="margin-left: 10px;"/>
+              {{ blog.likesCount }}
+              <ThumbsUp :size="20" style="margin-left: 10px;" />
             </span>
           </div>
           <el-button v-if="!userLiked && isAuthenticated" @click="likePost">
-            <ThumbsUp :size="15" style="margin-right: 3px;"/>
+            <ThumbsUp :size="15" style="margin-right: 3px;" />
             Like
           </el-button>
           <el-button v-if="userLiked && isAuthenticated" @click="dislikePost" type="primary" plain>
-            <ThumbsDown :size="15" style="margin-right: 3px;"/>
+            <ThumbsDown :size="15" style="margin-right: 3px;" />
             Unlike
           </el-button>
         </div>
@@ -104,11 +105,11 @@
             <CommentCard :comment="comment" :blog-id="blog._id" :is-authenticated="isAuthenticated"
               :user-name="comment.userName" :authorId="authorId" :on-reply-submitted="handleReplySubmitted"
               :show-replies="shownRepliesMap[comment._id] || false"
-              @update:showReplies="val => shownRepliesMap[comment._id] = val" :newComment = "newComment"/>
+              @update:showReplies="val => shownRepliesMap[comment._id] = val" :newComment="newComment" />
             <div v-if="shownRepliesMap[comment._id] && comment.replies?.length" class="replies ml-6 mt-2">
               <CommentCard v-for="reply in comment.replies" :key="reply._id" :comment="reply" :blog-id="blog._id"
                 :authorId="authorId" :user-name="reply.userName" :is-authenticated="isAuthenticated"
-                :on-reply-submitted="handleReplySubmitted" :newComment = "newComment" />
+                :on-reply-submitted="handleReplySubmitted" :newComment="newComment" />
             </div>
           </div>
           <div class="flex justify-center mt-6">
@@ -121,7 +122,7 @@
     </div>
     <div class="blog-secondary">
       <div class="sticky top-6">
-        <MiniProfileCard :userData="blog?.userId" :authorId="authorId"/>
+        <MiniProfileCard :userData="blog?.userId" :authorId="authorId" />
         <UserBlogsSlider :userData="blog?.userId" :currentBlogId="blog?._id" />
       </div>
     </div>
@@ -136,15 +137,14 @@
 import { ref, onMounted, nextTick, computed, watchEffect } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { useAuth } from '../composables/useAuth';
 import EditorJSHTML from 'editorjs-html';
 import Prism from 'prismjs';
-import CommentCard from '../components/CommentCard.vue';
-import MiniProfileCard from '../components/MiniProfileCard.vue'
-import UserBlogsSlider from '../components/UserBlogsSlider.vue'
+import CommentCard from '../components/blog/CommentCard.vue';
+import MiniProfileCard from '../components/blog/MiniProfileCard.vue'
+import UserBlogsSlider from '../components/blog/UserBlogsSlider.vue'
 
 import { getCookie } from '../composables/getCookie';
-
+import { useAuth } from '../composables/useAuth';
 
 import { Share2, Twitter, Facebook, ArrowLeft, ThumbsDown, ThumbsUp, Eye } from 'lucide-vue-next';
 
@@ -325,7 +325,6 @@ const parseEditorContent = (editorData) => {
       }
       return html;
     });
-
 
     return enhancedHtml.join('');
   } catch (error) {

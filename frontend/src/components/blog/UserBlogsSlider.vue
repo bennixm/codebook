@@ -38,7 +38,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth } from '../composables/useAuth'
+import { useAuth } from '../../composables/useAuth'
 import { ElCarousel, ElCarouselItem } from 'element-plus'
 
 const props = defineProps({
