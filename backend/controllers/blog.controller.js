@@ -121,10 +121,11 @@ exports.createBlog = async (req, res, next) => {
     next(err);
   }
 };
+
 exports.editBlog = async (req, res, next) => {
   try {
-    const blogId = req.params.id;
     const {
+      blogid,
       title,
       description,
       tags,
@@ -135,12 +136,9 @@ exports.editBlog = async (req, res, next) => {
 
     const userId = req.user._id || req.user.id;
 
-    const blog = await Blog.findById(blogId);
-    if (!blog) {
-      return res.status(404).json({ error: 'Blog not found' });
-    }
+    const blog = await Blog.findById(blogid);
+    if (!blog) return res.status(404).json({ error: 'Blog not found' });
 
-   
     if (blog.userId.toString() !== userId.toString()) {
       return res.status(403).json({ error: 'Unauthorized: not your blog post' });
     }
@@ -150,6 +148,7 @@ exports.editBlog = async (req, res, next) => {
     const draft = isDraft === 'true';
     const commentsAllowed = allowComments === 'true';
 
+  
     const existingTags = await Tag.find({ _id: { $in: parsedTags } }).select('_id');
     if (existingTags.length !== parsedTags.length) {
       const foundIds = existingTags.map(t => t._id.toString());
@@ -157,57 +156,101 @@ exports.editBlog = async (req, res, next) => {
       return res.status(400).json({ error: `Invalid tag IDs: ${invalidIds.join(', ')}` });
     }
 
+    const updateFields = {
+      title: title.trim(),
+      description: description.trim(),
+      tags: parsedTags,
+      allowComments: commentsAllowed,
+      isPublished: !draft,
+      updatedAt: draft ? undefined : new Date(),
+    };
+
     if (title.trim() !== blog.title) {
-      blog.slug = await generateUniqueSlug(title);
+      updateFields.slug = await generateUniqueSlug(title);
     }
 
-    blog.title = title.trim();
-    blog.description = description.trim();
-    blog.tags = parsedTags;
-    blog.allowComments = commentsAllowed;
-    blog.isPublished = !draft;
-    blog.publishedAt = draft ? undefined : new Date();
+    
+    
+    
 
-  
+   
+    if (req.fileBuffer && req.fileMeta && blog.coverImage) {
+      const coverPath = decodeURIComponent(new URL(blog.coverImage).pathname).replace(`/${bucket.name}/`, '');
+      await bucket.file(coverPath).delete().catch(() => {}); 
+    }
+
+    
+    if (blog.content) {
+      try {
+        const oldContent = JSON.parse(blog.content);
+        const oldImages = (oldContent.blocks || []).filter(b => b.type === 'image' && b.data?.file?.url?.startsWith('https://storage.googleapis.com'));
+    
+        await Promise.all(oldImages.map(async blk => {
+          try {
+            const url = blk.data.file.url;
+            const filePath = decodeURIComponent(new URL(url).pathname).replace(`/${bucket.name}/`, '');
+            await bucket.file(filePath).delete();
+          } catch (err) {
+            console.warn(`⚠️ Failed to delete image block:`, err.message);
+          }
+        }));
+      } catch (parseErr) {
+        console.warn('⚠️ Failed to parse previous blog content for cleanup:', parseErr.message);
+      }
+    }
+    
+
+   
     if (req.fileBuffer && req.fileMeta) {
       const { mime, ext } = req.fileMeta;
-      const filePath = `blogs/${blogId}/cover/cover_${Date.now()}.${ext}`;
+      const filePath = `blogs/${blogid}/cover/cover_${Date.now()}.${ext}`;
       const file = bucket.file(filePath);
       await file.save(req.fileBuffer, {
         metadata: { contentType: mime },
         public: true,
       });
-      blog.coverImage = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+      updateFields.coverImage = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
     }
 
-  
+    
     if (parsedContent.blocks) {
-      blog.content = JSON.stringify({
+      updateFields.content = JSON.stringify({
         ...parsedContent,
         blocks: await Promise.all(
           parsedContent.blocks.map(async blk => {
             if (blk.type === 'image' && blk.data?.file?.url?.startsWith('data:')) {
-              const match = blk.data.file.url.match(/^data:(.+);base64,(.+)$/);
-              const mime = match[1];
-              const data = Buffer.from(match[2], 'base64');
-              const ext = mime.split('/')[1];
-              const filePath = `blogs/${blogId}/content/${blk.id}_${Date.now()}.${ext}`;
-              const file = bucket.file(filePath);
-              await file.save(data, { metadata: { contentType: mime }, public: true });
-              blk.data.file.url = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+              try {
+                const match = blk.data.file.url.match(/^data:(.+);base64,(.+)$/);
+                if (!match) throw new Error('Invalid base64 format in content block');
+            
+                const mime = match[1];
+                const data = Buffer.from(match[2], 'base64');
+                const ext = mime.split('/')[1];
+            
+                const blkId = blk.id || `block_${Date.now()}`;
+                const filePath = `blogs/${blogid}/content/${blkId}_${Date.now()}.${ext}`;
+                const file = bucket.file(filePath);
+                await file.save(data, { metadata: { contentType: mime }, public: true });
+            
+                blk.data.file.url = `https://storage.googleapis.com/${bucket.name}/${filePath}`;
+              } catch (err) {
+                console.error(`❌ Failed to upload image block '${blk.id}':`, err.message);
+                throw err;
+              }
             }
+            
             return blk;
           })
         )
       });
     }
+    
 
-    const updatedPost = await blog.save();
-    await updatedPost.populate({ path: 'userId', select: 'name email followers' });
+    await Blog.updateOne({ _id: blogid }, { $set: updateFields });
 
     res.status(200).json({
       message: 'Blog post updated successfully',
-      post: updatedPost
+     
     });
 
   } catch (err) {
@@ -218,6 +261,7 @@ exports.editBlog = async (req, res, next) => {
     next(err);
   }
 };
+
 
 
 exports.fetchBlogsByUser = async (req, res, next) => {
@@ -233,7 +277,7 @@ exports.fetchBlogsByUser = async (req, res, next) => {
     const blogs = await Blog.find({ userId })
       .populate('tags', 'name')
       .sort({ createdAt: -1 })
-      .select('title slug description coverImage tags isPublished publishedAt createdAt');
+      .select('title slug description coverImage tags isPublished publishedAt createdAt updatedAt');
 
     res.status(200).json(blogs);
   } catch (err) {
