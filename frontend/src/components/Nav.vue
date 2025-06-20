@@ -117,12 +117,6 @@
           <router-link to="/panel/profile/change-password" class="dropdown-link">
             <el-dropdown-item command="preferences">Change Password</el-dropdown-item>
           </router-link>
-          <router-link to="/panel/profile/security" class="dropdown-link">
-            <el-dropdown-item command="security">Security</el-dropdown-item>
-          </router-link>
-          <router-link to="/panel/profile/performance" class="dropdown-link">
-            <el-dropdown-item command="performance">Performance</el-dropdown-item>
-          </router-link>
 
           <div class="dropdown-header">Bio</div>
 

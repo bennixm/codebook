@@ -4,27 +4,28 @@ import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
-export const logout = async (shouldRedirect = true) => {
+export const logout = async (shouldRedirect = true, router = null) => {
   try {
     await secureApi.post('/auth/logout');
   } catch (err) {
     console.error('Logout error:', err);
   }
+
   localStorage.removeItem('isLoggedIn');
   user.value = null;
   isAuthenticated.value = false;
   authReady.value = false;
 
-  if (shouldRedirect) {
+  if (shouldRedirect && router) {
     router.push('/auth');
   }
 };
 
-export const changePassword = async (passwordData) => {
+export const changePassword = async (passwordData, router = null) => {
   try {
     await secureApi.post('/user/change-password', passwordData);
     setTimeout(() => {
-      logout(true);
+      logout(true, router);
     }, 1200);
   } catch (err) {
     const serverMsg = err.response?.data?.error
@@ -34,11 +35,11 @@ export const changePassword = async (passwordData) => {
   }
 };
 
-export const setPassword = async ({ newPassword, confirmPassword }) => {
+export const setPassword = async ({ newPassword, confirmPassword }, router = null) => {
   try {
     await secureApi.post('/user/set-password', { newPassword, confirmPassword });
     setTimeout(() => {
-      logout(true);
+      logout(true, router);
     }, 1200);
   } catch (err) {
     const serverMsg =

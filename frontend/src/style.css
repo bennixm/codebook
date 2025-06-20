@@ -1042,6 +1042,16 @@ body {
   color:var(--text-color);
 }
 @media (max-width: 1025px) {
+  .custom-segmented{
+    padding-top:3rem;
+  }
+  .user-profile-header-top .user-identity{
+    width: 100%;
+    left:0;
+  }
+  .follower-card{
+    width:100%;
+  }
   .comment .el-avatar--large{
     --el-avatar-size:30px !important;
   }

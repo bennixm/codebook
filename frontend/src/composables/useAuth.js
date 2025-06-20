@@ -9,6 +9,7 @@ import * as comments from './comments.js';
 import * as social from './social.js';
 import * as authActions from './authActions.js';
 import * as utils from './utils.js';
+import * as navigation from './navigation.js';
 
 export const useAuth = defineStore('auth', () => {
   const router = useRouter();
@@ -21,5 +22,10 @@ export const useAuth = defineStore('auth', () => {
     ...social,
     ...authActions,
     ...utils,
+    ...navigation,
+    logout: (shouldRedirect = true) => authActions.logout(shouldRedirect, router),
+    changePassword: (data) => authActions.changePassword(data, router),
+    setPassword: (data) => authActions.setPassword(data, router),
+    seeProfile: (username) => navigation.seeProfile(username, router),
   };
 });
