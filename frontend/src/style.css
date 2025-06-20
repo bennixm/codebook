@@ -1004,10 +1004,22 @@ body {
   width: 100%;
   margin-top: 1rem;
 }
+.profile-subcomponent .el-pagination{
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
 .profile-subcomponent .title-subcomp{
     font-size:25px;
     color:var(--title-color);
-    margin-bottom: 1rem;
+    padding-bottom: 2rem;
+    padding-top: 1rem;
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.profile-subcomponent .title-subcomp .el-input{
+  width:max-content;
 }
 .profile-subcomp-body{
   width:100%;
@@ -1041,7 +1053,83 @@ body {
   font-size: 16px;
   color:var(--text-color);
 }
+.blogs-profile-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.blog-profile-card {
+  width: calc(33% - 8px);
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 0 2px 0 rgba(145 158 171 / 0.2), 0 12px 24px -4px rgba(145 158 171 / 0.12);
+  border-radius: 16px;
+}
+.blog-profile-card .el-card{
+  height:100%;
+  border:none !important;
+    padding:5px;
+}
+.blog-cover-profile-card{
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+}
+.blog-profile-card .cover-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-bottom: 1px solid #eee;
+  transition: all .5s;
+}
+.blog-profile-card .cover-img:hover{
+    transform:scale(1.05);
+}
+.blog-profile-card .card-content {
+  padding: 16px;
+}
+.blog-profile-card .blog-title {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 8px;
+  margin-top:1rem;
+}
+.blog-profile-card .blog-desc {
+  color: #444;
+  margin-bottom: 10px;
+}
+.blog-profile-card .blog-meta {
+  font-size: 0.85rem;
+  color: #999;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.blog-profile-card .blog-small-stats {
+  font-size: 0.75rem;
+  color: #bbb;
+  display: flex;
+  justify-content: end;
+  padding-top: .5rem;
+  padding-bottom:.5rem;
+}
+.blog-profile-card .blog-small-stats span{
+  margin-right: 5px;
+  display:flex;
+  flex-direction: row;
+}
+.blog-profile-card .tags-profile-card .el-tag{
+  margin-right: 5px;
+}
 @media (max-width: 1025px) {
+  .profile-subcomponent .title-subcomp{
+    flex-direction: column;
+        align-items: start;
+  }
+  .profile-subcomponent .title-subcomp .el-input{
+    margin-top: 1rem;
+    width:100%;
+  }
   .custom-segmented{
     padding-top:3rem;
   }
@@ -1051,6 +1139,7 @@ body {
   }
   .follower-card{
     width:100%;
+    flex-direction: column;
   }
   .comment .el-avatar--large{
     --el-avatar-size:30px !important;

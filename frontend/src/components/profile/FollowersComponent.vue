@@ -1,13 +1,16 @@
 <template>
   <div v-if="loaded" class="profile-subcomponent">
-    <span class="title-subcomp">Followers</span>
+    <div class="title-subcomp"><span>Followers ({{ filteredFollowers.length }})</span> <el-input v-model="searchQuery" placeholder="Username or name" class="mb-4" clearable /></div>
+
     <div v-if="hasFollowers" class="profile-subcomp-body followers">
       <div v-for="(follower, index) in paginatedFollowers" :key="follower._id" class="follower-card">
         <div class="flex flex-row">
           <el-avatar :size="64" :src="follower.avatar || auth.defaultAvatar" />
           <div class="flex flex-col">
-            <span class="name-follower cursor-pointer">{{ follower.name }}</span>
-            <span class="username-follower cursor-pointer">@{{ follower.username }}</span>
+            <span class="name-follower cursor-pointer" @click="auth.seeProfile(follower.username)">{{ follower.name
+              }}</span>
+            <span class="username-follower cursor-pointer" @click="auth.seeProfile(follower.username)">@{{
+              follower.username }}</span>
           </div>
         </div>
 
@@ -22,11 +25,12 @@
           </el-button>
         </div>
       </div>
-      <el-pagination
-        v-if="followers.value && Array.isArray(followers.value.followers) && followers.value.followers.length > pageSize"
-        class="mt-4" background layout="prev, pager, next" :total="followers.value.followers.length"
-        :page-size="pageSize" :current-page="currentPage" @current-change="handlePageChange" />
+
+      <el-pagination v-if="filteredFollowers.length > pageSize" class="mt-4 flex justify-center" background
+        layout="prev, pager, next" :total="filteredFollowers.length" :page-size="pageSize" :current-page="currentPage"
+        @current-change="handlePageChange" />
     </div>
+
     <div v-else>
       <el-empty description="No followers." />
     </div>
@@ -36,7 +40,7 @@
 
 
 <script setup>
-import { ref, onMounted, computed, watchEffect } from 'vue'
+import { ref, onMounted, computed, watchEffect, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useAuth } from '../../composables/useAuth'
 import { UserRoundPlus, UserRoundMinus } from 'lucide-vue-next'
@@ -44,11 +48,22 @@ import { UserRoundPlus, UserRoundMinus } from 'lucide-vue-next'
 const currentPage = ref(1)
 const pageSize = 15
 
+const searchQuery = ref("");
+
+const filteredFollowers = computed(() => {
+  if (!followers.value?.followers) return [];
+  const query = searchQuery.value.toLowerCase();
+  return followers.value.followers.filter(f =>
+    f.name.toLowerCase().includes(query) || f.username.toLowerCase().includes(query)
+  );
+});
+
 const paginatedFollowers = computed(() => {
-  const start = (currentPage.value - 1) * pageSize
-  const end = start + pageSize
-  return followers.value?.followers?.slice(start, end) || []
-})
+  const start = (currentPage.value - 1) * pageSize;
+  const end = start + pageSize;
+  return filteredFollowers.value.slice(start, end);
+});
+
 
 const handlePageChange = (page) => {
   currentPage.value = page
@@ -112,8 +127,12 @@ const handleunFollow = async (selectedUser) => {
   }
 }
 
-
 onMounted(() => {
   fetchFollowers();
 });
+
+watch(searchQuery, () => {
+  currentPage.value = 1;
+});
+
 </script>

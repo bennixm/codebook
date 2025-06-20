@@ -20,8 +20,9 @@
         <div class="profile-section-blog-heading text-gray-500 text-sm flex items-center gap-4 justify-between">
           <div class="flex items-center gap-2">
             <el-avatar :src="blog.userId.avatar || auth.defaultAvatar" size="small" />
-            <span class="cursor-pointer" @click="auth.seeProfile(blog.userId.username)">by <strong>{{ blog.userId.name }} on {{
-              auth.formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
+            <span class="cursor-pointer" @click="auth.seeProfile(blog.userId.username)">by <strong>{{ blog.userId.name
+                }} on {{
+                  auth.formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
           </div>
           <div class="flex items-center gap-2">
             <el-button circle @click="shareOnTwitter">
@@ -42,7 +43,9 @@
 
         <div class="blog-content text-base leading-relaxed" v-html="blog.content" />
 
-        <el-divider />
+        <el-divider>
+          Tags
+        </el-divider>
 
         <div class="tags">
           <el-tag v-for="tag in blog.tags" :key="tag._id" size="small" type="info" class="mr-2">
@@ -103,8 +106,8 @@
           <el-empty v-if="!comments.length" description="No comments yet." />
           <div v-for="comment in paginatedRootComments" :key="comment._id" class="root-comment">
             <CommentCard :comment="comment" :blog-id="blog._id" :is-authenticated="isAuthenticated"
-              :user-name="comment.userName" :username="comment.username" :authorId="authorId" :on-reply-submitted="handleReplySubmitted"
-              :show-replies="shownRepliesMap[comment._id] || false"
+              :user-name="comment.userName" :username="comment.username" :authorId="authorId"
+              :on-reply-submitted="handleReplySubmitted" :show-replies="shownRepliesMap[comment._id] || false"
               @update:showReplies="val => shownRepliesMap[comment._id] = val" :newComment="newComment" />
             <div v-if="shownRepliesMap[comment._id] && comment.replies?.length" class="replies ml-6 mt-2">
               <CommentCard v-for="reply in comment.replies" :key="reply._id" :comment="reply" :blog-id="blog._id"
