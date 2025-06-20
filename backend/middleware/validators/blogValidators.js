@@ -28,25 +28,11 @@ const createBlogRules = [
       return true;
     }),
 
-    body('category')
+    body('categories')
     .notEmpty().withMessage('Category is required')
-    .custom((value) => {
-    let parsed;
-    try {
-      parsed = JSON.parse(value);
-    } catch {
-      throw new Error('Category must be a valid JSON array');
-    }
+    .isMongoId().withMessage('Category must be a valid ID'),
 
-    if (!Array.isArray(parsed) || parsed.length < 1) {
-      throw new Error('Select at least one category');
-    }
-
-    return true;
-  }),
-
-
-
+    
   body('content')
     .notEmpty().withMessage('Content is required')
     .custom((value) => {

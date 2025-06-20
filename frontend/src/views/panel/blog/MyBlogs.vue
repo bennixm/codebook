@@ -25,6 +25,15 @@
             :value="tag"
           />
         </el-select>
+        <el-select v-model="filters.category" placeholder="Category" size="medium" class="panel-filter" clearable>
+          <el-option
+            v-for="category in allCategories"
+            :key="category"
+            :label="category"
+            :value="category"
+          />
+        </el-select>
+      
 
         <el-select v-model="filters.sort" placeholder="Sort by date" class="panel-filter" size="medium">
           <el-option label="Newest" value="desc" />
@@ -64,6 +73,18 @@
             class="mr-1"
           >
             {{ tag.name }}
+          </el-tag>
+        </div>
+        <div class="tags mb-3">
+          <el-tag
+            v-for="category in blog.categories"
+            :key="category._id"
+            size="small"
+            effect="light"
+            type="danger"
+            class="mr-1"
+          >
+            {{ category.name }}
           </el-tag>
         </div>
 
@@ -194,6 +215,15 @@ const allTags = computed(() => {
   return [...tagSet];
 });
 
+const allCategories = computed(() => {
+  const categorySet = new Set();
+  blogs.value.forEach((blog) => {
+    blog.categories.forEach((category) => categorySet.add(category.name));
+  });
+  return [...categorySet];
+});
+
+
 const filteredBlogs = computed(() => {
   return blogs.value
     .filter((blog) => {
@@ -204,7 +234,15 @@ const filteredBlogs = computed(() => {
         !`${blog.title} ${blog.description}`.toLowerCase().includes(filters.value.search.toLowerCase())
       )
         return false;
-      if (filters.value.tag && !blog.tags.some((tag) => tag.name === filters.value.tag)) return false;
+
+      if (filters.value.tag && !blog.tags.some((tag) => tag.name === filters.value.tag)) 
+         return false;
+   
+
+      if (filters.value.category &&(!blog.categories || !blog.categories.some((category) => category.name === filters.value.category))) 
+      return false;
+    
+
       return true;
     })
     .sort((a, b) => {

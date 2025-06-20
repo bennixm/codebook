@@ -29,24 +29,40 @@
               placeholder="Enter a brief description"
             />
           </el-form-item>
+          <el-form-item label="Category" prop="selectedCategory">
+          <el-select
+            v-model="formData.selectedCategory"
+            placeholder="Select a category"
+            :loading="loading"
+          >
+            <el-option
+              v-for="category in categoriesOptions"
+              :key="category.value"
+              :label="category.label"
+              :value="category.value"
+            />
+          </el-select>
+        </el-form-item>
+
 
           <el-form-item label="Tags" prop="selectedTags">
-            <el-select
-              v-model="formData.selectedTags"
-              multiple
-              filterable
-              default-first-option
-              placeholder="Select languages"
-              
-            >
-              <el-option
-                v-for="lang in programmingLanguages"
-                :key="lang.value"
-                :label="lang.label"
-                :value="lang.value"
-              />
-            </el-select>
-          </el-form-item>
+  <el-select
+    v-model="formData.selectedTags"
+    multiple
+    filterable
+    default-first-option
+    placeholder="Select languages"
+    :loading="loading"
+  >
+    <el-option
+      v-for="tag in tagOptions"
+      :key="tag.value"
+      :label="tag.label"
+      :value="tag.value"
+    />
+  </el-select>
+</el-form-item>
+
         </el-form>
 
 
@@ -115,7 +131,7 @@
 
 
 <script>
-import { ref, reactive, onMounted, onBeforeUnmount } from 'vue';
+import { ref, reactive, onMounted, onBeforeUnmount,computed } from 'vue';
 import { useAuth } from '../../../composables/useAuth';
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header';
@@ -129,17 +145,38 @@ import { ElMessage } from 'element-plus';
 import { Trash } from 'lucide-vue-next';
 
 import { useRouter } from 'vue-router';
-
+import { useTags } from '../../../composables/useTags';
+import { useCategories } from '../../../composables/useCategories';
 
 import { UploadFilled } from '@element-plus/icons-vue';
 import api from '../../../api';
+
 
 export default {
   name: 'RichTextEditor',
   components: { UploadFilled },
   setup() {
     const {createBlogPost} = useAuth();
-    const tags = ref([]); 
+
+    const { tags } = useTags();
+    const { categories } = useCategories();
+
+
+    const tagOptions = computed(() =>
+      tags.value.map(tag => ({
+        label: tag.name,
+         value: tag._id,
+       }))
+    );
+    const categoriesOptions = computed(() =>
+      categories.value.map(category => ({
+        label: category.name,
+        value: category._id,
+      }))
+    );
+
+    
+
   
     const isDraft = ref(true);
     const coverFileList = ref([]);
@@ -153,6 +190,7 @@ export default {
       title: '',
       description: '',
       selectedTags: [],
+      selectedCategory: '',
       allowComments: true,
       coverImage: null,
     });
@@ -169,10 +207,10 @@ export default {
       selectedTags: [
         { type: 'array', required: true, message: 'Select at least one tag', trigger: 'change' },
       ],
+      selectedCategory: [
+       { required: true, message: 'Select a category', trigger: 'change' },
+        ],
     };
-
-
-    const programmingLanguages = ref([]);
 
     let editor = null;
     const editorHolder = ref(null);
@@ -207,16 +245,7 @@ export default {
     };
 
     onMounted(async () => {
-      try {
-        const { data } = await api.get('/tags/tags');
-       
-        programmingLanguages.value = data.tags.map(tag => ({
-          label: tag.name,   
-          value: tag._id      
-           }))
-      } catch (err) {
-        ElMessage.error('Failed to load tags.');
-      }
+     
       editor = new EditorJS({
         holder: editorHolder.value,
         autofocus: true,
@@ -359,6 +388,7 @@ export default {
           formDataToSend.append('title', formData.title.trim());
           formDataToSend.append('description', formData.description.trim());
           formDataToSend.append('tags', JSON.stringify(formData.selectedTags));
+          formDataToSend.append('categories', formData.selectedCategory);
           formDataToSend.append('allowComments', formData.allowComments);
           formDataToSend.append('isDraft', draft);
           formDataToSend.append('coverImage', coverFileList.value[0].raw);
@@ -394,7 +424,8 @@ export default {
       formData,
       isDraft,
       coverFileList,
-      programmingLanguages,
+      tagOptions,
+      categoriesOptions,
       handleCoverChange,
       handleCoverRemove,
       editorHolder,

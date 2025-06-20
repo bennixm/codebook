@@ -29,6 +29,22 @@
                 placeholder="Enter a brief description"
               />
             </el-form-item>
+
+            <el-form-item label="Category" prop="selectedCategory">
+            <el-select
+              v-model="formData.selectedCategory"
+              placeholder="Select a category"
+              :loading="!categoriesOptions.length"
+            >
+              <el-option
+                v-for="category in categoriesOptions"
+                :key="category.value"
+                :label="category.label"
+                :value="category.value"
+              />
+            </el-select>
+          </el-form-item>
+
   
             <el-form-item label="Tags" prop="selectedTags">
               <el-select
@@ -40,10 +56,10 @@
                 
               >
                 <el-option
-                  v-for="lang in programmingLanguages"
-                  :key="lang.value"
-                  :label="lang.label"
-                  :value="lang.value"
+                  v-for="tag in tagOptions"
+                  :key="tag.value"
+                  :label="tag.label"
+                  :value="tag.value"
                 />
               </el-select>
             </el-form-item>
@@ -115,8 +131,10 @@
   
   
   <script>
-  import { ref, reactive, onMounted, onBeforeUnmount } from 'vue';
+  import { ref, reactive, onMounted, computed,onBeforeUnmount} from 'vue';
   import { useAuth } from '../../../composables/useAuth';
+  import { useCategories } from '../../../composables/useCategories';
+  import { useTags } from '../../../composables/useTags';
   import EditorJS from '@editorjs/editorjs';
   import Header from '@editorjs/header';
   import CodeTool from '@editorjs/code';
@@ -138,7 +156,30 @@
     components: { UploadFilled },
     setup() {
       const {editBlogPost,fetchBlogById} = useAuth();
-      const tags = ref([]); 
+      const { categories } = useCategories();
+      const { tags } = useTags();
+      const fetchedBlog = ref(null);
+
+
+
+
+      const tagOptions = computed(() =>
+      tags.value.map(tag => ({
+        label: tag.name,
+         value: tag._id,
+       }))
+     );
+
+        const categoriesOptions = computed(() =>
+          categories.value.map(category => ({
+            label: category.name,
+            value: category._id,
+          }))
+        );
+
+       
+      
+  
     
       const isDraft = ref(true);
       const coverFileList = ref([]);
@@ -156,6 +197,7 @@
         title: '',
         description: '',
         selectedTags: [],
+        selectedCategory: '',
         allowComments: true,
         coverImage: null,
       });
@@ -172,42 +214,47 @@
         selectedTags: [
           { type: 'array', required: true, message: 'Select at least one tag', trigger: 'change' },
         ],
+        selectedCategory: [
+          { required: true, message: 'Select a category', trigger: 'change' },
+        ],
       };
   
   
-      const programmingLanguages = ref([]);
+     
   
       let editor = null;
       const editorHolder = ref(null);
 
       const fetchBlogData = async () => {
-        try {
-      console.log(route.params.id);
-      const blog = await fetchBlogById(route.params.id);
-    formData.blogid = blog._id;
-    formData.title = blog.title;
-    formData.description = blog.description;
-    formData.selectedTags = blog.tags.map(tag => tag._id);
-    formData.allowComments = blog.allowComments;
+      try {
+          console.log(route.params.id);
+          const blog = await fetchBlogById(route.params.id);
+        formData.blogid = blog._id;
+        formData.title = blog.title;
+        formData.description = blog.description;
+        formData.selectedTags = blog.tags.map(tag => tag._id);
+        formData.selectedCategory = blog.categories[0] ? blog.categories[0]._id : '';
+        formData.allowComments = blog.allowComments;
+       
 
-    if (blog.coverImage) {
-      coverFileList.value = [{ name: 'Cover image', url: blog.coverImage, raw: null }];
-    }
+        if (blog.coverImage) {
+          coverFileList.value = [{ name: 'Cover image', url: blog.coverImage, raw: null }];
+        }
 
-    const parsedContent = typeof blog.content === 'string'
-      ? JSON.parse(blog.content)
-      : blog.content;
+        const parsedContent = typeof blog.content === 'string'
+          ? JSON.parse(blog.content)
+          : blog.content;
 
-    if (editor && parsedContent.blocks) {
-      await editor.isReady;
-      await editor.render(parsedContent);
-    }
+        if (editor && parsedContent.blocks) {
+          await editor.isReady;
+          await editor.render(parsedContent);
+        }
 
-  } catch (err) {
-    ElMessage.error('Failed to fetch blog data.');
-    console.error(err);
-  }
-};
+      } catch (err) {
+        ElMessage.error('Failed to fetch blog data.');
+        console.error(err);
+      }
+      };
 
   
       const handleCoverChange = (file) => {
@@ -240,16 +287,7 @@
       };
   
       onMounted(async () => {
-        try {
-          const { data } = await api.get('/tags/tags');
-         
-          programmingLanguages.value = data.tags.map(tag => ({
-            label: tag.name,   
-            value: tag._id      
-             }))
-        } catch (err) {
-          ElMessage.error('Failed to load tags.');
-        }
+       
         editor = new EditorJS({
           holder: editorHolder.value,
           autofocus: true,
@@ -393,6 +431,7 @@
             formDataToSend.append('content', JSON.stringify(outputData));
             formDataToSend.append('title', formData.title.trim());
             formDataToSend.append('description', formData.description.trim());
+            formDataToSend.append('categories', formData.selectedCategory);
             formDataToSend.append('tags', JSON.stringify(formData.selectedTags));
             formDataToSend.append('allowComments', formData.allowComments);
             formDataToSend.append('isDraft', draft);
@@ -429,7 +468,8 @@
         formData,
         isDraft,
         coverFileList,
-        programmingLanguages,
+        tagOptions,
+        categoriesOptions,
         handleCoverChange,
         handleCoverRemove,
         editorHolder,
