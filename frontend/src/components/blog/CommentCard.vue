@@ -1,7 +1,7 @@
 <template>
   <el-card class="mb-4" shadow="hover">
     <div class="comment">
-    <el-avatar class="avatar-comment" :src="comment.userId?.avatar || defaultAvatar" size="large" />
+    <el-avatar class="avatar-comment" :src="comment.userId?.avatar || defaultAvatar" size="large"   :title="comment.userId?.name ? `Avatar of ${comment.userId.name}` : 'User avatar'"/>
     <div class="comment-body">
       <div class="comment-header">
         <span class="comment-subheader"><span class="name-comment cursor-pointer" @click="auth.seeProfile( username )">{{ comment.userId?.name || userName }}</span> <span class="date-comment">{{ formattedDate }}</span> 

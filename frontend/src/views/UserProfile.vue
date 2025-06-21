@@ -4,7 +4,7 @@
             <div class="user-profile-header-top">
                 <div class="user-identity">
                     <div class="avatar-container">
-                        <el-avatar :size="110" :src="profile.avatar || auth.defaultAvatar" />
+                        <el-avatar :size="110" :src="profile.avatar || auth.defaultAvatar"  :title="profile.name"/>
                     </div>
                     <div class="info-container">
                         <span class="name">{{ profile.name }}</span>

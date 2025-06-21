@@ -21,7 +21,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="submitNewPassword">Reset Password</el-button>
+          <el-button type="primary" @click="submitNewPassword" aria-label="Reset Password">Reset Password</el-button>
         </el-form-item>
       </el-form>
 

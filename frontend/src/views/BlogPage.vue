@@ -19,26 +19,26 @@
 
         <div class="profile-section-blog-heading text-gray-500 text-sm flex items-center gap-4 justify-between">
           <div class="flex items-center gap-2">
-            <el-avatar :src="blog.userId.avatar || auth.defaultAvatar" size="small" />
+            <el-avatar :src="blog.userId.avatar || auth.defaultAvatar" size="small"  :alt="`Avatar of ${blog.userId.name}`" />
             <span class="cursor-pointer" @click="auth.seeProfile(blog.userId.username)">by <strong>{{ blog.userId.name
                 }} on {{
                   auth.formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
           </div>
           <div class="flex items-center gap-2">
-            <el-button circle @click="shareOnTwitter">
+            <el-button circle @click="shareOnTwitter"  aria-label="Share on Twitter">
               <Twitter :size="15" />
             </el-button>
-            <el-button circle @click="shareOnFacebook">
+            <el-button circle @click="shareOnFacebook" aria-label="Share on Facebook">
               <Facebook :size="15" />
             </el-button>
-            <el-button circle @click="copyLink">
+            <el-button circle @click="copyLink" aria-label="Copy link to clipboard">
               <Share2 :size="15" />
             </el-button>
           </div>
         </div>
 
         <div v-if="blog.coverImage" class="cover-image rounded-xl overflow-hidden" style="width:100%;height:70vh;">
-          <el-image :src="blog.coverImage" fit="cover" class="w-full h-full object-cover" alt="Blog cover image" lazy />
+          <el-image :src="blog.coverImage" fit="cover" class="w-full h-full object-cover" :alt="`Cover image for blog post: ${blog.title}`" lazy />
         </div>
 
         <div class="blog-content text-base leading-relaxed" v-html="blog.content" />
@@ -80,6 +80,7 @@
             <div class="comment-user-header mt-2 flex items-center gap-3" v-if="isAuthenticated">
               <el-avatar
                 :src="auth.authReady && isAuthenticated && auth.user.avatar ? auth.user.avatar : auth.defaultAvatar"
+                :alt="auth.user?.name ? `Avatar of ${auth.user.name}` : 'Default user avatar'"
                 size="small" />
               <span class="font-semibold text-gray-700">
                 Comment as {{ auth.user.name }}

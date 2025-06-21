@@ -4,8 +4,8 @@
 
     <div v-if="hasFollowers" class="profile-subcomp-body followers">
       <div v-for="(follower, index) in paginatedFollowers" :key="follower._id" class="follower-card">
-        <div class="flex flex-row">
-          <el-avatar :size="64" :src="follower.avatar || auth.defaultAvatar" />
+        <div class="flex flex-row" >
+          <el-avatar :size="64" :src="follower.avatar || auth.defaultAvatar" :title="`Avatar of ${follower.username || 'User'}`"  alt="User avatar for {{ follower.username }}"/>
           <div class="flex flex-col">
             <span class="name-follower cursor-pointer" @click="auth.seeProfile(follower.username)">{{ follower.name
               }}</span>
@@ -16,12 +16,12 @@
 
         <div v-if="follower._id !== auth.user._id">
           <el-button v-if="!isFollowingMap[follower._id]" type="default" size="small"
-            @click="handleFollow(follower._id)">
-            <UserRoundPlus :size="20" style="margin-right: 3px;" /> Follow
+            @click="handleFollow(follower._id)" aria-label="Follow">
+            <UserRoundPlus :size="20" style="margin-right: 3px;"  aria-hidden="true" /> Follow
           </el-button>
 
-          <el-button v-else type="default" size="small" @click="handleunFollow(follower._id)">
-            <UserRoundMinus :size="20" style="margin-right: 3px;" /> Unfollow
+          <el-button v-else type="default" size="small" @click="handleunFollow(follower._id)" aria-label="Unfollow">
+            <UserRoundMinus :size="20" style="margin-right: 3px;" aria-hidden="true" /> Unfollow
           </el-button>
         </div>
       </div>

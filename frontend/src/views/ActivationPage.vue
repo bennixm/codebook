@@ -4,7 +4,7 @@
         v-if="status === 'loading'"
         description="Activating your account..."
       >
-        <el-button type="primary" disabled>Activating…</el-button>
+        <el-button type="primary" aria-label="Activating" disabled>Activating…</el-button>
       </el-empty>
   
       <el-empty
@@ -24,11 +24,11 @@
         :description="message || 'Activation link is invalid or has expired.'"
         class="form-buttons"
       >
-        <el-button type="primary" @click="router.push('/resend-activation')">
+        <el-button type="primary" @click="router.push('/resend-activation')" aria-label="Resend Activation Email">
           Resend Activation Email
         </el-button>
       </el-empty>
-      <el-button @click="router.push('/auth')">Login</el-button>
+      <el-button @click="router.push('/auth')" aria-label="login">Login</el-button>
     </div>
   </template>
   

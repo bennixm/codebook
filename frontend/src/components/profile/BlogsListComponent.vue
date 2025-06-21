@@ -14,15 +14,15 @@
               </div>
               <div class="blog-small-stats">
                 <span>{{ blog.views?.length || 0 }}
-                  <Eye :size="14" style="margin-left:5px;" />
+                  <Eye :size="14" style="margin-left:5px;"  aria-hidden="true"/>
                 </span>
                 <span>{{ blog.likes?.length || 0 }}
-                  <ThumbsUp :size="14" style="margin-left:5px;" />
+                  <ThumbsUp :size="14" style="margin-left:5px;" aria-hidden="true"/>
                 </span>
               </div>
             </div>
             <div class="blog-cover-profile-card">
-              <img v-if="blog.coverImage" :src="blog.coverImage" class="cover-img" />
+              <img v-if="blog.coverImage" :src="blog.coverImage" class="cover-img"  :alt="`Cover image for blog post: ${blog.title}`" />
             </div>
             <div class="card-content">
               <div class="tags-profile-card mb-3">
