@@ -938,7 +938,6 @@ body {
   display: flex;
   padding:1rem;
   flex-direction: column;
-  justify-content: center;
   background-color: #f9f9f9;
 }
 .mini-card-profile .profile-stats{
@@ -1304,6 +1303,46 @@ footer .nav-link{
 }
 .avatar-section-bookmark .profile-bookmark span{
   margin-left: 1rem;
+}
+.profile-user-blog-slider{
+  padding-top: 1rem;
+}
+.profile-user-blog-slider span{
+  font-size: 14px;
+  color:var(--main-color);
+}
+.search-component{
+  display:flex;
+  flex-direction: row;
+  margin-top: 1rem;
+  justify-content: space-between;
+}
+.search-component .el-input .el-input__inner{
+  padding:1.5rem;
+}
+.search-component .el-button{
+  padding:1.5rem;
+}
+.search-component .el-select .el-select__wrapper{
+  padding:.8rem;
+}
+.search-component .search-left{
+  width:71%;
+}
+.search-component .search-right{
+  width:28%;
+}
+.search-component .search-controls{
+  width:100%;
+  display:flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.blogs-feed{
+  display:grid;
+}
+.blog-feed .blog-card{
+  width:49%;
 }
 @media (max-width: 1025px) {
   .avatar-section-bookmark{
