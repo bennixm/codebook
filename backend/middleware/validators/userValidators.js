@@ -2,10 +2,14 @@ const { body, validationResult } = require('express-validator');
 
 const validateProfile = [
   body('name')
-    .notEmpty().withMessage('Name is required'),
+    .notEmpty().withMessage('Name is required')
+    .trim()
+    .escape(),
 
   body('bio')
     .optional()
+    .trim()
+    .escape()
     .isLength({ max: 500 }).withMessage('Bio must be less than 500 characters'),
 
   
@@ -72,6 +76,8 @@ const validateSetPassword = [
 const validateBio = [
   body('bio')
     .optional()
+    .trim()
+    .escape()
     .isLength({ max: 200 }).withMessage('Bio must be less than 200 characters'),
 
   (req, res, next) => {

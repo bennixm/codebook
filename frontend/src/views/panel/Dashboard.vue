@@ -3,7 +3,13 @@
    <el-row :gutter="20" class="dashboard-grid">
     <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
     <div class="profile dash-element">
-      <el-avatar :size="60" alt="User Image" :src="auth.user.avatar || 'https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/user.png?alt=media&token=6cdb89f7-73b1-40b0-9307-78ae1a06f29f'" />
+      <el-avatar
+  :size="60"
+  title="User Image"
+  alt="User Image"
+  :src="auth.user.avatar || 'https://ik.imagekit.io/codebook/tr:w-600,f-auto/user.png'"
+/>
+
       <div class="info">
         <h2>{{ auth.user.name }}</h2>
         <span class="handle">@{{ auth.user.username }}</span>
@@ -112,6 +118,10 @@
       console.error('Failed to fetch blog stats:', error);
     }
   };
+ 
+  
+ 
+
   
   onMounted(() => {
     fetchStats();
