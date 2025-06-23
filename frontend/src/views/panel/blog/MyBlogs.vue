@@ -29,12 +29,19 @@
 
     <div v-loading="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <el-card v-for="blog in paginatedBlogs" :key="blog._id" class="blog-card" shadow="hover">
+        <div class="blog-profile-header-card">
         <div class="tags category-tag mb-3">
-          <el-tag v-for="category in blog.categories" :key="category._id" size="small" effect="light" type="danger"
+          <el-tag v-for="category in blog.categories" :key="category._id" size="small" effect="light" type="primary"
             class="mr-1">
             {{ category.name }}
           </el-tag>
         </div>
+        <div class="tags mb-3">
+          <el-tag v-for="tag in blog.tags" :key="tag._id" size="small" effect="light" type="info" class="mr-1">
+            {{ tag.name }}
+          </el-tag>
+        </div>
+      </div>
         <div class="cover-image mb-3">
           <el-image v-if="blog.coverImage" :src="blog.coverImage" fit="cover" />
           <div v-else class="no-image-placeholder">
@@ -45,19 +52,13 @@
         <h3 class="title mb-1">{{ blog.title }}</h3>
         <p class="description mb-3 text-sm text-gray-600">{{ blog.description }}</p>
 
-        <div class="tags mb-3">
-          <el-tag v-for="tag in blog.tags" :key="tag._id" size="small" effect="light" type="info" class="mr-1">
-            {{ tag.name }}
-          </el-tag>
-        </div>
-
         <div class="blog-buttons mb-3 flex items-center justify-between text-sm">
           <el-button type="default" @click="editBlog(blog._id)" :icon="Edit" circle />
           <el-button type="default" size="small" @click="viewBlog(blog.slug)" class="w-full">View</el-button>
           <el-button type="default" :icon="Delete" circle @click="confirmDelete(blog)" />
         </div>
 
-        <div class="status-date mb-4 flex items-center justify-between text-sm">
+        <div v-if="!blog.updatedAt" class="status-date mb-4 flex items-center justify-between text-sm">
           <el-tag :type="blog.isPublished ? 'success' : 'warning'" size="small">
             {{ blog.isPublished ? 'Published' : 'Draft' }}
           </el-tag>
@@ -66,7 +67,7 @@
           </span>
         </div>
 
-        <div v-if="blog.updatedAt" class="status-date  mb-3 flex items-center justify-between text-sm">
+        <div v-else class="status-date  mb-3 flex items-center justify-between text-sm">
           <el-tag type="primary" size="small">
             Updated
           </el-tag>

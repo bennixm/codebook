@@ -1,115 +1,89 @@
 <template>
   <div class="search-page container p-6">
-    <el-row :gutter="20" class="search-controls">
-      <el-col :xs="24" :sm="12" :md="8">
-        <el-autocomplete
-          v-model="searchQuery"
-          :fetch-suggestions="fetchFromBackend"
-          value-key="value"
-          @select="onSuggestionSelect"
-          placeholder="Search blogs…"
-          clearable
-          class="w-full"
-        />
-      </el-col>
+    <div class="search-component">
+      <div class="search-left">
+        <el-row class="search-controls">
+          <el-col :xs="24" :sm="16">
+            <el-autocomplete v-model="searchQuery" :fetch-suggestions="fetchFromBackend" value-key="value"
+              @select="onSuggestionSelect" placeholder="Search blogs…" clearable class="w-full" />
+          </el-col>
 
-      <el-col :xs="24" :sm="12" :md="4">
-        <el-button type="primary" @click="onSearch" class="w-full">
-          <Search /> Search
-        </el-button>
-      </el-col>
+          <el-col :xs="24" :sm="7">
+            <el-button type="primary" @click="onSearch" class="w-full">
+              <Search /> Search
+            </el-button>
+          </el-col>
+        </el-row>
 
-      <el-col :xs="24" :sm="24" :md="12">
-        <el-select
-          v-model="selectedTags"
-          multiple
-          collapse-tags
-          clearable
-          filterable
-          placeholder="Filter by tags"
-          @change="onSearch"
-          class="w-full"
-          :loading="tagsLoading"
-          empty-text="No tags"
-        >
-          <el-option
-            v-for="t in allTags"
-            :key="t._id"
-            :label="t.name"
-            :value="t._id"
-          />
-        </el-select>
-      </el-col>
-    </el-row>
-
-  
-<el-row :gutter="30" class="results-list" style="margin-top:1.5rem;">
-  <el-col
-    v-for="blog in blogs"
-    :key="blog._id"
-    :xs="24" :sm="12" :md="8"
-  >
-    <el-card shadow="hover" class="blog-card">
-      
-      <img
-        v-if="blog.coverImage"
-        :src="blog.coverImage"
-        class="cover-image"
-      />
-
-      
-      <h3 class="blog-title" @click="goTo(blog.slug)">
-        {{ blog.title }}
-      </h3>
-
-    
-      <p class="blog-description">
-        {{ blog.description }}
-      </p>
-     
-  <div class="tags" style="margin-top: 0.5rem;">
-    <el-tag
-      v-for="tag in blog.tags"
-      :key="tag._id"
-      type="info"
-      effect="dark"
-      size="small"
-      style="margin-right: 5px;"
-    >
-      {{ tag.name }}
-    </el-tag>
-  </div>
-   
-     
-
-      
-      <div class="author-info" style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
-        <span><strong>Author:</strong> {{ blog.userId?.name }} ({{ blog.userId?.username }})</span>
       </div>
-    </el-card>
-  </el-col>
-</el-row>
+      <div class="search-right">
+        <el-row class="search-controls">
+          <el-col>
+            <el-select v-model="selectedTags" multiple collapse-tags clearable filterable placeholder="Filter by tags"
+              @change="onSearch" class="w-full" :loading="tagsLoading" empty-text="No tags">
+              <el-option v-for="t in allTags" :key="t._id" :label="t.name" :value="t._id" />
+            </el-select>
+          </el-col>
+        </el-row>
+      </div>
+    </div>
+    <div class="search-component">
+      <div class="search-left">
+        <div v-loading="loading" class="blogs-feed grid grid-cols-2 gap-2">
+          <el-card v-for="blog in blogs" :key="blog._id" class="blog-card cursor-pointer" shadow="hover" @click="goTo(blog.slug)">
+            <div class="blog-profile-header-card">
+              <div class="tags category-tag mb-3">
+                <el-tag v-for="category in blog.categories" :key="category._id" size="small" effect="light"
+                  type="primary" class="mr-1">
+                  {{ category.name }}
+                </el-tag>
+              </div>
+              <div class="tags mb-3">
+                <el-tag v-for="tag in blog.tags" :key="tag._id" size="small" effect="light" type="info" class="mr-1">
+                  {{ tag.name }}
+                </el-tag>
+              </div>
+            </div>
+            <div class="cover-image mb-3">
+              <el-image v-if="blog.coverImage" :src="blog.coverImage" fit="cover" />
+              <div v-else class="no-image-placeholder">
+                No Image
+              </div>
+            </div>
 
+            <h3 class="title mb-1">{{ blog.title }}</h3>
 
+            <div v-if="!blog.updatedAt" class="status-date mb-4 flex items-center justify-between text-sm">
+              <span class="text-gray-500">
+                {{ auth.formatDate(blog.isPublished ? blog.publishedAt : blog.draftedAt) }}
+              </span>
+            </div>
+            <div v-else class="status-date  mb-3 flex items-center justify-between text-sm">
+              <span class="text-gray-500">{{ auth.formatDate(blog.publishedAt) }}</span>
+            </div>
+          </el-card>
+        </div>
 
-    <el-pagination
-      v-if="totalPages > 1"
-      style="text-align:center; margin-top:2rem;"
-      :current-page="page"
-      :page-size="perPage"
-      :total="total"
-      layout="prev, pager, next"
-      @current-change="onPageChange"
-    />
+        <div v-if="blogs.length === 0 && !loading" class="text-center mt-6 text-gray-500">
+          <el-empty description="No blogs match your filters." />
+        </div>
+        <el-pagination v-if="totalPages > 1" style="text-align:center; margin-top:2rem;" :current-page="page"
+          :page-size="perPage" :total="total" layout="prev, pager, next" @current-change="onPageChange" />
+      </div>
+      <div class="search-right"></div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref }         from 'vue';
-import { useRouter }   from 'vue-router';
-import { Search }      from 'lucide-vue-next';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { Search } from 'lucide-vue-next';
 import { useBlogFilter } from '../composables/useBlogs';
-import { useTags }       from '../composables/useTags';
+import { useTags } from '../composables/useTags';
+import { useAuth } from '../composables/useAuth';
+
+const auth = useAuth();
 
 const router = useRouter();
 const {
@@ -122,14 +96,15 @@ const {
 } = useBlogFilter();
 const { tags: allTags, loading: tagsLoading } = useTags();
 
-const searchQuery   = ref('');
-const selectedTags  = ref([]);
+const searchQuery = ref('');
+const selectedTags = ref([]);
 
 
 const fetchFromBackend = async (q, cb) => {
   if (!q) { cb([]); return; }
   await filterBlogs({ search: q, tags: selectedTags.value, newPage: 1 });
   cb(blogs.value.map(b => ({ value: b.title, slug: b.slug })));
+  console.log(blogs.value);
 };
 
 function onSuggestionSelect(item) {
@@ -158,14 +133,7 @@ function parseBlocks(content) {
 }
 
 // initial
-filterBlogs({ search:'', tags: [], newPage: 1 });
+filterBlogs({ search: '', tags: [], newPage: 1 });
 </script>
 
-<style scoped>
-.search-controls { margin-bottom:1rem; }
-.cover-image     { width:100%; height:160px; object-fit:cover; border-radius:6px; margin-bottom:.75rem; }
-.blog-title      { cursor:pointer; font-size:1.125rem; font-weight:600; margin:.5rem 0; }
-.block-image     { max-width:100%; margin:.5rem 0; }
-.blog-card       { padding:1rem; }
-.results-list    { margin-top:1.5rem; }
-</style>
+<style scoped></style>

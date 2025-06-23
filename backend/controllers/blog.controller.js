@@ -303,6 +303,7 @@ exports.fetchBlogsByUser = async (req, res, next) => {
 
     const blogs = await Blog.find({ userId })
       .populate('tags', 'name')
+      .populate('userId', 'name username avatar')
       .populate('categories', 'name')
       .sort({ createdAt: -1 })
       .select('title slug description coverImage tags categories isPublished publishedAt draftedAt updatedAt');
