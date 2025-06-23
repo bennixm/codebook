@@ -22,7 +22,7 @@
               </div>
             </div>
             <div class="blog-cover-profile-card">
-              <img v-if="blog.coverImage" :src="blog.coverImage" class="cover-img"  :alt="`Cover image for blog post: ${blog.title}`" />
+              <img v-if="blog.coverImage" :src="blog.coverImage" class="cover-img"  fetchpriority="high" loading="eager" :alt="`Cover image for blog post: ${blog.title}`" />
             </div>
             <div class="card-content">
               <div class="tags-profile-card mb-3">
@@ -116,6 +116,7 @@ const fetchBlogsByUser = async () => {
 
 onMounted(() => {
   fetchBlogsByUser()
+  
 })
 </script>
 

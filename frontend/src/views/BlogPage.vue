@@ -19,7 +19,8 @@
 
         <div class="profile-section-blog-heading text-gray-500 text-sm flex items-center gap-4 justify-between">
           <div class="flex items-center gap-2">
-            <el-avatar :src="blog.userId.avatar || auth.defaultAvatar" size="small"  :alt="`Avatar of ${blog.userId.name}`" />
+            <el-avatar :src="blog.userId.avatar || auth.defaultAvatar" size="small"   :title="`Avatar of ${blog.userId.name}`"   referrerpolicy="no-referrer"
+            crossorigin="anonymous"  :alt="`Avatar of ${blog.userId.name}`" />
             <span class="cursor-pointer" @click="auth.seeProfile(blog.userId.username)">by <strong>{{ blog.userId.name
                 }} on {{
                   auth.formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
@@ -38,7 +39,8 @@
         </div>
 
         <div v-if="blog.coverImage" class="cover-image rounded-xl overflow-hidden" style="width:100%;height:70vh;">
-          <el-image :src="blog.coverImage" fit="cover" class="w-full h-full object-cover" :alt="`Cover image for blog post: ${blog.title}`" lazy />
+          <el-image :src="blog.coverImage" fit="cover" class="w-full h-full object-cover"  referrerpolicy="no-referrer"
+          crossorigin="anonymous" :alt="`Cover image for blog post: ${blog.title}`" lazy />
         </div>
 
         <div class="blog-content text-base leading-relaxed" v-html="blog.content" />
@@ -81,6 +83,9 @@
               <el-avatar
                 :src="auth.authReady && isAuthenticated && auth.user.avatar ? auth.user.avatar : auth.defaultAvatar"
                 :alt="auth.user?.name ? `Avatar of ${auth.user.name}` : 'Default user avatar'"
+                 :title="auth.user?.name ? `Avatar of ${auth.user.name}` : 'Default user avatar'"
+                  referrerpolicy="no-referrer"
+                  crossorigin="anonymous"
                 size="small" />
               <span class="font-semibold text-gray-700">
                 Comment as {{ auth.user.name }}

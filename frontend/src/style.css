@@ -3,26 +3,42 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'IBM Plex Mono';
-  src: url('assets/font/IBMPlexMono-Regular.ttf') format('woff2');
+  src: url('assets/font/IBMPlexMono-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
+
 }
 @font-face {
   font-family: 'Input Sans';
-  src: url('assets/font/InputSans-Regular.ttf') format('woff2');
+  src: url('assets/font/InputSans-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
+
 }
 @font-face {
   font-family: 'Poppins Sans';
-  src: url('assets/font/Poppins-Regular.ttf') format('woff2');
+  src: url('assets/font/Poppins-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
+
+
 }
+@font-face {
+  font-family: 'Fira Code';
+  src: url('assets/font/FiraCode-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -104,6 +120,7 @@ body {
 }
 .logo img{
   width:60%;
+  
 }
 .nav-link {
   text-decoration: none;
@@ -616,6 +633,7 @@ body {
 }
 .image-cover-preview img{
   max-height: inherit;
+  
 }
 .el-divider__text{
   color:var(--text-color) !important;
@@ -626,6 +644,7 @@ body {
 .profile-picture-preview img{
   height: 178px;
   width:178px;
+ 
 }
 .remove-profile-btn{
   padding:2px !important;
@@ -729,6 +748,7 @@ body {
   max-width: 100%;
   border-radius: 8px;
   margin: 1rem 0;
+ 
 }
 
 .blog-content :deep(pre) {
@@ -936,7 +956,8 @@ body {
     box-shadow: 0 0 2px 0 rgba(145 158 171 / 0.2), 0 12px 24px -4px rgba(145 158 171 / 0.12);
 }
 .user-profile-header-top{
-    background-image: linear-gradient(0deg, rgba(0 75 80 / 0.8), rgba(0 75 80 / 0.8)), url(https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/programming-background-with-person-working-with-codes-computer.jpg?alt=media&token=7ecacdd4-7a75-4c46-a182-17f0a4ee4a94);
+    background-image: linear-gradient(0deg, rgba(0 75 80 / 0.8), rgba(0 75 80 / 0.8)), url(https://ik.imagekit.io/codebook/tr:w-600,f-auto/programming-background-with-person-working-with-codes-computer.jpg
+    );
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
@@ -1085,6 +1106,7 @@ body {
   object-fit: cover;
   border-bottom: 1px solid #eee;
   transition: all .5s;
+ 
 }
 .blog-profile-card .cover-img:hover{
     transform:scale(1.05);

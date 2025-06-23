@@ -4,7 +4,17 @@
 
     <div class="relative z-10">
       <div class="mini-card-header flex items-center space-x-4">
-        <el-avatar class="cursor-pointer" @click="auth.seeProfile(userData.username)" :size="94" :src="userData.avatar || auth.defaultAvatar" :title="userData?.name ? `Avatar of ${userData.name}` : 'User avatar'"   :alt="userData?.name ? `Avatar of ${userData.name}` : 'User avatar'"/>
+        <img
+          class="w-24 h-24 rounded-full object-cover cursor-pointer"
+          @click="auth.seeProfile(userData.username)"
+          :src="userData.avatar || auth.defaultAvatar"
+          :alt="userData?.name ? `Avatar of ${userData.name}` : 'User avatar'"
+          :title="userData?.name ? `Avatar of ${userData.name}` : 'User avatar'"
+          width="96"
+          height="96"
+          loading="lazy"
+        />
+
         <div class="flex flex-col items-center" style="margin-bottom: 1rem; margin-top:1rem;">
           <h2 class="text-lg font-semibold cursor-pointer" @click="auth.seeProfile(userData.username)">{{ userData.name }}</h2>
           <p class="text-sm text-gray-500 cursor-pointer" @click="auth.seeProfile(userData.username)">@{{ userData.username }}</p>

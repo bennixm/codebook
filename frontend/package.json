@@ -51,10 +51,11 @@
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.8",
+    "@tailwindcss/postcss": "^4.1.10",
     "@vitejs/plugin-vue": "^5.2.4",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.3",
+    "rollup-plugin-visualizer": "^6.0.3",
     "sass": "^1.89.2",
     "sass-embedded": "^1.89.2",
     "sitemap": "^8.0.0",
