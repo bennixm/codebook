@@ -5,11 +5,15 @@ const createBlogRules = [
   
   body('title')
     .notEmpty().withMessage('Title is required')
+    .trim()
+    .escape()
     .isLength({ min: 5, max: 100 }).withMessage('Title must be 5–100 characters'),
 
 
   body('description')
     .notEmpty().withMessage('Description is required')
+    .trim()
+    .escape()
     .isLength({ min: 10, max: 300 }).withMessage('Description must be 10–300 characters'),
 
  
@@ -74,6 +78,7 @@ const validateAddComment = [
 
     body('text')
       .trim()
+      .escape()
       .notEmpty().withMessage('Comment text is required.')
       .isLength({ max: 500 }).withMessage('Comment text must be at most 500 characters.'),
   

@@ -4,14 +4,21 @@ const { body, param,validationResult } = require('express-validator');
 const validateUserRules = [
   body('email')
     .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Invalid email format'),
+    .isEmail().withMessage('Invalid email format')
+    .normalizeEmail()
+    .trim()
+    .escape(),
 
   body('name')
-    .notEmpty().withMessage('Name is required'),
+    .notEmpty().withMessage('Name is required')
+    .trim()
+    .escape(),
 
   body('username')
     .notEmpty().withMessage('Username is required')
-    .isLength({ min: 10 }).withMessage('Username must be at least 10 characters'),
+    .isLength({ min: 10 }).withMessage('Username must be at least 10 characters')
+    .trim()
+    .escape(),
 
   body('password')
     .notEmpty().withMessage('Password is required')
@@ -29,8 +36,11 @@ const validateUserRules = [
 
 const validateLoginRules = [
   body('email')
-    .notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Invalid email format'),
+  .notEmpty().withMessage('Email is required')
+  .isEmail().withMessage('Invalid email format')
+  .normalizeEmail()
+  .trim()
+  .escape(),
 
   body('password')
     .notEmpty().withMessage('Password is required')
@@ -39,7 +49,9 @@ const validateForgotPassword = [
   body('email')
     .notEmpty().withMessage('Email is required')
     .isEmail().withMessage('Invalid email format')
-    .normalizeEmail(),
+    .normalizeEmail()
+    .trim()
+    .escape(),
 ];
 
 const validateResetPassword = [
