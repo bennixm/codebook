@@ -12,7 +12,7 @@ router.post('/change-password', auth, validatePasswordChange, changePassword);
 router.post('/set-bio',auth,validateBio,setBio);
 router.post('/follow/:id',   auth, followUser);
 router.post('/unfollow/:id', auth, unfollowUser);
-router.get('/followers/:id', auth, getFollowers);
+router.get('/followers/:id', authOptional, getFollowers);
 router.get('/following/:id', auth, getFollowing);
 router.post('/set-password', auth, validateSetPassword, setPassword);
 router.get('/get-profile/:username', authOptional, getProfileByUsername);

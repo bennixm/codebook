@@ -100,7 +100,7 @@
                     class="mt-2 remove-cover-btn"
                     @click="handleCoverRemove"
                   >
-                    <Trash2 />
+                    <el-icon><Delete /></el-icon>
                   </el-button>
                 </div>
               </el-form-item>
@@ -144,7 +144,7 @@
   import TextColorPlugin from 'editorjs-text-color-plugin';
   import Paragraph from '@editorjs/paragraph';
   import { ElMessage } from 'element-plus';
-  import { Trash2 } from 'lucide-vue-next';
+  import { Delete } from '@element-plus/icons-vue';
   
   import {useRoute, useRouter } from 'vue-router';
   
@@ -153,7 +153,7 @@
   
   export default {
     name: 'RichTextEditor',
-    components: { UploadFilled },
+    components: { UploadFilled, Delete },
     setup() {
       const {editBlogPost,fetchBlogById} = useAuth();
       const { categories } = useCategories();

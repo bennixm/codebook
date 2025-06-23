@@ -1,5 +1,5 @@
 <template>
-  <div class="search-page p-6">
+  <div class="search-page container p-6">
     <el-row :gutter="20" class="search-controls">
       <el-col :xs="24" :sm="12" :md="8">
         <el-autocomplete

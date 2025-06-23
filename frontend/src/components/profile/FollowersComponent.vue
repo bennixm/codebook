@@ -14,7 +14,7 @@
           </div>
         </div>
 
-        <div v-if="follower._id !== auth.user._id">
+        <div v-if="auth.isAuthenticated && follower._id !== auth.user._id">
           <el-button v-if="!isFollowingMap[follower._id]" type="default" size="small"
             @click="handleFollow(follower._id)" aria-label="Follow">
             <UserRoundPlus :size="20" style="margin-right: 3px;"  aria-hidden="true" /> Follow

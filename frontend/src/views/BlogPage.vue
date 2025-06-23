@@ -5,12 +5,17 @@
 
         <el-page-header :icon="ArrowLeft" @back="router.back()" class="page-header-blog">
           <template #content>
+            <router-link :to="`/blogs/`" class="page-header-slug text-large font-600 ml-2 text-primary hover:underline">
+              {{ blog.categories[0].name }}
+            </router-link>
+            <el-divider direction="vertical" />
             <router-link :to="`/blog/${blog.slug}`"
-              class="page-header-slug text-large font-600 mr-3 text-primary hover:underline">
+              class="page-header-slug text-large font-600 ml-2 text-primary hover:underline">
               {{ blog.slug }}
             </router-link>
           </template>
         </el-page-header>
+
 
         <h1 class="main-title text-3xl font-bold">{{ blog.title }}</h1>
         <span class="main-desc text-2xl">{{ blog.description }}</span>
@@ -19,13 +24,16 @@
 
         <div class="profile-section-blog-heading text-gray-500 text-sm flex items-center gap-4 justify-between">
           <div class="flex items-center gap-2">
-            <el-avatar :src="blog.userId.avatar || auth.defaultAvatar" size="small"  :alt="`Avatar of ${blog.userId.name}`" />
+            <el-avatar :src="blog.userId.avatar || auth.defaultAvatar" size="small"
+              :alt="`Avatar of ${blog.userId.name}`" />
             <span class="cursor-pointer" @click="auth.seeProfile(blog.userId.username)">by <strong>{{ blog.userId.name
-                }} on {{
-                  auth.formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
+            }} on {{
+                  auth.formatDate(blog.publishedAt || blog.createdAt) }}</strong> <span v-if="blog.updatedAt"> <el-divider
+                  direction="vertical" /> updated on {{
+                    auth.formatDate(blog.updatedAt) }}</span></span>
           </div>
           <div class="flex items-center gap-2">
-            <el-button circle @click="shareOnTwitter"  aria-label="Share on Twitter">
+            <el-button circle @click="shareOnTwitter" aria-label="Share on Twitter">
               <Twitter :size="15" />
             </el-button>
             <el-button circle @click="shareOnFacebook" aria-label="Share on Facebook">
@@ -34,11 +42,15 @@
             <el-button circle @click="copyLink" aria-label="Copy link to clipboard">
               <Share2 :size="15" />
             </el-button>
+            <el-button circle :type="isBookmarked(blog.slug) ? 'success' : 'default'" @click="handleToggleBookmark">
+              <Bookmark :size="15" />
+            </el-button>
           </div>
         </div>
 
         <div v-if="blog.coverImage" class="cover-image rounded-xl overflow-hidden" style="width:100%;height:70vh;">
-          <el-image :src="blog.coverImage" fit="cover" class="w-full h-full object-cover" :alt="`Cover image for blog post: ${blog.title}`" lazy />
+          <el-image :src="blog.coverImage" fit="cover" class="w-full h-full object-cover"
+            :alt="`Cover image for blog post: ${blog.title}`" lazy />
         </div>
 
         <div class="blog-content text-base leading-relaxed" v-html="blog.content" />
@@ -65,14 +77,20 @@
               <ThumbsUp :size="20" style="margin-left: 10px;" />
             </span>
           </div>
-          <el-button v-if="!userLiked && isAuthenticated" @click="likePost">
-            <ThumbsUp :size="15" style="margin-right: 3px;" />
-            Like
-          </el-button>
-          <el-button v-if="userLiked && isAuthenticated" @click="dislikePost" type="primary" plain>
-            <ThumbsDown :size="15" style="margin-right: 3px;" />
-            Unlike
-          </el-button>
+          <div class="stats">
+            <el-button v-if="!userLiked && isAuthenticated" @click="likePost">
+              <ThumbsUp :size="15" style="margin-right: 3px;" />
+              Like
+            </el-button>
+            <el-button v-if="userLiked && isAuthenticated" @click="dislikePost" type="primary" plain>
+              <ThumbsDown :size="15" style="margin-right: 3px;" />
+              Unlike
+            </el-button>
+            <el-button v-if="isAuthenticated && authorId === auth.user?._id" @click="editBlog(blog._id)" type="default" plain>
+              <Edit :size="15" style="margin-right: 3px;" />
+              Edit
+            </el-button>
+          </div>
         </div>
 
         <div class="comments-section mt-6">
@@ -80,8 +98,7 @@
             <div class="comment-user-header mt-2 flex items-center gap-3" v-if="isAuthenticated">
               <el-avatar
                 :src="auth.authReady && isAuthenticated && auth.user.avatar ? auth.user.avatar : auth.defaultAvatar"
-                :alt="auth.user?.name ? `Avatar of ${auth.user.name}` : 'Default user avatar'"
-                size="small" />
+                :alt="auth.user?.name ? `Avatar of ${auth.user.name}` : 'Default user avatar'" size="small" />
               <span class="font-semibold text-gray-700">
                 Comment as {{ auth.user.name }}
               </span>
@@ -126,8 +143,8 @@
     </div>
     <div class="blog-secondary">
       <div class="sticky top-6">
-        <MiniProfileCard :userData="blog?.userId" :authorId="authorId" />
-        <UserBlogsSlider :userData="blog?.userId" :currentBlogId="blog?._id" />
+        <MiniProfileCard :key="blog.slug" :userData="blog?.userId" :authorId="authorId" />
+        <UserBlogsSlider :key="blog.slug" :userData="blog?.userId" :currentBlogId="blog?._id" />
       </div>
     </div>
 
@@ -138,19 +155,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, computed, watchEffect } from 'vue';
+import { ref, onMounted, nextTick, computed, watchEffect, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import EditorJSHTML from 'editorjs-html';
 import Prism from 'prismjs';
+import { Share2, Twitter, Facebook, ArrowLeft, ThumbsDown, ThumbsUp, Eye, Bookmark, Edit, Trash } from 'lucide-vue-next';
 import CommentCard from '../components/blog/CommentCard.vue';
 import MiniProfileCard from '../components/blog/MiniProfileCard.vue'
 import UserBlogsSlider from '../components/blog/UserBlogsSlider.vue'
-
 import { getCookie } from '../composables/getCookie';
 import { useAuth } from '../composables/useAuth';
-
-import { Share2, Twitter, Facebook, ArrowLeft, ThumbsDown, ThumbsUp, Eye } from 'lucide-vue-next';
+import { useBookmarks } from '../composables/useBookmarks';
 
 const route = useRoute();
 const router = useRouter();
@@ -158,18 +174,35 @@ const auth = useAuth();
 const blog = ref(null);
 const loading = ref(true);
 const blogUrl = window.location.href;
-
-
-const showLikesPopup = ref(false);
-const showViewsPopup = ref(false);
-
+const comments = ref([]);
+const shownRepliesMap = ref({});
+const newComment = ref({ text: '', guestName: '' })
+const savedGuestName = ref(getCookie('guestName') || '');
+const isAuthenticated = computed(() => auth.authReady && auth.isAuthenticated)
+const authorId = ref('');
 const userLiked = ref(false);
+const currentPage = ref(1);
+const COMMENTS_PER_PAGE = 5;
+const { isBookmarked, toggleBookmark } = useBookmarks();
 
 watchEffect(() => {
   if (auth.isAuthenticated && blog.value) {
     userLiked.value = blog.value.likes?.includes(auth.user._id);
   }
 });
+
+const handleToggleBookmark = () => {
+  toggleBookmark(blog.value.slug);
+  if (isBookmarked(blog.value.slug)) {
+    ElMessage.success('Blog saved');
+  } else {
+    ElMessage.info('Blog removed from bookmarks');
+  }
+};
+
+const editBlog = (id) => {
+  router.push(`/panel/edit-blog/${id}`);
+};
 
 const likePost = async () => {
   try {
@@ -211,9 +244,6 @@ const copyLink = async () => {
   }
 };
 
-const currentPage = ref(1);
-const COMMENTS_PER_PAGE = 5;
-
 const paginatedRootComments = computed(() => {
   const start = (currentPage.value - 1) * COMMENTS_PER_PAGE;
   const end = start + COMMENTS_PER_PAGE;
@@ -223,18 +253,6 @@ const paginatedRootComments = computed(() => {
 const totalPages = computed(() =>
   Math.ceil(flatStructuredComments.value.length / COMMENTS_PER_PAGE)
 );
-
-const comments = ref([]);
-
-const shownRepliesMap = ref({});
-
-const newComment = ref({ text: '', guestName: '' })
-
-const savedGuestName = ref(getCookie('guestName') || '');
-
-const isAuthenticated = computed(() => auth.authReady && auth.isAuthenticated)
-
-const authorId = ref('');
 
 const handleReplySubmitted = async () => {
   const refreshed = await auth.fetchComments(blog.value._id)
@@ -414,6 +432,22 @@ onMounted(() => {
     });
   });
 });
+
+watch(
+  () => route.params.slug,
+  async (newSlug, oldSlug) => {
+    if (newSlug !== oldSlug) {
+      loading.value = true;
+      await fetchBlog();
+      loading.value = false;
+      if (!blog.value && isBookmarked(newSlug)) {
+        ElMessage.warning('This bookmarked blog was deleted or is no longer available.');
+      }
+    }
+  },
+  { immediate: true }
+);
+
 
 </script>
 
