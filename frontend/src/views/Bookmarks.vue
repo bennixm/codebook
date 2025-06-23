@@ -19,7 +19,7 @@
                                 <router-link :to="`/blog/${blog.slug}`" class="text-lg font-semibold hover:underline">
                                     {{ blog.title }}
                                 </router-link>
-                                <el-button @click="removeAndRefresh(blog.slug)" type="default" size="large" circle>
+                                <el-button @click="removeAndRefresh(blog.slug)" type="default"  aria-label="bookmark" size="large" circle>
                                     <BookmarkMinus />
                                 </el-button>
                             </div>

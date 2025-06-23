@@ -9,7 +9,7 @@
        </span>
        <div class="comment-buttons">
         <div v-if="isAuthenticated && canDeleteComment" class="actions">
-          <el-button size="small" type="danger" @click="emitDelete">
+          <el-button size="small" type="danger" aria-label="delete button" @click="emitDelete">
             <Trash2 :size="15"/>
           </el-button>
         </div>
@@ -20,7 +20,7 @@
         {{ comment.text }}
       </p>
       <div v-if="comment.replies?.length" class="ml-1 mt-2">
-        <el-button size="small" text @click="toggleReplies">
+        <el-button size="small" text @click="toggleReplies" aria-label="toggle replies">
           {{ showReplies ? 'Hide Replies' : `View Replies (${comment.replies.length})` }}
         </el-button>
       </div>
@@ -32,6 +32,7 @@
             <el-avatar
             :src="auth.authReady && isAuthenticated && auth.user.avatar ? auth.user.avatar : defaultAvatar"
               size="small"
+              alt ="User avatar"
             />
             <span class="font-semibold text-gray-700">
               Reply as {{ auth.user.name }}

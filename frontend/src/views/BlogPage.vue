@@ -5,12 +5,12 @@
 
         <el-page-header :icon="ArrowLeft" @back="router.back()" class="page-header-blog">
           <template #content>
-            <router-link :to="`/blogs/`" class="page-header-slug text-large font-600 ml-2 text-primary hover:underline">
+            <router-link :to="`/blogs/`" class="page-header-slug text-large font-600 ml-2 text-primary hover:underline" :aria-label="blog?.categories?.[0]?.name || 'Blog category'">
               {{ blog.categories[0].name }}
             </router-link>
             <el-divider direction="vertical" />
             <router-link :to="`/blog/${blog.slug}`"
-              class="page-header-slug text-large font-600 ml-2 text-primary hover:underline">
+              class="page-header-slug text-large font-600 ml-2 text-primary hover:underline" :aria-label="`Go to blog ${blog.slug || 'post'}`">
               {{ blog.slug }}
             </router-link>
           </template>
@@ -42,7 +42,7 @@
             <el-button circle @click="copyLink" aria-label="Copy link to clipboard">
               <Share2 :size="15" />
             </el-button>
-            <el-button circle :type="isBookmarked(blog.slug) ? 'success' : 'default'" @click="handleToggleBookmark">
+            <el-button circle :type="isBookmarked(blog.slug) ? 'success' : 'default'" aria-label="Bookmark" @click="handleToggleBookmark">
               <Bookmark :size="15" />
             </el-button>
           </div>

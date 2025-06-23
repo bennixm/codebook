@@ -22,8 +22,8 @@
     <el-menu :default-active="$route.path" class="el-menu-demo nav-right" mode="horizontal" text-color="#27ae60"
       active-text-color="#27ae60" :ellipsis="false" router>
 
-      <el-menu-item index="/bookmarks">
-        <router-link to="/bookmarks" class="nav-link"><Bookmark /></router-link>
+      <el-menu-item   aria-label="Go to bookmarks" index="/bookmarks">
+        <router-link to="/bookmarks" aria-label="Bookmarks"  class="nav-link"><Bookmark /></router-link>
       </el-menu-item>
 
       <el-menu-item index="/panel/notifications" v-if="auth.authReady && auth.isAuthenticated"
@@ -70,7 +70,7 @@
         <el-dropdown>
           <span class="user-dropdown">
             <el-avatar
-              :src="auth.user.avatar || 'https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/user.png?alt=media&token=6cdb89f7-73b1-40b0-9307-78ae1a06f29f'" />
+              :src="auth.user.avatar || 'https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/user.png?alt=media&token=6cdb89f7-73b1-40b0-9307-78ae1a06f29f'"  alt="avatar"/>
 
             <span class="username">{{ auth.user.name }}</span>
           </span>
