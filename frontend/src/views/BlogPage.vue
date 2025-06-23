@@ -33,13 +33,13 @@
                     auth.formatDate(blog.updatedAt) }}</span></span>
           </div>
           <div class="flex items-center gap-2">
-            <el-button circle @click="shareOnTwitter" aria-label="Share on Twitter">
+            <el-button circle @click="auth.shareOnTwitter" aria-label="Share on Twitter">
               <Twitter :size="15" />
             </el-button>
-            <el-button circle @click="shareOnFacebook" aria-label="Share on Facebook">
+            <el-button circle @click="auth.shareOnFacebook" aria-label="Share on Facebook">
               <Facebook :size="15" />
             </el-button>
-            <el-button circle @click="copyLink" aria-label="Copy link to clipboard">
+            <el-button circle @click="auth.copyLink" aria-label="Copy link to clipboard">
               <Share2 :size="15" />
             </el-button>
             <el-button circle :type="isBookmarked(blog.slug) ? 'success' : 'default'" aria-label="Bookmark" @click="handleToggleBookmark">
@@ -177,7 +177,6 @@ const router = useRouter();
 const auth = useAuth();
 const blog = ref(null);
 const loading = ref(true);
-const blogUrl = window.location.href;
 const comments = ref([]);
 const shownRepliesMap = ref({});
 const newComment = ref({ text: '', guestName: '' })
@@ -197,11 +196,6 @@ watchEffect(() => {
 
 const handleToggleBookmark = () => {
   toggleBookmark(blog.value.slug);
-  if (isBookmarked(blog.value.slug)) {
-    ElMessage.success('Blog saved');
-  } else {
-    ElMessage.info('Blog removed from bookmarks');
-  }
 };
 
 const editBlog = (id) => {
@@ -226,25 +220,6 @@ const dislikePost = async () => {
     userLiked.value = false;
   } catch (err) {
     ElMessage.error('Failed to dislike the post.');
-  }
-};
-
-const shareOnTwitter = () => {
-  const url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(blogUrl)}`;
-  window.open(url, '_blank', 'noopener,noreferrer');
-};
-
-const shareOnFacebook = () => {
-  const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(blogUrl)}`;
-  window.open(url, '_blank', 'noopener,noreferrer');
-};
-
-const copyLink = async () => {
-  try {
-    await navigator.clipboard.writeText(blogUrl);
-    ElMessage.success('Link copied to clipboard!');
-  } catch (err) {
-    ElMessage.error('Failed to copy link.');
   }
 };
 

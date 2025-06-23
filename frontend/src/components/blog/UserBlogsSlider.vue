@@ -2,10 +2,11 @@
   <div v-if="userBlogs.length" class="user-blogs-slider mt-4">
     <h2 class="text-lg font-semibold mb-4" style="margin-bottom: 1rem;">Other posts of {{ userData.name }}</h2>
     <el-carousel
-      height="500px"
+      height="400px"
       :interval="4000"
       indicator-position="outside"
       :autoplay="true"
+      arrow="never"
     >
       <el-carousel-item
         v-for="blog in userBlogs"
@@ -21,7 +22,7 @@
             :src="blog.coverImage"
             :alt="`Cover image for blog titled ${blog.title}`"
             class="sr-only"
-            width="700"
+            width="650"
             height="200"
           />
         </div>

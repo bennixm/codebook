@@ -792,6 +792,7 @@ exports.filterBlogs = async (req, res, next) => {
     const blogs = await Blog.find(filter)
       .populate('userId', 'name username avatar')
       .populate('tags', 'name')
+      .populate('categories', 'name')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(perPage)

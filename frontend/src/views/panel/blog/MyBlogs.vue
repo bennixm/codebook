@@ -4,13 +4,8 @@
       <span class="title">My Blogs</span>
 
       <div class="panel-filters">
-        <el-input
-          v-model="filters.search"
-          placeholder="Search title or description"
-          size="medium"
-          class="panel-filter"
-          clearable
-        />
+        <el-input v-model="filters.search" placeholder="Search title or description" size="medium" class="panel-filter"
+          clearable />
 
         <el-select v-model="filters.status" placeholder="Status" size="medium" class="panel-filter" clearable>
           <el-option label="Published" value="published" />
@@ -18,22 +13,12 @@
         </el-select>
 
         <el-select v-model="filters.tag" placeholder="Tag" size="medium" class="panel-filter" clearable>
-          <el-option
-            v-for="tag in allTags"
-            :key="tag"
-            :label="tag"
-            :value="tag"
-          />
+          <el-option v-for="tag in allTags" :key="tag" :label="tag" :value="tag" />
         </el-select>
         <el-select v-model="filters.category" placeholder="Category" size="medium" class="panel-filter" clearable>
-          <el-option
-            v-for="category in allCategories"
-            :key="category"
-            :label="category"
-            :value="category"
-          />
+          <el-option v-for="category in allCategories" :key="category" :label="category" :value="category" />
         </el-select>
-      
+
 
         <el-select v-model="filters.sort" placeholder="Sort by date" class="panel-filter" size="medium">
           <el-option label="Newest" value="desc" />
@@ -43,18 +28,15 @@
     </div>
 
     <div v-loading="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <el-card
-        v-for="blog in paginatedBlogs"
-        :key="blog._id"
-        class="blog-card"
-        shadow="hover"
-      >
+      <el-card v-for="blog in paginatedBlogs" :key="blog._id" class="blog-card" shadow="hover">
+        <div class="tags category-tag mb-3">
+          <el-tag v-for="category in blog.categories" :key="category._id" size="small" effect="light" type="danger"
+            class="mr-1">
+            {{ category.name }}
+          </el-tag>
+        </div>
         <div class="cover-image mb-3">
-          <el-image
-            v-if="blog.coverImage"
-            :src="blog.coverImage"
-            fit="cover"
-          />
+          <el-image v-if="blog.coverImage" :src="blog.coverImage" fit="cover" />
           <div v-else class="no-image-placeholder">
             No Image
           </div>
@@ -64,34 +46,15 @@
         <p class="description mb-3 text-sm text-gray-600">{{ blog.description }}</p>
 
         <div class="tags mb-3">
-          <el-tag
-            v-for="tag in blog.tags"
-            :key="tag._id"
-            size="small"
-            effect="light"
-            type="info"
-            class="mr-1"
-          >
+          <el-tag v-for="tag in blog.tags" :key="tag._id" size="small" effect="light" type="info" class="mr-1">
             {{ tag.name }}
-          </el-tag>
-        </div>
-        <div class="tags mb-3">
-          <el-tag
-            v-for="category in blog.categories"
-            :key="category._id"
-            size="small"
-            effect="light"
-            type="danger"
-            class="mr-1"
-          >
-            {{ category.name }}
           </el-tag>
         </div>
 
         <div class="blog-buttons mb-3 flex items-center justify-between text-sm">
-          <el-button type="primary" @click="editBlog(blog._id)" :icon="Edit" circle />
-          <el-button type="primary" size="small" @click="viewBlog(blog.slug)" class="w-full">View</el-button>
-          <el-button type="danger" :icon="Delete" circle @click="confirmDelete(blog)" />
+          <el-button type="default" @click="editBlog(blog._id)" :icon="Edit" circle />
+          <el-button type="default" size="small" @click="viewBlog(blog.slug)" class="w-full">View</el-button>
+          <el-button type="default" :icon="Delete" circle @click="confirmDelete(blog)" />
         </div>
 
         <div class="status-date mb-4 flex items-center justify-between text-sm">
@@ -99,11 +62,11 @@
             {{ blog.isPublished ? 'Published' : 'Draft' }}
           </el-tag>
           <span class="text-gray-500">
-           {{ formatDate(blog.isPublished ? blog.publishedAt : blog.draftedAt) }}
-         </span>
+            {{ formatDate(blog.isPublished ? blog.publishedAt : blog.draftedAt) }}
+          </span>
         </div>
-        
-         <div v-if="blog.updatedAt"  class="status-date  mb-3 flex items-center justify-between text-sm">
+
+        <div v-if="blog.updatedAt" class="status-date  mb-3 flex items-center justify-between text-sm">
           <el-tag type="primary" size="small">
             Updated
           </el-tag>
@@ -117,13 +80,8 @@
     </div>
 
     <div class="pagination-container flex justify-center mt-6" v-if="filteredBlogs.length > perPage">
-      <el-pagination
-        layout="prev, pager, next"
-        :page-size="perPage"
-        :current-page="currentPage"
-        :total="filteredBlogs.length"
-        @current-change="currentPage = $event"
-      />
+      <el-pagination layout="prev, pager, next" :page-size="perPage" :current-page="currentPage"
+        :total="filteredBlogs.length" @current-change="currentPage = $event" />
     </div>
   </div>
 </template>
@@ -235,21 +193,21 @@ const filteredBlogs = computed(() => {
       )
         return false;
 
-      if (filters.value.tag && !blog.tags.some((tag) => tag.name === filters.value.tag)) 
-         return false;
-   
+      if (filters.value.tag && !blog.tags.some((tag) => tag.name === filters.value.tag))
+        return false;
 
-      if (filters.value.category &&(!blog.categories || !blog.categories.some((category) => category.name === filters.value.category))) 
-      return false;
-    
+
+      if (filters.value.category && (!blog.categories || !blog.categories.some((category) => category.name === filters.value.category)))
+        return false;
+
 
       return true;
     })
     .sort((a, b) => {
-  const dateA = new Date(a.updatedAt || a.publishedAt || a.draftedAt);
-  const dateB = new Date(b.updatedAt || b.publishedAt || b.draftedAt);
-  return filters.value.sort === 'asc' ? dateA - dateB : dateB - dateA;
-});
+      const dateA = new Date(a.updatedAt || a.publishedAt || a.draftedAt);
+      const dateB = new Date(b.updatedAt || b.publishedAt || b.draftedAt);
+      return filters.value.sort === 'asc' ? dateA - dateB : dateB - dateA;
+    });
 });
 
 const paginatedBlogs = computed(() => {
@@ -268,5 +226,4 @@ onMounted(() => {
 
 
 
-<style scoped>
-</style>
+<style scoped></style>

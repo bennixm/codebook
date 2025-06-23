@@ -59,7 +59,7 @@
       <el-col :xs="24" :sm="12">
         <div class="recent-activity dash-element">
           <span class="dash-title">Recent activity</span>
-          <el-timeline>
+          <el-timeline v-if="recentBlogs.length">
             <el-timeline-item
               v-for="(activity, index) in recentBlogs"
               :key="index"
@@ -69,6 +69,7 @@
               <strong>{{ activity.title }}</strong> — {{ activity.status }}
             </el-timeline-item>
           </el-timeline>
+          <el-empty v-else description="No activity from you." />
         </div>
       </el-col>
     </el-row>

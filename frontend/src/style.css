@@ -693,6 +693,9 @@ body {
 .blog-card .tags .el-tag{
   margin-right:5px;
 }
+.tags.category-tag{
+  margin-bottom: 1rem;
+}
 .blog-card .status-date{
   margin-bottom: 1rem;
 }
@@ -733,7 +736,7 @@ body {
   justify-content: space-between;
 }
 .panel-filters .panel-filter{
-  width:24%;
+  width:19%;
 }
 
 .blog-content :deep(p) {
@@ -897,7 +900,12 @@ body {
   border:1px solid #dcdfe6 !important;
 }
 .blog-secondary .user-blogs-slider{
-  margin-top:2rem;
+    margin-top: 1rem;
+    border-radius: 1rem;
+    padding:1rem;
+    width: 100%;
+    box-shadow: none !important;
+    border: 1px solid #dcdfe6 !important;
 }
 .blog-secondary .mini-card-profile .mini-card-header .el-avatar--circle{
   border:5px solid white;
@@ -1222,9 +1230,6 @@ body {
   align-items: center;
   padding:16px;
 }
-.user-blogs-slider .el-carousel__arrow{
-  margin-top: 70% !important;
-}
 .blog-slide-content{
   padding:1rem;
 }
@@ -1244,21 +1249,87 @@ body {
     background-color: #FFFFFF;
 }
 .bookmarks-component{
-    box-shadow: 0 0 2px 0 rgba(145 158 171 / 0.2), 0 12px 24px -4px rgba(145 158 171 / 0.12);
-    border-radius: 16px;
     padding:2rem;
 }
 .bookmark-component {
     width: 100%;
     text-decoration: none;
     color: inherit;
-    border:none !important;
-    box-shadow: none !important;
+    border:none;
+    box-shadow: 0 0 2px 0 rgba(145 158 171 / 0.2), 0 12px 24px -4px rgba(145 158 171 / 0.12);
+    border-radius: 16px !important;
+    margin-bottom: 2rem;
+    border-left:3px solid var(--main-color) !important;
 }
 .bookmark-component .bookmark-content{
   padding:1rem;
 }
+footer .nav-link{
+  margin-left: 1rem;
+}
+.bookmark-component .image-cover{
+  height: 200px;
+}
+.bookmark-component .image-cover img{
+  height: 100%;
+  width:100%;
+}
+.bookmark-component .bookmark-subcontent{
+  margin-bottom: 1rem;
+  display:flex;
+  flex-direction: row;
+}
+.bookmark-buttons{
+  display:flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+.bookmark-component-content{
+  flex-direction: row;
+  align-items: center;
+}
+.bookmark-subcontent p{
+  font-size: 14px;
+}
+.avatar-section-bookmark{
+  width:100%;
+  display:flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.avatar-section-bookmark .profile-bookmark{
+  display:flex;
+  flex-direction: row;
+  align-items: center;
+}
+.avatar-section-bookmark .profile-bookmark span{
+  margin-left: 1rem;
+}
 @media (max-width: 1025px) {
+  .avatar-section-bookmark{
+    flex-direction: column;
+  }
+  .avatar-section-bookmark .profile-bookmark{
+    margin-bottom: 1rem;
+  }
+  .nav-center{
+    width:40%;
+  }
+  .nav-right{
+    width:40%;
+  }
+  .bookmarks-component{
+    padding: 0 !important;
+  }
+  .bookmark-component .image-cover{
+    width:100% !important;
+  }
+  .bookmark-component .bookmark-content{
+    width: 100% !important;
+  }
+  .bookmark-component-content{
+    flex-direction: column;
+  }
   .user-profile-body{
     flex-direction: column;
   }
