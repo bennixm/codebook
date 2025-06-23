@@ -9,7 +9,7 @@ useNotifications()
   <div>
     <NavBar />
     
-    <main class="flex-grow p-4">
+    <main class="flex-grow p-4 min-h-[600px] h-[calc(100vh-XYZpx)]">
         <router-view></router-view>
     </main>
     <Footer />

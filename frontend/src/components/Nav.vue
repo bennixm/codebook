@@ -1,9 +1,12 @@
 <template>
   <nav class="navbar">
     <router-link to="/" class="logo nav-left" aria-label="CodeBook Home">
-      <img
-        src="https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/logo.png?alt=media&token=3ca2bb58-59af-482a-8cd8-f869b060c5b1"
-        alt="CodeBook logo" />
+      <img 
+  src="https://ik.imagekit.io/codebook/tr:w-200,f-auto/logo.png" 
+  width="120" height="40" alt="CodeBook logo"
+ 
+/>
+
     </router-link>
     <el-menu :default-active="$route.path" class="el-menu-demo nav-center" mode="horizontal" text-color="#27ae60"
       active-text-color="#27ae60" router>
