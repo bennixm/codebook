@@ -7,6 +7,7 @@ import Authentication from '../views/Authentication.vue';
 import ResetPassword from '../views/ResetPassword.vue';
 import ForgotPassword from '../views/ForgotPassword.vue';
 import Blogs from '../views/Blogs.vue';
+import Bookmarks from '../views/Bookmarks.vue';
 import NotFound from '../views/404.vue';
 
 
@@ -35,6 +36,7 @@ const routes = [
   { path: '/reset-password/:token', name: 'ResetPassword', component: ResetPassword },
   { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword },
   { path: '/blogs', name: 'Blogs', component: Blogs },
+  { path: '/bookmarks', name: 'Bookmarks', component: Bookmarks },
   { path: '/blog/:slug', name: 'BlogPage', component: BlogPage,rops: true},
   { path: '/activate/:userId/:token', name: 'ActivateAccount', component: ActivateAccount },
   { path: '/resend-activation', name: 'ResendActivation', component: ResendActivationPage },

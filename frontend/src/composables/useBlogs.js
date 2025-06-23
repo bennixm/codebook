@@ -1,4 +1,3 @@
-// src/composables/useBlogs.js
 import { ref } from 'vue';
 import api from '../api';
 
@@ -10,17 +9,19 @@ export function useBlogFilter() {
   const total      = ref(0);
   const error      = ref(null);
 
-  async function filterBlogs({ tags = [], search = '', newPage = 1 } = {}) {
+  async function filterBlogs({ tags = [], search = '', slugs = [], newPage = 1 } = {}) {
     try {
       const params = {
-        page:  newPage,
+        page: newPage,
         limit: perPage.value
       };
-      if (tags.length)    params.tags   = tags.join(',');
-      if (search)         params.search = search;
+
+      if (tags.length)  params.tags = tags.join(',');
+      if (search)       params.search = search;
+      if (slugs.length) params.slugs = slugs.join(',');
 
       const { data } = await api.get('/blog/filter-blogs', { params });
-      
+
       blogs.value      = data.data;
       page.value       = data.page;
       perPage.value    = data.perPage;

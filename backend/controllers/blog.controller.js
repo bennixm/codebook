@@ -396,6 +396,7 @@ exports.fetchBlogBySlug = async (req, res, next) => {
 
     const blog = await Blog.findOne({ slug })
       .populate('tags', 'name')
+      .populate('categories', 'name')
       .populate({
       path: 'userId',
       select: 'name username email avatar bio location postsCount followers following createdAt'
@@ -750,8 +751,13 @@ exports.unlikeBlog = async (req, res, next) => {
 
 exports.filterBlogs = async (req, res, next) => {
   try {
-    const { tags, search, page = 1, limit = 10 } = req.query;
+    const { tags, search, slugs, page = 1, limit = 10 } = req.query;
     const filter = { isPublished: true };
+
+    if (slugs) {
+        const slugArray = slugs.split(',');
+        filter.slug = { $in: slugArray };
+    }
 
   
     let userIds = [];

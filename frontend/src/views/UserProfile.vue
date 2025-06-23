@@ -9,8 +9,10 @@
                     <div class="info-container">
                         <span class="name">{{ profile.name }}</span>
                         <span class="usernametag">@{{ profile.username }} 
+                            <span v-if="isAuthenticated && profile._id !== auth.user._id">
                             <el-button v-if="!userFollowed" :size="15" :icon="UserRoundPlus" @click="handleFollow(profile._id)" circle/>
                             <el-button v-else :size="15" :icon="UserRoundMinus" @click="handleunFollow(profile._id)" circle/>
+                            </span>
                         </span>
                     </div>
                 </div>
@@ -54,6 +56,7 @@ import { useAuth } from '../composables/useAuth'
 const auth = useAuth()
 const route = useRoute();
 const username = computed(() => route.params.username);
+const isAuthenticated = computed(() => auth.authReady && auth.isAuthenticated);
 
 const profile = ref(null);
 const value = ref('Blogs')
