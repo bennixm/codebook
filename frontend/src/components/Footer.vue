@@ -8,8 +8,7 @@
       </div>
       <nav class="flex space-x-6">
             <router-link to="/" class="nav-link transition duration-150 ease-in-out">Home</router-link>
-            <router-link to="/" class="nav-link transition duration-150 ease-in-out">Blogs</router-link>
-            <router-link to="/" class="nav-link transition duration-150 ease-in-out">Support</router-link>
+            <router-link to="/blogs" class="nav-link transition duration-150 ease-in-out">Blogs</router-link>
       </nav>
     </div>
   </footer>

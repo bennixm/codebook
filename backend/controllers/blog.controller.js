@@ -798,8 +798,7 @@ exports.filterBlogs = async (req, res, next) => {
       .populate('categories', 'name')
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(perPage)
-      .select('title slug description content coverImage tags publishedAt');
+      .limit(perPage);
 
     res.json({
       data: blogs,

@@ -54,7 +54,7 @@
                   loading="lazy" />
                 <span class="cursor-pointer" style="margin-left:10px;">
                   <strong>{{ blog.userId.name
-                  }} <span class="int-word">on</span> {{
+                    }} <span class="int-word">on</span> {{
                       auth.formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
               </div>
               <div class="tags category-tag mb-3">
@@ -69,11 +69,11 @@
 
             <div class="blog-buttons mb-3 flex items-center justify-between text-sm">
               <div class="stats">
-                <span class="views flex flex-row">{{ blog.totalViews || blog.views || 0 }}
+                <span class="views flex flex-row">{{ blog.views.length || 0 }}
                   <Eye :size="20" style="margin-left: 10px;" />
                 </span>
                 <span class="likes flex flex-row">
-                  {{ blog.likesCount }}
+                  {{ blog.likes.length || 0 }}
                   <ThumbsUp :size="20" style="margin-left: 10px;" />
                 </span>
               </div>
@@ -84,25 +84,35 @@
             </div>
           </el-card>
         </div>
-
         <div v-if="blogs.length === 0 && !loading" class="text-center mt-6 text-gray-500">
           <el-empty description="No blogs match your filters." />
         </div>
         <el-pagination v-if="totalPages > 1" style="text-align:center; margin-top:2rem;" :current-page="page"
           :page-size="perPage" :total="total" layout="prev, pager, next" @current-change="onPageChange" />
       </div>
-      <div class="search-right"></div>
+      <div class="search-right">
+        <div class="popular-blogs mt-6">
+          <h3 class="text-lg font-semibold mb-2" style="margin-bottom: 1rem;">Top Picks</h3>
+          <SmallCardBlog v-for="blog in topLikedBlogs" :key="blog._id" :blog="blog" />
+        </div>
+        <div class="popular-blogs mt-6">
+          <h3 class="text-lg font-semibold mb-2" style="margin-bottom: 1rem;">Most Relevant Blogger</h3>
+          <UserBlogsSlider :userData="topUserFromTopLikedBlogs" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useBlogFilter } from '../composables/useBlogs';
 import { useTags } from '../composables/useTags';
 import { useAuth } from '../composables/useAuth';
 import { useBookmarks } from '../composables/useBookmarks';
+import UserBlogsSlider from '../components/blog/UserBlogsSlider.vue';
+import SmallCardBlog from '../components/blog/SmallCardBlog.vue';
 
 const { isBookmarked, toggleBookmark } = useBookmarks();
 
@@ -113,6 +123,29 @@ const handleToggleBookmark = (slug) => {
 import { Search, Bookmark, ThumbsUp, Eye } from 'lucide-vue-next';
 
 const auth = useAuth();
+
+const topLikedBlogs = computed(() => {
+  return [...blogs.value]
+    .sort((a, b) => (b.likes?.length || 0) - (a.likes?.length || 0))
+    .slice(0, 4);
+});
+
+
+const topUserFromTopLikedBlogs = computed(() => {
+  const userFrequency = new Map();
+
+  topLikedBlogs.value.forEach(blog => {
+    const userId = blog.userId._id;
+    if (!userFrequency.has(userId)) {
+      userFrequency.set(userId, { count: 1, user: blog.userId });
+    } else {
+      userFrequency.get(userId).count += 1;
+    }
+  });
+  const sorted = [...userFrequency.values()].sort((a, b) => b.count - a.count);
+  return sorted[0]?.user || null;
+});
+
 
 
 const router = useRouter();
@@ -153,16 +186,6 @@ function goTo(slug) {
   router.push(`/blog/${slug}`);
 }
 
-function parseBlocks(content) {
-  try {
-    const obj = typeof content === 'string' ? JSON.parse(content) : content;
-    return Array.isArray(obj.blocks) ? obj.blocks : [];
-  } catch {
-    return [];
-  }
-}
-
-// initial
 filterBlogs({ search: '', tags: [], newPage: 1 });
 </script>
 
