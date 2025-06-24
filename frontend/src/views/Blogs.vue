@@ -142,8 +142,6 @@ const topUserFromTopLikedBlogs = computed(() => {
       userFrequency.get(userId).count += 1;
     }
   });
-
-  // Get the user with most posts among the top liked
   const sorted = [...userFrequency.values()].sort((a, b) => b.count - a.count);
   return sorted[0]?.user || null;
 });
@@ -188,16 +186,6 @@ function goTo(slug) {
   router.push(`/blog/${slug}`);
 }
 
-function parseBlocks(content) {
-  try {
-    const obj = typeof content === 'string' ? JSON.parse(content) : content;
-    return Array.isArray(obj.blocks) ? obj.blocks : [];
-  } catch {
-    return [];
-  }
-}
-
-// initial
 filterBlogs({ search: '', tags: [], newPage: 1 });
 </script>
 
