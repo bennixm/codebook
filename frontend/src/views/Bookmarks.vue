@@ -7,7 +7,7 @@
         </div>
 
         <div class="bookmarks-component" v-else>
-            <div v-for="(blog, index) in bookmarkedBlogs" :key="blog.slug">
+            <div v-for="(blog, index) in paginatedBlogs" :key="blog.slug">
                 <el-card class="bookmark-component" shadow="hover">
                     <div class="bookmark-component-content flex">
                         <div class="image-cover w-[30%] pr-4">
@@ -55,6 +55,10 @@
                     </div>
                 </el-card>
             </div>
+            <div class="flex justify-center mt-6">
+                <el-pagination background layout="prev, pager, next" :page-size="pageSize" :current-page="currentPage"
+                    :total="bookmarkedBlogs.length" @current-change="handlePageChange" />
+            </div>
         </div>
     </div>
 </template>
@@ -62,19 +66,30 @@
 
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
-import { BookmarkMinus } from 'lucide-vue-next';
+import { BookmarkMinus, Share2 } from 'lucide-vue-next';
 import { useBookmarks } from '../composables/useBookmarks'
 import { useBlogFilter } from '../composables/useBlogs'
-import { useAuth } from '../composables/useAuth';
-import { Share2 } from 'lucide-vue-next';
+import { useAuth } from '../composables/useAuth'
 
 const { bookmarks, removeBookmark } = useBookmarks()
 const { blogs, filterBlogs } = useBlogFilter()
-const auth = useAuth();
+const auth = useAuth()
 
 const bookmarkedBlogs = ref([])
+
+const pageSize = 6
+const currentPage = ref(1)
+
+const paginatedBlogs = computed(() => {
+    const start = (currentPage.value - 1) * pageSize
+    return bookmarkedBlogs.value.slice(start, start + pageSize)
+})
+
+function handlePageChange(newPage) {
+    currentPage.value = newPage
+}
 
 async function fetchBookmarkedBlogs() {
     if (bookmarks.value.length === 0) {
@@ -85,7 +100,7 @@ async function fetchBookmarkedBlogs() {
     try {
         await filterBlogs({ slugs: bookmarks.value })
         bookmarkedBlogs.value = blogs.value
-        console.log(blogs.value);
+        currentPage.value = 1 
     } catch (e) {
         ElMessage.error('Failed to fetch bookmarked blogs.')
     }

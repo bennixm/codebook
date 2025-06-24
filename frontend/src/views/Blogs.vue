@@ -29,37 +29,58 @@
     </div>
     <div class="search-component">
       <div class="search-left">
-        <div v-loading="loading" class="blogs-feed grid grid-cols-2 gap-2">
-          <el-card v-for="blog in blogs" :key="blog._id" class="blog-card cursor-pointer" shadow="hover" @click="goTo(blog.slug)">
-            <div class="blog-profile-header-card">
-              <div class="tags category-tag mb-3">
-                <el-tag v-for="category in blog.categories" :key="category._id" size="small" effect="light"
-                  type="primary" class="mr-1">
-                  {{ category.name }}
-                </el-tag>
-              </div>
-              <div class="tags mb-3">
-                <el-tag v-for="tag in blog.tags" :key="tag._id" size="small" effect="light" type="info" class="mr-1">
-                  {{ tag.name }}
-                </el-tag>
-              </div>
+        <div v-loading="loading" class="blogs-feed flex">
+          <el-card v-for="(blog, index) in blogs" :key="blog._id" class="blog-card cursor-pointer" shadow="hover">
+            <div class="tags mb-3">
+              <el-tag v-for="tag in blog.tags" :key="tag._id" class="tiny-tag mr-1" effect="light" type="info">
+                {{ tag.name }}
+              </el-tag>
             </div>
-            <div class="cover-image mb-3">
+            <div class="cover-image mb-3" @click="goTo(blog.slug)">
               <el-image v-if="blog.coverImage" :src="blog.coverImage" fit="cover" />
               <div v-else class="no-image-placeholder">
                 No Image
               </div>
             </div>
 
-            <h3 class="title mb-1">{{ blog.title }}</h3>
-
-            <div v-if="!blog.updatedAt" class="status-date mb-4 flex items-center justify-between text-sm">
-              <span class="text-gray-500">
-                {{ auth.formatDate(blog.isPublished ? blog.publishedAt : blog.draftedAt) }}
-              </span>
+            <h3 class="title mb-1" @click="goTo(blog.slug)">{{ blog.title }}</h3>
+            <div class="blog-profile-header-card">
+              <div class="profile-user-blog-slider flex flex-row items-center"
+                @click="auth.seeProfile(blog.userId.username)">
+                <img class="w-7 h-7 rounded-full object-cover cursor-pointer"
+                  :src="blog.userId.avatar || auth.defaultAvatar"
+                  :alt="blog.userId?.name ? `Avatar of ${blog.userId.name}` : 'User avatar'"
+                  :title="blog.userId?.name ? `Avatar of ${blog.userId.name}` : 'User avatar'" width="96" height="96"
+                  loading="lazy" />
+                <span class="cursor-pointer" style="margin-left:10px;">
+                  <strong>{{ blog.userId.name
+                  }} <span class="int-word">on</span> {{
+                      auth.formatDate(blog.publishedAt || blog.createdAt) }}</strong></span>
+              </div>
+              <div class="tags category-tag mb-3">
+                <el-tag v-for="category in blog.categories" :key="category._id" size="small" effect="light"
+                  type="primary" class="mr-1">
+                  {{ category.name }}
+                </el-tag>
+              </div>
             </div>
-            <div v-else class="status-date  mb-3 flex items-center justify-between text-sm">
-              <span class="text-gray-500">{{ auth.formatDate(blog.publishedAt) }}</span>
+
+            <el-divider />
+
+            <div class="blog-buttons mb-3 flex items-center justify-between text-sm">
+              <div class="stats">
+                <span class="views flex flex-row">{{ blog.totalViews || blog.views || 0 }}
+                  <Eye :size="20" style="margin-left: 10px;" />
+                </span>
+                <span class="likes flex flex-row">
+                  {{ blog.likesCount }}
+                  <ThumbsUp :size="20" style="margin-left: 10px;" />
+                </span>
+              </div>
+              <el-button circle :type="isBookmarked(blog.slug) ? 'success' : 'default'" aria-label="Bookmark"
+                @click="handleToggleBookmark(blog.slug)">
+                <Bookmark :size="15" />
+              </el-button>
             </div>
           </el-card>
         </div>
@@ -78,12 +99,21 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { Search } from 'lucide-vue-next';
 import { useBlogFilter } from '../composables/useBlogs';
 import { useTags } from '../composables/useTags';
 import { useAuth } from '../composables/useAuth';
+import { useBookmarks } from '../composables/useBookmarks';
+
+const { isBookmarked, toggleBookmark } = useBookmarks();
+
+const handleToggleBookmark = (slug) => {
+  toggleBookmark(slug);
+};
+
+import { Search, Bookmark, ThumbsUp, Eye } from 'lucide-vue-next';
 
 const auth = useAuth();
+
 
 const router = useRouter();
 const {
