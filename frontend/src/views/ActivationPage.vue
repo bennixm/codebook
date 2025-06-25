@@ -1,17 +1,18 @@
 <template>
-    <div>
+    <div class="flex flex-col align-center items-center">
       <el-empty
         v-if="status === 'loading'"
         description="Activating your account..."
       >
         <el-button type="primary" aria-label="Activating" disabled>Activating…</el-button>
       </el-empty>
-  
-      <el-empty
+
+       <el-result
         v-else-if="status === 'success'"
-        description="Your account has been activated!"
-      >
-      </el-empty>
+        icon="success"
+        title="You account was activated"
+        sub-title="You can now login!"
+      ></el-result>
   
       <el-empty
         v-else-if="status === 'already'"

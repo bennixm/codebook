@@ -70,7 +70,7 @@
                 View all
               </el-button>
               <el-button text type="primary" @click="onNotifCommand('mark-all')" class="see-all">
-                <CheckCheck :size="20" /> 
+                <CheckCheck :size="20" />
               </el-button>
             </div>
           </div>
@@ -113,8 +113,15 @@
               <router-link to="/panel/profile/settings" class="dropdown-link">
                 <el-dropdown-item command="profile">Settings</el-dropdown-item>
               </router-link>
-              <router-link to="/panel/profile/change-password" class="dropdown-link">
+
+              <router-link v-if="auth.authReady && auth.user.provider === 'local'" to="/panel/profile/change-password"
+                class="dropdown-link">
                 <el-dropdown-item command="preferences">Change Password</el-dropdown-item>
+              </router-link>
+
+              <router-link v-if="auth.authReady && auth.user.provider === 'google'" to="/panel/profile/set-password"
+                class="dropdown-link">
+                <el-dropdown-item command="preferences">Set Local Password</el-dropdown-item>
               </router-link>
 
               <div class="dropdown-header">Bio</div>
@@ -182,7 +189,7 @@ async function onNotifCommand(payload) {
     return router.push('/panel/notifications');
   }
 
-  if(payload === 'mark-all'){
+  if (payload === 'mark-all') {
     await markAll();
     showNotificationDrawer.value = false;
     return router.push('/panel/notifications');
@@ -195,6 +202,7 @@ async function onNotifCommand(payload) {
   showNotificationDrawer.value = false;
 
   switch (targetType) {
+    case 'Comment':
     case 'Blog':
       const blog = await fetchBlogById(targetId);
       if (blog) {
@@ -202,18 +210,9 @@ async function onNotifCommand(payload) {
       } else {
         console.log('Blog not found for notification:', targetId);
       }
-
     case 'User':
-
-      return router.push(`/users/${targetId}`);
-
-    case 'Comment':
-
-
-      return router.push(`/blog/${targetId}`);
-
+      return router.push(`/user/profile/${targetId}`);
     case 'Guest':
-      // Handle guest notifications if needed
       return router.push(`/guests/${targetId}`);
 
 
@@ -257,6 +256,4 @@ async function saveBio() {
 
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

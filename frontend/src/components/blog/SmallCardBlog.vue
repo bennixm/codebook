@@ -15,7 +15,7 @@
                   :alt="blog.userId?.name ? `Avatar of ${blog.userId.name}` : 'User avatar'"
                   :title="blog.userId?.name ? `Avatar of ${blog.userId.name}` : 'User avatar'" width="96" height="96"
                   loading="lazy" />
-            <span>{{ blog.userId.name }}</span> ·
+            <span style="width: min-content;">{{ blog.userId.name }}</span> ·
             <span>{{ blog.likes.length }} likes</span>
           </div>
         </div>
