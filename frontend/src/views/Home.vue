@@ -17,7 +17,7 @@
             </pre>
             <div class="flex flex-col justify-center">
               <span class="text-2xl text-black max-w-2xs text-center">Every snippet has a story. Share yours.</span>
-              <div class="flex flex-row justify-center"><router-link to="/auth" class="click-btn btn-style701"><span>Publish</span></router-link></div>
+              <div class="flex flex-row justify-center"><router-link to="/panel/create-blog" class="click-btn btn-style701"><span>Publish</span></router-link></div>
             </div>
     </div>
 </template>
