@@ -112,7 +112,7 @@ exports.createBlog = async (req, res, next) => {
       return createNotification({
         app: req.app,
         recipient: followerId,
-        actor: author._id,
+        actorUser: author._id,
         type: 'new_blog',
         targetType: 'Blog',
         targetId: savedPost._id
@@ -306,7 +306,7 @@ exports.fetchBlogsByUser = async (req, res, next) => {
       .populate('userId', 'name username avatar')
       .populate('categories', 'name')
       .sort({ createdAt: -1 })
-      .select('title slug description coverImage tags categories isPublished publishedAt draftedAt updatedAt');
+      .select('title slug description coverImage tags categories isPublished publishedAt draftedAt updatedAt likes views');
 
     res.status(200).json(blogs);
   } catch (err) {
@@ -429,6 +429,8 @@ exports.fetchBlogBySlug = async (req, res, next) => {
     next(err);
   }
 };
+
+
 
 exports.getComments = async (req, res, next) => {
   try {
@@ -712,7 +714,7 @@ exports.likeBlog = async (req, res, next) => {
     await createNotification({
       app: req.app,
       recipient: updated.userId,
-      actor: req.user.id,
+      actorUser: req.user.id,
       type: 'like',
       targetType: 'Blog',
       targetId: updated._id

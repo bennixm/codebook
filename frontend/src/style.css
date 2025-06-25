@@ -1669,6 +1669,51 @@ footer .nav-link {
   backdrop-filter: blur(20px) !important;
 }
 
+.badge {
+  margin-left: 4px;
+}
+
+.notification-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.notification-item.unread {
+  background-color: #f0f9eb;
+}
+
+.notification-item.read {
+  color: #909399;
+}
+
+.see-all {
+  text-align: center;
+  font-weight: bold;
+}
+
+.notif-content {
+  display: flex;
+  flex-direction: row;
+}
+.notif-message .name{
+  margin-right: 5px;
+  color:var(--title-color);
+}
+
+.notif-message {
+  display: flex;
+  flex-direction: column;
+  padding-left: 1rem;
+  color:var(--text-color) !important;
+}
+
+.notif-time {
+  font-size: 0.75rem;
+  color: #c0c4cc;
+}
+
 @media (max-width: 1025px) {
   .el-sub-menu__hide-arrow.is-active .el-sub-menu__title {
     border: none !important;
