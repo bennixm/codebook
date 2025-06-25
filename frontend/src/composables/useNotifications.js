@@ -3,8 +3,11 @@ import secureApi      from '../secureApi'
 import socket         from '../plugins/socket'
 import { useAuth }    from './useAuth'
 import { ElNotification } from 'element-plus'
+import { useNotify } from './useNotify';
+import { messageText } from '../utils/messageText';
 
 
+const { show } = useNotify();
 export function useNotifications() {
   const auth  = useAuth()
   const state = reactive({ list: [] })
@@ -55,6 +58,11 @@ export function useNotifications() {
   function handleNotif(notif) {
     if (auth.isAuthenticated) {
       state.list.unshift(notif)
+      show({
+        title: 'New Notification',
+        message: `${notif.senderName || 'Someone'} ${messageText(notif)}`,
+        type: 'info',
+      });
     }
   }
 

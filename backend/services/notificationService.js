@@ -32,7 +32,7 @@ async function createNotification({
 
   // populate whichever actor field you used
   await notif.populate([
-    { path: 'actorUser',  select: 'name avatar'   },
+    { path: 'actorUser',  select: 'name avatar username'   },
     { path: 'actorGuest', select: 'guestName'     }
   ]);
 

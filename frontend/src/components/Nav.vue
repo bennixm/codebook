@@ -168,6 +168,7 @@ import { ElMessage } from 'element-plus'
 import { User, LogOut, SmilePlus, Inbox, LayoutDashboard, Bookmark, CheckCheck } from 'lucide-vue-next';
 import { useNotifications } from '../composables/useNotifications';
 import { useRouter } from 'vue-router';
+import { messageText } from '../utils/messageText';
 
 const { state, markRead, markAll } = useNotifications();
 
@@ -194,8 +195,9 @@ async function onNotifCommand(payload) {
     showNotificationDrawer.value = false;
     return router.push('/panel/notifications');
   }
+  console.log('Notification Payload:', payload);
 
-  const { _id, targetType, targetId } = payload;
+  const { _id, targetType, targetId,actorUser} = payload;
 
   await markRead(_id)
 
@@ -211,7 +213,7 @@ async function onNotifCommand(payload) {
         console.log('Blog not found for notification:', targetId);
       }
     case 'User':
-      return router.push(`/user/profile/${targetId}`);
+      return router.push(`/user/profile/${actorUser.username}`);
     case 'Guest':
       return router.push(`/guests/${targetId}`);
 
@@ -221,18 +223,6 @@ async function onNotifCommand(payload) {
   }
 }
 
-
-function messageText(n) {
-  switch (n.type) {
-    case 'comment': return 'commented on your post';
-    case 'reply': return 'replied to your comment';
-    case 'like': return 'liked your post';
-    case 'follow': return 'started following you';
-    case 'new_blog': return 'published a new blog';
-    case 'view': return 'has viewed your blog';
-    default: return 'did something';
-  }
-}
 
 watch(showBioDialog, async (open) => {
   if (!open) return;
