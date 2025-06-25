@@ -75,12 +75,14 @@
             <el-form-item>
               <div class="upload-cover" v-if="coverFileList.length === 0">
                 <el-upload
+                 ref="coverUpload"
                   drag
                   :limit="1"
                   :auto-upload="false"
                   :show-file-list="false"
                   :on-change="handleCoverChange"
                   :on-remove="handleCoverRemove"
+                 
                 >
                   <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                   <div class="el-upload__text">
@@ -157,6 +159,7 @@ export default {
   components: { UploadFilled , Delete },
   setup() {
     const {createBlogPost} = useAuth();
+    const coverUpload = ref(null);
 
     const { tags } = useTags();
     const { categories } = useCategories();
@@ -221,11 +224,15 @@ export default {
 
       if (!allowedTypes.includes(file.raw.type)) {
         ElMessage.error('Only JPG, PNG, GIF, and WEBP formats are allowed.');
+        coverFileList.value = [];
+        coverUpload.value?.clearFiles();
         return;
       }
 
       if (file.raw.size > maxSize) {
         ElMessage.error('Cover image must be smaller than 2MB.');
+        coverFileList.value = [];
+        coverUpload.value?.clearFiles();
         return;
       }
 
@@ -242,6 +249,7 @@ export default {
 
     const handleCoverRemove = () => {
       coverFileList.value = [];
+      coverUpload.value?.clearFiles();
     };
 
     onMounted(async () => {
@@ -428,6 +436,7 @@ export default {
       categoriesOptions,
       handleCoverChange,
       handleCoverRemove,
+      coverUpload,
       editorHolder,
       publish,
       rules,

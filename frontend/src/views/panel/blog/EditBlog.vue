@@ -75,6 +75,7 @@
               <el-form-item>
                 <div class="upload-cover" v-if="coverFileList.length === 0">
                   <el-upload
+                   ref="coverUpload"
                     drag
                     :limit="1"
                     :auto-upload="false"
@@ -159,7 +160,7 @@
       const { categories } = useCategories();
       const { tags } = useTags();
       const fetchedBlog = ref(null);
-
+      const coverUpload = ref(null);
 
 
 
@@ -263,11 +264,15 @@
   
         if (!allowedTypes.includes(file.raw.type)) {
           ElMessage.error('Only JPG, PNG, GIF, and WEBP formats are allowed.');
+          coverFileList.value = [];
+          coverUpload.value?.clearFiles();
           return;
         }
   
         if (file.raw.size > maxSize) {
           ElMessage.error('Cover image must be smaller than 2MB.');
+          coverFileList.value = [];
+          coverUpload.value?.clearFiles();
           return;
         }
   
@@ -284,6 +289,7 @@
   
       const handleCoverRemove = () => {
         coverFileList.value = [];
+        coverUpload.value?.clearFiles();
       };
   
       onMounted(async () => {
@@ -476,6 +482,7 @@
         publish,
         rules,
         tags,
+        coverUpload
         
       };
     },
