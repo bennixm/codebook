@@ -22,3 +22,6 @@ exports.markAllRead = async (req, res) => {
   );
   res.sendStatus(204);
 };
+
+
+
