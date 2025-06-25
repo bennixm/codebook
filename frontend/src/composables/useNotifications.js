@@ -14,7 +14,6 @@ export function useNotifications() {
     try {
       const res = await secureApi.get('/notifications')
       state.list = res.data
-      console.log(state.list);
     } catch (e) {
       console.error('useNotifications › fetchAll failed:', e)
     }

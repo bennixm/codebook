@@ -87,18 +87,26 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useAuth } from '../../composables/useAuth';
 import { Document, EditPen, Bell, Setting } from '@element-plus/icons-vue';
 import { Pencil } from 'lucide-vue-next';
 import { useRouter } from 'vue-router';
+import { useNotifications } from '../../composables/useNotifications';
+
+
+const { state } = useNotifications();
+
+const unreadCount = computed(
+  () => state.list.filter(n => !n.read).length
+);
 
 const auth = useAuth();
 const router = useRouter();
 
 const stats = ref({
   blogs: 0,
-  unreadNotifications: 3,
+  unreadNotifications: unreadCount,
 });
 
 const recentBlogs = ref([]);

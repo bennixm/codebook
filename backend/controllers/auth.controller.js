@@ -89,7 +89,6 @@ exports.googleCallback = async (req, res) => {
       user = await User.findOne({ email });
       if (user) {
         user.googleId     = id;
-        user.provider     = 'google';
         user.name         = user.name   || name;
         user.avatar       = user.avatar || picture;
         await user.save();
