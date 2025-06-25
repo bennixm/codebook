@@ -32,7 +32,8 @@
         </div>
       </el-menu-item>
 
-      <el-drawer v-model="showNotificationDrawer" title="Notifications" direction="rtl" size="300px" class="drawer-notifications">
+      <el-drawer v-model="showNotificationDrawer" title="Notifications" direction="rtl" size="400px"
+        class="drawer-notifications">
         <el-scrollbar style="max-height: calc(100vh - 100px);">
           <div v-if="!state.list.length" class="empty">
             No notifications
@@ -41,17 +42,37 @@
             <div v-for="n in state.list.slice(0, 5)" :key="n._id" @click="onNotifCommand(n)"
               :class="['notification-item', n.read ? 'read' : 'unread']">
               <div class="notif-content">
-                <strong>{{ n.actorUser?.name || n.actorGuest?.guestName }}</strong>
-                {{ messageText(n) }}
-              </div>
-              <div class="notif-time">
-                {{ new Date(n.createdAt).toLocaleTimeString() }}
+                <div class="notif-user">
+                  <div class="w-12 h-12 rounded-full overflow-hidden">
+                    <img class="w-full h-full object-cover" :src="n.actorUser?.avatar || auth.defaultAvatar"
+                      :alt="n.actorUser?.name ? `Avatar of ${n.actorUser?.name}` : 'User avatar'"
+                      :title="n.actorUser?.name ? `Avatar of ${n.actorUser?.name}` : 'User avatar'" loading="lazy" />
+                  </div>
+                </div>
+                <div class="notif-message">
+                  <div class="flex flex-wrap">
+                    <span class="name">{{ n.actorUser?.name || n.actorGuest?.guestName }}</span>
+                    {{ messageText(n) }}
+                  </div>
+                  <div class="notif-time">
+                    {{ auth.formattedDate(n.createdAt) }}
+                  </div>
+                </div>
+                <div class="notif-message">
+                  <el-badge :is-dot="!n.read" class="item">
+                  </el-badge>
+                </div>
               </div>
             </div>
             <el-divider />
-            <el-button text type="primary" @click="onNotifCommand('view-all')" class="see-all">
-              ... See all
-            </el-button>
+            <div class="flex flex-row justify-evenly">
+              <el-button text type="primary" @click="onNotifCommand('view-all')" class="see-all">
+                View all
+              </el-button>
+              <el-button text type="primary" @click="onNotifCommand('mark-all')" class="see-all">
+                <CheckCheck :size="20" /> 
+              </el-button>
+            </div>
           </div>
         </el-scrollbar>
       </el-drawer>
@@ -137,7 +158,7 @@
 import { ref, watch, computed } from 'vue';
 import { useAuth } from '../composables/useAuth';
 import { ElMessage } from 'element-plus'
-import { User, LogOut, SmilePlus, Inbox, LayoutDashboard, Bookmark } from 'lucide-vue-next';
+import { User, LogOut, SmilePlus, Inbox, LayoutDashboard, Bookmark, CheckCheck } from 'lucide-vue-next';
 import { useNotifications } from '../composables/useNotifications';
 import { useRouter } from 'vue-router';
 
@@ -147,29 +168,31 @@ const unreadCount = computed(
   () => state.list.filter(n => !n.read).length
 );
 
-
 const router = useRouter();
-
 const showNotificationDrawer = ref(false);
-
-
 const auth = useAuth();
 const { setBio, fetchBlogById } = useAuth();
-
 const showBioDialog = ref(false);
 const bioText = ref('');
 
 async function onNotifCommand(payload) {
+
   if (payload === 'view-all') {
+    showNotificationDrawer.value = false;
     return router.push('/panel/notifications');
   }
 
+  if(payload === 'mark-all'){
+    await markAll();
+    showNotificationDrawer.value = false;
+    return router.push('/panel/notifications');
+  }
 
   const { _id, targetType, targetId } = payload;
 
-
   await markRead(_id)
 
+  showNotificationDrawer.value = false;
 
   switch (targetType) {
     case 'Blog':
@@ -231,47 +254,9 @@ async function saveBio() {
   showBioDialog.value = false;
 }
 
-function handleNotificationCommand(command) {
-  if (command === 'view-all') {
-    router.push('/notifications')
-  }
-}
-
 
 </script>
 
 <style scoped>
-.badge {
-  margin-left: 4px;
-}
 
-.notification-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  cursor: pointer;
-}
-
-.notification-item.unread {
-  background-color: #f0f9eb;
-}
-
-.notification-item.read {
-  color: #909399;
-}
-
-.see-all {
-  text-align: center;
-  font-weight: bold;
-}
-
-.notif-content {
-  flex: 1;
-  margin-right: 8px;
-}
-
-.notif-time {
-  font-size: 0.75rem;
-  color: #c0c4cc;
-}
 </style>

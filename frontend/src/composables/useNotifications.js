@@ -2,6 +2,8 @@ import { reactive, onMounted, onUnmounted, watch } from 'vue'
 import secureApi      from '../secureApi'
 import socket         from '../plugins/socket'
 import { useAuth }    from './useAuth'
+import { ElNotification } from 'element-plus'
+
 
 export function useNotifications() {
   const auth  = useAuth()

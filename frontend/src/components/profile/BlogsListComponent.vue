@@ -102,8 +102,6 @@ const fetchBlogsByUser = async () => {
   try {
     blogs.value = await auth.fetchBlogsByUser(props.userId)
     loaded.value = true
-
-    console.log(blogs.value);
   } catch (err) {
     const message =
       err?.response?.data?.errors?.[0]?.msg ||

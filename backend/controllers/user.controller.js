@@ -220,7 +220,7 @@ exports.followUser = async (req, res, next) => {
     await createNotification({
             app: req.app,
             recipient: targetUserId,    
-            actor:     currentUserId,    
+            actorUser:     currentUserId,    
             type:      'follow',      
             targetType:'User',         
             targetId:  targetUserId
