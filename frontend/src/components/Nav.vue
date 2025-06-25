@@ -1,11 +1,7 @@
 <template>
   <nav class="navbar">
     <router-link to="/" class="logo nav-left" aria-label="CodeBook Home">
-      <img 
-  src="https://ik.imagekit.io/codebook/tr:w-200,f-auto/logo.png" 
-  width="120" height="40" alt="CodeBook logo"
- 
-/>
+      <img src="https://ik.imagekit.io/codebook/tr:w-200,f-auto/logo.png" width="120" height="40" alt="CodeBook logo" />
 
     </router-link>
     <el-menu :default-active="$route.path" class="el-menu-demo nav-center" mode="horizontal" text-color="#27ae60"
@@ -22,55 +18,50 @@
     <el-menu :default-active="$route.path" class="el-menu-demo nav-right" mode="horizontal" text-color="#27ae60"
       active-text-color="#27ae60" :ellipsis="false" router>
 
-      <el-menu-item   aria-label="Go to bookmarks" index="/bookmarks">
-        <router-link to="/bookmarks" aria-label="Bookmarks"  class="nav-link"><Bookmark /></router-link>
+      <el-menu-item aria-label="Go to bookmarks" index="/bookmarks">
+        <router-link to="/bookmarks" aria-label="Bookmarks" class="nav-link">
+          <Bookmark />
+        </router-link>
       </el-menu-item>
 
-      <el-menu-item index="/panel/notifications" v-if="auth.authReady && auth.isAuthenticated"
-        class="notification-menu-item">
-        <el-dropdown trigger="click" placement="bottom-start" @command="onNotifCommand">
-
-          <span class="nav-link no-select">
+      <el-menu-item v-if="auth.authReady && auth.isAuthenticated" class="notification-menu-item notification-link">
+        <div class="icon-badge nav-link" @click="showNotificationDrawer = true" style="cursor: pointer;">
+          <el-badge :value="unreadCount" class="item">
             <Inbox aria-hidden="true" />
-            <el-badge :value="unreadCount" class="badge" />
-          </span>
-
-          <template #dropdown>
-            <el-scrollbar style="max-height: 300px; width: 300px;">
-              <div v-if="!state.list.length" class="empty">
-                No notifications
-              </div>
-              <div v-else>
-                <el-dropdown-item v-for="n in state.list.slice(0, 5)" :key="n._id" :command="n"
-                  :class="['notification-item', n.read ? 'read' : 'unread']">
-                  <div class="notif-content">
-                    <strong>{{ n.actorUser?.name || n.actorGuest?.guestName }}</strong>
-
-
-                    {{ messageText(n) }}
-                  </div>
-                  <div class="notif-time">
-                    {{ new Date(n.createdAt).toLocaleTimeString() }}
-                  </div>
-                </el-dropdown-item>
-                <el-divider />
-                <el-dropdown-item command="view-all" class="see-all">
-                  ... See all
-                </el-dropdown-item>
-              </div>
-            </el-scrollbar>
-          </template>
-        </el-dropdown>
+          </el-badge>
+        </div>
       </el-menu-item>
 
-
-
+      <el-drawer v-model="showNotificationDrawer" title="Notifications" direction="rtl" size="300px" class="drawer-notifications">
+        <el-scrollbar style="max-height: calc(100vh - 100px);">
+          <div v-if="!state.list.length" class="empty">
+            No notifications
+          </div>
+          <div v-else>
+            <div v-for="n in state.list.slice(0, 5)" :key="n._id" @click="onNotifCommand(n)"
+              :class="['notification-item', n.read ? 'read' : 'unread']">
+              <div class="notif-content">
+                <strong>{{ n.actorUser?.name || n.actorGuest?.guestName }}</strong>
+                {{ messageText(n) }}
+              </div>
+              <div class="notif-time">
+                {{ new Date(n.createdAt).toLocaleTimeString() }}
+              </div>
+            </div>
+            <el-divider />
+            <el-button text type="primary" @click="onNotifCommand('view-all')" class="see-all">
+              ... See all
+            </el-button>
+          </div>
+        </el-scrollbar>
+      </el-drawer>
 
       <el-menu-item v-if="auth.authReady && auth.isAuthenticated">
         <el-dropdown>
           <span class="user-dropdown">
             <el-avatar
-              :src="auth.user.avatar || 'https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/user.png?alt=media&token=6cdb89f7-73b1-40b0-9307-78ae1a06f29f'"  alt="avatar"/>
+              :src="auth.user.avatar || 'https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/user.png?alt=media&token=6cdb89f7-73b1-40b0-9307-78ae1a06f29f'"
+              alt="avatar" />
 
             <span class="username">{{ auth.user.name }}</span>
           </span>
@@ -151,10 +142,15 @@ import { useNotifications } from '../composables/useNotifications';
 import { useRouter } from 'vue-router';
 
 const { state, markRead, markAll } = useNotifications();
+
 const unreadCount = computed(
   () => state.list.filter(n => !n.read).length
 );
+
+
 const router = useRouter();
+
+const showNotificationDrawer = ref(false);
 
 
 const auth = useAuth();
@@ -215,7 +211,7 @@ function messageText(n) {
     default: return 'did something';
   }
 }
-const defaultAvatar = 'https://firebasestorage.googleapis.com/v0/b/codebook-61371.firebasestorage.app/o/user.png?alt=media&token=6cdb89f7-73b1-40b0-9307-78ae1a06f29f';
+
 watch(showBioDialog, async (open) => {
   if (!open) return;
   bioText.value = auth.user?.bio ?? '';
