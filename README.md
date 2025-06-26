@@ -4,9 +4,9 @@
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 
-### 👥 User Management & Authentication
+###  User Management & Authentication
 - **Register**: Seamless user registration.
 - **Secured Authentication**: Robust mechanisms to protect user credentials.
 - **OAuth with Google**: Sign up and sign in using Google accounts.
@@ -15,7 +15,7 @@
 
 ---
 
-### 🛠️ User Dashboard & Settings
+###  User Dashboard & Settings
 - **Dashboard**: Central hub for user activity.
 - **Settings Page**:
   - **Set Password**: Change password securely.
@@ -23,7 +23,7 @@
 
 ---
 
-### ✍️ Blog Management & Interaction
+###  Blog Management & Interaction
 - **Create Blog**: Intuitive interface to publish new posts.
 - **Edit Blog**: Modify existing posts.
 - **My Blogs**: View all posts authored by the logged-in user.
@@ -36,14 +36,14 @@
 
 ---
 
-### 🧑‍💻 User Profiles
+###  User Profiles
 - **Profile Page**: View other users’ profiles.
   - **Followers**: See who follows the user.
   - **User’s Blogs**: Display all blogs authored by the user.
 
 ---
 
-### 🔔 Real-Time Notifications
+### Real-Time Notifications
 - **Notifications Page**: Dedicated section to view all alerts.
 - **Navbar Drawer**: Access real-time notifications via the top nav.
 - **Triggers**:
@@ -54,7 +54,7 @@
 
 ---
 
-## 🧰 Technologies Used
+## Technologies Used
 
 - **Frontend**: Vue.js  
 - **Backend**: Node.js with Express.js  
@@ -62,7 +62,7 @@
 
 ---
 
-## 📌 Getting Started
+## Getting Started
 
 > Coming soon: Instructions on how to set up the project locally, install dependencies, and run the app.
 
