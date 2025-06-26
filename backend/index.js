@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 const server = http.createServer(app);
 const io = require('socket.io')(server, {
   cors: {
-    origin: 'http://localhost:5173', // your Vite app URL
+    origin: 'http://localhost:5173',
     methods: ['GET','POST'],
     credentials: true
   }
@@ -28,7 +28,8 @@ const blogRoutes = require('./routes/blog.routes');
 const tagRoutes = require('./routes/tag.routes');
 const notifRoutes     = require('./routes/notification.routes');
 const categoryRoutes = require('./routes/category.routes');
-// Connect to MongoDB
+const csrfRoutes = require('./routes/csrf.routes');
+
 connectDB();
 
 
@@ -40,10 +41,23 @@ app.use(cors({
 app.use(morgan('dev'));        
 app.use(express.json()); 
 app.use(cookieParser());
+const csurf = require('csurf');
+
+const csrfProtection = csurf({
+  cookie: {
+    httpOnly: false, 
+    sameSite: 'lax',
+    secure: false,
+  }
+});
+app.use(csrfProtection);
+
+
 app.use(guestIdentity);
 
 app.locals.io = io;
 
+app.use('/security', csrfRoutes);
 app.use('/user', userRoutes); 
 app.use('/auth', authRoutes); 
 app.use('/blog', blogRoutes);
