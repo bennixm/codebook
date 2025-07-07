@@ -93,7 +93,7 @@
 
 ---
 
-## ✅ Summary
+## Security Summary
 
 | Feature     | Implementation                        |
 | ----------- | ------------------------------------- |
