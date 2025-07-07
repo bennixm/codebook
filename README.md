@@ -54,6 +54,54 @@
 
 ---
 
+## Authentication with JWT (JSON Web Tokens)
+
+* Sessions are managed using **JWT tokens**, signed with a server-side secret.
+* The JWT is stored in a **secure, HTTP-only cookie**, which:
+
+  * Prevents JavaScript access (protects against XSS)
+  * Is automatically sent with requests
+* Cookie configuration:
+
+  * `HttpOnly: true`
+  * `Secure: false` (set to `true` in production over HTTPS)
+  * `SameSite: Lax` (or `Strict` for stronger CSRF mitigation)
+
+---
+
+## CSRF Protection
+
+* All **state-changing requests** (`POST`, `PUT`, `DELETE`) are protected against CSRF attacks.
+* CSRF tokens:
+
+  * Are generated using the `csurf` middleware
+  * Are available via the endpoint: `GET /security/csrf-token`
+  * Must be sent by the frontend in a custom header: `X-CSRF-Token`
+* The server enforces CSRF validation only on relevant methods (e.g. POST).
+
+---
+
+## Socket.IO
+
+* Realtime communication uses Socket.IO.
+* Socket authentication:
+
+  * JWT token is extracted from cookies during handshake
+  * Verified using the same JWT secret as the REST API
+  * If valid, the user ID is attached to the socket instance
+* This enables user-specific room joins and secure messaging.
+
+---
+
+## ✅ Summary
+
+| Feature     | Implementation                        |
+| ----------- | ------------------------------------- |
+| Auth        | JWT in HTTP-only cookie               |
+| CSRF        | `csurf` middleware + custom header    |
+| Socket Auth | JWT token in cookies during handshake |
+
+
 ## Technologies Used
 
 - **Frontend**: Vue.js  
@@ -64,7 +112,7 @@
 
 ## Getting Started
 
-> Coming soon: Instructions on how to set up the project locally, install dependencies, and run the app.
+> not so complicated : npm install for both sides (for dependencies) , configure local.env + .env and the DB connection details
 
 ---
 
