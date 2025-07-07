@@ -1,9 +1,8 @@
-import secureApi from '../secureApi';
 import api from '../api';
 
 export const createBlogPost = async (postData) => {
   try {
-    const res = await secureApi.post('/blog/create', postData, {
+    const res = await api.post('/blog/create', postData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return res.data;
@@ -16,7 +15,7 @@ export const createBlogPost = async (postData) => {
  export const editBlogPost = async (postData) => {
     try {
 
-      const res = await secureApi.post('/blog/edit-blog', postData, {
+      const res = await api.post('/blog/edit-blog', postData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return res.data;
@@ -28,7 +27,7 @@ export const createBlogPost = async (postData) => {
 
 export const deleteMyBlog = async (blogId) => {
   try {
-    const res = await secureApi.delete(`/blog/delete/${blogId}`);
+    const res = await api.delete(`/blog/delete/${blogId}`);
     return res.data;
   } catch (error) {
     console.error('Error deleting blog:', error);
@@ -38,7 +37,7 @@ export const deleteMyBlog = async (blogId) => {
 
 export const fetchMyBlogs = async () => {
   try {
-    const res = await secureApi.get('/blog/my-blogs');
+    const res = await api.get('/blog/my-blogs');
     return res.data;
   } catch (err) {
     console.error('Failed to fetch user blogs:', err.response?.data || err.message);
@@ -88,7 +87,7 @@ export const incrementViews = async (blogId) => {
 
 export const likeBlog = async (blogId) => {
   try {
-    const res = await secureApi.post(`/blog/like/${blogId}`);
+    const res = await api.post(`/blog/like/${blogId}`);
     return res.data;
   } catch (err) {
     console.error('Failed to like blog:', err.response?.data || err.message);
@@ -98,7 +97,7 @@ export const likeBlog = async (blogId) => {
 
 export const unlikeBlog = async (blogId) => {
   try {
-    const res = await secureApi.post(`/blog/unlike/${blogId}`);
+    const res = await api.post(`/blog/unlike/${blogId}`);
     return res.data;
   } catch (err) {
     console.error('Failed to unlike blog:', err.response?.data || err.message);

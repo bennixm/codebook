@@ -1,9 +1,8 @@
-import secureApi from '../secureApi';
 import api from '../api';
 
 export const follow = async (userId) => {
   try {
-    const res = await secureApi.post(`/user/follow/${userId}`);
+    const res = await api.post(`/user/follow/${userId}`);
     return res.data;
   } catch (err) {
     console.error('❌ Follow error:', err);
@@ -13,7 +12,7 @@ export const follow = async (userId) => {
 
 export const unfollow = async (userId) => {
   try {
-    const res = await secureApi.post(`/user/unfollow/${userId}`);
+    const res = await api.post(`/user/unfollow/${userId}`);
     return res.data;
   } catch (err) {
     console.error('❌ Follow error:', err);

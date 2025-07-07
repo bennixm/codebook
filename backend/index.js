@@ -41,18 +41,19 @@ app.use(cors({
 app.use(morgan('dev'));        
 app.use(express.json()); 
 app.use(cookieParser());
-const csurf = require('csurf');
+
 
 const csrfProtection = require('./middleware/csrf');
 
+const protectedMethods = ['POST', 'PUT', 'DELETE'];
 
 app.use((req, res, next) => {
-  const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
-  if (safeMethods.includes(req.method)) {
-    return next(); 
+  if (protectedMethods.includes(req.method)) {
+    return csrfProtection(req, res, next);
   }
-  return csrfProtection(req, res, next); 
+  next();
 });
+
 
 
 

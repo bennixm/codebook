@@ -1,4 +1,3 @@
-import secureApi from '../secureApi';
 import api from '../api';
 
 export const fetchComments = async (blogId) => {
@@ -13,7 +12,7 @@ export const fetchComments = async (blogId) => {
 
 export const addComment = async (blogId, payload) => {
   try {
-    const res = await secureApi.post(`/blog/add-comment/${blogId}`, payload);
+    const res = await api.post(`/blog/add-comment/${blogId}`, payload);
     return res.data;
   } catch (err) {
     console.error('Failed to add comment:', err.response?.data || err.message);
@@ -23,7 +22,7 @@ export const addComment = async (blogId, payload) => {
 
 export const deleteComment = async (commentId, blogId) => {
   try {
-    const res = await secureApi.delete(`/blog/delete-comment/${commentId}/blog/${blogId}`);
+    const res = await api.delete(`/blog/delete-comment/${commentId}/blog/${blogId}`);
     return res.data;
   } catch (err) {
     console.error('Failed to delete comment:', err.response?.data || err.message);
