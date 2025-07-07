@@ -756,7 +756,7 @@ exports.unlikeBlog = async (req, res, next) => {
 
 exports.filterBlogs = async (req, res, next) => {
   try {
-    const { tags, search, slugs, page = 1, limit = 10 } = req.query;
+    const { tags,categories, search, slugs, page = 1, limit = 10 } = req.query;
     const filter = { isPublished: true };
 
     if (slugs) {
@@ -786,6 +786,9 @@ exports.filterBlogs = async (req, res, next) => {
     
     if (tags) {
       filter.tags = { $all: tags.split(',') };
+    }
+    if(categories) {
+      filter.categories = { $all: categories.split(',') };
     }
 
     const pageNum = Math.max(parseInt(page, 10), 1);
