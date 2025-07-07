@@ -25,6 +25,14 @@
             </el-select>
           </el-col>
         </el-row>
+        <el-row class="search-controls">
+          <el-col>
+            <el-select v-model="selectedTags" multiple collapse-tags clearable filterable placeholder="Filter by categories"
+              @change="onSearch" class="w-full" :loading="tagsLoading" empty-text="No tags">
+              <el-option v-for="t in allTags" :key="t._id" :label="t.name" :value="t._id" />
+            </el-select>
+          </el-col>
+        </el-row>
       </div>
     </div>
     <div class="search-component">
