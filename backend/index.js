@@ -43,14 +43,17 @@ app.use(express.json());
 app.use(cookieParser());
 const csurf = require('csurf');
 
-const csrfProtection = csurf({
-  cookie: {
-    httpOnly: false, 
-    sameSite: 'lax',
-    secure: false,
+const csrfProtection = require('./middleware/csrf');
+
+
+app.use((req, res, next) => {
+  const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
+  if (safeMethods.includes(req.method)) {
+    return next(); 
   }
+  return csrfProtection(req, res, next); 
 });
-app.use(csrfProtection);
+
 
 
 app.use(guestIdentity);

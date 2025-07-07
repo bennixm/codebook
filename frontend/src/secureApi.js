@@ -1,6 +1,7 @@
 import api from './api';
 
 const secureApi = api.create();
+
 let csrfTokenPromise = null;
 
 async function getCsrfToken() {
