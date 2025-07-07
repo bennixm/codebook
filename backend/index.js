@@ -10,11 +10,11 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 require('dotenv').config();
 const app = express();
-const PORT = process.env.PORT || 3000;
+
 const server = http.createServer(app);
 const io = require('socket.io')(server, {
   cors: {
-    origin: 'http://localhost:5173',
+    origin: process.env.PRODUCT_URL,
     methods: ['GET','POST'],
     credentials: true
   }
@@ -34,7 +34,7 @@ connectDB();
 
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.PRODUCT_URL,
   credentials: true 
 }));
 
@@ -98,6 +98,6 @@ app.get('/', (req, res) => {
 });
 
 
-server.listen(PORT, () => {
-  console.log(`Server + Socket.io running on http://localhost:${PORT}`);
+server.listen(process.env.PORT, () => {
+  console.log(`Server + Socket.io running on :${process.env.PRODUCT_URL}`);
 });

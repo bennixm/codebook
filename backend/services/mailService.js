@@ -3,7 +3,7 @@ const { sendMailgenEmail,APP_NAME,APP_URL,LOGO_URL } = require('../mailer/mailer
 async function sendWelcomeEmail(user,token) {
 
  
-const activationUrl = `${APP_URL}activate/${user._id}/${token}`;
+const activationUrl = `${APP_URL}/activate/${user._id}/${token}`;
 
 
   const body = {
@@ -36,7 +36,7 @@ const activationUrl = `${APP_URL}activate/${user._id}/${token}`;
 }
 async function sendGoogleWelcomeEmail(user) {
   
-  const dashboardLink = `${APP_URL}panel/dashboard`;
+  const dashboardLink = `${APP_URL}/panel/dashboard`;
 
   const body = {
     body: {
@@ -90,7 +90,7 @@ async function sendPasswordChangedEmail(user) {
         button: {
           color: '#e74c3c',
           text: 'Reset Password',
-          link: `${APP_URL}forgot-password`
+          link: `${APP_URL}/forgot-password`
         }
       },
       outro: 'If you changed your password, you can safely ignore this email.'
@@ -104,7 +104,7 @@ async function sendPasswordChangedEmail(user) {
   );
 }
 async function sendForgotPasswordEmail(user,token) {
-  const resetUrl = `${APP_URL}reset-password/${token}`;
+  const resetUrl = `${APP_URL}/reset-password/${token}`;
 
   const body = {
     body: {
@@ -194,7 +194,7 @@ async function sendBlogCreatedEmail(user, blog) {
         button: {
           color: '#3498db',
           text: isDraft ? 'Edit your draft' : 'Read Post',
-          link: `${APP_URL}blogs/${blog.slug}`
+          link: `${APP_URL}/blogs/${blog.slug}`
         }
       },
       outro: isDraft
@@ -206,7 +206,7 @@ async function sendBlogCreatedEmail(user, blog) {
   await sendMailgenEmail(user.email, subject, body);
 }
 async function sendPasswordSetConfirmationEmail(user) {
-  const loginLink = `${APP_URL}auth`;
+  const loginLink = `${APP_URL}/auth`;
 
   const body = {
     body: {

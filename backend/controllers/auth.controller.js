@@ -125,7 +125,7 @@ exports.googleCallback = async (req, res) => {
     });
 
     
-    res.redirect(process.env.PRODUCT_URL + 'panel/dashboard');
+    res.redirect(process.env.PRODUCT_URL + '/panel/dashboard');
 
   } catch (err) {
     console.error('Google OAuth error', err);
