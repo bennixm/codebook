@@ -1,4 +1,4 @@
-import secureApi from '../secureApi';
+import api from '../api';
 import { user, isAuthenticated, authReady } from './state';
 import { useRouter } from 'vue-router';
 
@@ -6,7 +6,7 @@ const router = useRouter();
 
 export const logout = async (shouldRedirect = true, router = null) => {
   try {
-    await secureApi.post('/auth/logout');
+    await api.post('/auth/logout');
   } catch (err) {
     console.error('Logout error:', err);
   }
@@ -23,7 +23,7 @@ export const logout = async (shouldRedirect = true, router = null) => {
 
 export const changePassword = async (passwordData, router = null) => {
   try {
-    await secureApi.post('/user/change-password', passwordData);
+    await api.post('/user/change-password', passwordData);
     setTimeout(() => {
       logout(true, router);
     }, 1200);
@@ -37,7 +37,7 @@ export const changePassword = async (passwordData, router = null) => {
 
 export const setPassword = async ({ newPassword, confirmPassword }, router = null) => {
   try {
-    await secureApi.post('/user/set-password', { newPassword, confirmPassword });
+    await api.post('/user/set-password', { newPassword, confirmPassword });
     setTimeout(() => {
       logout(true, router);
     }, 1200);

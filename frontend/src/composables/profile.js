@@ -1,4 +1,3 @@
-import secureApi from '../secureApi';
 import api from '../api';
 import { user, isAuthenticated, authReady } from './state';
 import { logout } from './authActions';
@@ -14,7 +13,7 @@ export const fetchProfile = async () => {
 
   authReady.value = false;
   try {
-    const res = await secureApi.get('/user/profile');
+    const res = await api.get('/user/profile');
     
     user.value = { ...res.data, _id: res.data._id, id: res.data._id };
    
@@ -39,7 +38,7 @@ export const getProfileByUsername = async (username) => {
 
 export const updateProfile = async (profileData) => {
   try {
-    const res = await secureApi.post('/user/update-profile', profileData, {
+    const res = await api.post('/user/update-profile', profileData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     await fetchProfile();
@@ -52,7 +51,7 @@ export const updateProfile = async (profileData) => {
 
 export const setBio = async (bioData) => {
   try {
-    const res = await secureApi.post('/user/set-bio', bioData);
+    const res = await api.post('/user/set-bio', bioData);
     user.value.bio = res.data.user.bio;
     return { success: true };
   } catch (err) {

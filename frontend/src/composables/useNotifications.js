@@ -1,5 +1,5 @@
 import { reactive, onMounted, onUnmounted, watch } from 'vue'
-import secureApi      from '../secureApi'
+import api      from '../api'
 import socket         from '../plugins/socket'
 import { useAuth }    from './useAuth'
 import { ElNotification } from 'element-plus'
@@ -15,7 +15,7 @@ export function useNotifications() {
  
   async function fetchAll() {
     try {
-      const res = await secureApi.get('/notifications')
+      const res = await api.get('/notifications')
       state.list = res.data
     } catch (e) {
       console.error('useNotifications › fetchAll failed:', e)
@@ -24,7 +24,7 @@ export function useNotifications() {
 
   async function markRead(id) {
     try {
-      await secureApi.post(`/notifications/${id}/read`)
+      await api.post(`/notifications/${id}/read`)
       const n = state.list.find(x => x._id === id)
       if (n) n.read = true
     } catch (e) {
@@ -34,7 +34,7 @@ export function useNotifications() {
 
   async function markAll() {
     try {
-      await secureApi.post('/notifications/read-all')
+      await api.post('/notifications/read-all')
       state.list.forEach(n => (n.read = true))
     } catch (e) {
       console.error('useNotifications › markAll failed:', e)
