@@ -9,7 +9,7 @@ export function useBlogFilter() {
   const total      = ref(0);
   const error      = ref(null);
 
-  async function filterBlogs({ tags = [], search = '', slugs = [], newPage = 1 } = {}) {
+  async function filterBlogs({ tags = [],categories = [], search = '', slugs = [], newPage = 1 } = {}) {
     try {
       const params = {
         page: newPage,
@@ -17,6 +17,7 @@ export function useBlogFilter() {
       };
 
       if (tags.length)  params.tags = tags.join(',');
+      if (categories.length) params.categories = categories.join(',');
       if (search)       params.search = search;
       if (slugs.length) params.slugs = slugs.join(',');
 

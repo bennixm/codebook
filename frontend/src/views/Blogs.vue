@@ -27,9 +27,9 @@
         </el-row>
         <el-row class="search-controls">
           <el-col>
-            <el-select v-model="selectedTags" multiple collapse-tags clearable filterable placeholder="Filter by categories"
-              @change="onSearch" class="w-full" :loading="tagsLoading" empty-text="No tags">
-              <el-option v-for="t in allTags" :key="t._id" :label="t.name" :value="t._id" />
+            <el-select v-model="selectedCategories" multiple collapse-tags clearable filterable placeholder="Filter by categories"
+              @change="onSearch" class="w-full" :loading="tagsLoading" empty-text="No Categories">
+              <el-option v-for="c in allCategories" :key="c._id" :label="c.name" :value="c._id" />
             </el-select>
           </el-col>
         </el-row>
@@ -117,6 +117,7 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useBlogFilter } from '../composables/useBlogs';
 import { useTags } from '../composables/useTags';
+import { useCategories } from '../composables/useCategories';
 import { useAuth } from '../composables/useAuth';
 import { useBookmarks } from '../composables/useBookmarks';
 import UserBlogsSlider from '../components/blog/UserBlogsSlider.vue';
@@ -166,14 +167,16 @@ const {
   filterBlogs
 } = useBlogFilter();
 const { tags: allTags, loading: tagsLoading } = useTags();
+const { categories: allCategories, loading: categoriesLoading } = useCategories();
 
 const searchQuery = ref('');
 const selectedTags = ref([]);
+const selectedCategories = ref([]);
 
 
 const fetchFromBackend = async (q, cb) => {
   if (!q) { cb([]); return; }
-  await filterBlogs({ search: q, tags: selectedTags.value, newPage: 1 });
+  await filterBlogs({ search: q, tags: selectedTags.value,categories:selectedCategories.value, newPage: 1 });
   cb(blogs.value.map(b => ({ value: b.title, slug: b.slug })));
   console.log(blogs.value);
 };
@@ -183,18 +186,18 @@ function onSuggestionSelect(item) {
 }
 
 function onSearch() {
-  filterBlogs({ search: searchQuery.value, tags: selectedTags.value, newPage: 1 });
+  filterBlogs({ search: searchQuery.value, tags: selectedTags.value,categories:selectedCategories.value, newPage: 1 });
 }
 
 function onPageChange(newPage) {
-  filterBlogs({ search: searchQuery.value, tags: selectedTags.value, newPage });
+  filterBlogs({ search: searchQuery.value, tags: selectedTags.value,categories:selectedCategories.value, newPage });
 }
 
 function goTo(slug) {
   router.push(`/blog/${slug}`);
 }
 
-filterBlogs({ search: '', tags: [], newPage: 1 });
+filterBlogs({ search: '', tags: [],categories: [], newPage: 1 });
 </script>
 
 <style scoped></style>
