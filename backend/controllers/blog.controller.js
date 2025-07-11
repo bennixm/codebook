@@ -405,6 +405,13 @@ exports.fetchBlogBySlug = async (req, res, next) => {
       select: 'name username email avatar bio location postsCount followers following createdAt'
     });
 
+    const userBlogCount = await Blog.countDocuments({ userId: blog.userId._id });
+
+    blog.userId = {
+      ...blog.userId.toObject(),
+      blogCount: userBlogCount
+    };
+
     const isPublished = blog.isPublished;
 
     let isOwner = false;

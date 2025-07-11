@@ -61,7 +61,7 @@
         <el-col :span="8">
           <div class="column flex flex-col items-center">
             <span class="stat-text">Total posts</span>
-            {{ userData.postsCount }}
+            {{ userData.blogCount || 0 }}
           </div>
         </el-col>
       </el-row>
